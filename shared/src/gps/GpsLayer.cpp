@@ -240,14 +240,16 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
     std::vector<float> newMatrix(16, 0);
     Matrix::setIdentityM(newMatrix, 0);
 
-    Coord renderCoord = mapInterface->getCoordinateConverterHelper()->convertToRenderSystem(position);
-
     double scaleFactor = scaleInvariant ? camera->mapUnitsFromPixels(1) * objectScaling : objectScaling;
     Matrix::scaleM(newMatrix, 0.0, scaleFactor, scaleFactor, 1.0);
 
     Matrix::rotateM(newMatrix, 0.0, -angleHeading, 0.0, 0.0, 1.0);
 
-    //Matrix::translateM(newMatrix, 0, -renderCoord.x, -renderCoord.y, -renderCoord.z);
+    Coord renderCoord = mapInterface->getCoordinateConverterHelper()->convertToRenderSystem(position);
+    std::vector<float> trMatrix(16, 0);
+    Matrix::setIdentityM(trMatrix, 0);
+    Matrix::translateM(trMatrix, 0, renderCoord.x, renderCoord.y, renderCoord.z);
 
+    Matrix::multiplyMMC(newMatrix, 0, trMatrix, 0, newMatrix, 0);
     return newMatrix;
 }
