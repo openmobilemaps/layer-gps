@@ -11,6 +11,6 @@
 #include "GpsLayerInterface.h"
 #include "GpsLayer.h"
 
-std::shared_ptr<GpsLayerInterface> GpsLayerInterface::create(const std::shared_ptr<GpsLayerCallbackInterface> &handler) {
-    return std::make_shared<GpsLayer>(handler);
+std::shared_ptr<GpsLayerInterface> GpsLayerInterface::create(const GpsStyleInfo & styleInfo) {
+    return std::make_shared<GpsLayer>(styleInfo);
 }

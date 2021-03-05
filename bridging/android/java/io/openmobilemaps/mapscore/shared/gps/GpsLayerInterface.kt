@@ -17,8 +17,8 @@ abstract class GpsLayerInterface {
 
     companion object {
         @JvmStatic
-        fun create(handler: GpsLayerCallbackInterface): GpsLayerInterface {
-            return CppProxy.create(handler)
+        fun create(styleInfo: GpsStyleInfo): GpsLayerInterface {
+            return CppProxy.create(styleInfo)
         }
     }
 
@@ -66,7 +66,7 @@ abstract class GpsLayerInterface {
 
         companion object {
             @JvmStatic
-            external fun create(handler: GpsLayerCallbackInterface): GpsLayerInterface
+            external fun create(styleInfo: GpsStyleInfo): GpsLayerInterface
         }
     }
 }

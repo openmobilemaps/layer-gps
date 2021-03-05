@@ -17,7 +17,7 @@
 #include "RenderPass.h"
 #include "RenderObject.h"
 
-GpsLayer::GpsLayer(const std::shared_ptr<::GpsLayerCallbackInterface> &callbackInterface) : callbackInterface(callbackInterface) {
+GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo) {
 }
 
 void GpsLayer::setMode(GpsMode mode) {
@@ -66,6 +66,7 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM)
 
 void GpsLayer::updateHeading(float angleHeading) {
     this->angleHeading = fmod(angleHeading + 360.0f, 360.0f);
+    headingValid = true;
 }
 
 std::shared_ptr<::LayerInterface> GpsLayer::asLayerInterface() {
@@ -73,7 +74,7 @@ std::shared_ptr<::LayerInterface> GpsLayer::asLayerInterface() {
 }
 
 void GpsLayer::update() {
-    accuracyObject->setPosition(position, horizontalAccuracyM);
+
 }
 
 std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses() {
@@ -81,19 +82,22 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
         return {};
     }
 
-    std::vector<float> invariantModelMatrix = computeModelMatrix();
+    std::vector<float> invariantModelMatrix = computeModelMatrix(true, 1.0);
+    std::vector<float> accuracyModelMatrix = computeModelMatrix(false, horizontalAccuracyM);
     std::map<int, std::vector<std::shared_ptr<RenderObjectInterface>>> renderPassObjectMap;
+    for (const auto &config : accuracyObject->getRenderConfig()) {
+        renderPassObjectMap[config->getRenderIndex()].push_back(
+                std::make_shared<RenderObject>(config->getGraphicsObject(), accuracyModelMatrix));
+    }
+    if (headingValid) {
+        for (const auto &config : headingObject->getRenderConfig()) {
+            renderPassObjectMap[config->getRenderIndex()].push_back(
+                    std::make_shared<RenderObject>(config->getGraphicsObject(), invariantModelMatrix));
+        }
+    }
     for (const auto &config : centerObject->getRenderConfig()) {
         renderPassObjectMap[config->getRenderIndex()].push_back(
                 std::make_shared<RenderObject>(config->getGraphicsObject(), invariantModelMatrix));
-    }
-    for (const auto &config : headingObject->getRenderConfig()) {
-        renderPassObjectMap[config->getRenderIndex()].push_back(
-                std::make_shared<RenderObject>(config->getGraphicsObject(), invariantModelMatrix));
-    }
-    for (const auto &config : accuracyObject->getRenderConfig()) {
-        renderPassObjectMap[config->getRenderIndex()].push_back(
-                std::make_shared<RenderObject>(config->getGraphicsObject()));
     }
 
     std::vector<std::shared_ptr<RenderPassInterface>> renderPasses;
@@ -129,19 +133,19 @@ void GpsLayer::resume() {
     auto renderingContext = mapInterface->getRenderingContext();
 
     if (!centerObject->getQuadObject()->asGraphicsObject()->isReady()) {
-        auto textureCenter = callbackInterface->pointImage();
+        auto textureCenter = styleInfo.pointTexture;
         centerObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
         centerObject->getQuadObject()->loadTexture(textureCenter);
     }
 
     if (!headingObject->getQuadObject()->asGraphicsObject()->isReady()) {
-        auto textureHeading = callbackInterface->headingImage();
+        auto textureHeading = styleInfo.headingTexture;
         headingObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
         headingObject->getQuadObject()->loadTexture(textureHeading);
     }
 
     if (!accuracyObject->getQuadObject()->asGraphicsObject()->isReady()) {
-        Color accuracyColor = callbackInterface->accuracyColor();
+        Color accuracyColor = styleInfo.accuracyColor;
         accuracyObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
         accuracyObject->setColor(accuracyColor);
     }
@@ -185,7 +189,9 @@ bool GpsLayer::onTwoFingerMove(const std::vector<::Vec2F> &posScreenOld, const s
 }
 
 void GpsLayer::resetMode() {
-    setMode(GpsMode::STANDARD);
+    if (mode != GpsMode::DISABLED) {
+        setMode(GpsMode::STANDARD);
+    }
 }
 
 void GpsLayer::setupLayerObjects() {
@@ -199,21 +205,23 @@ void GpsLayer::setupLayerObjects() {
     headingObject = std::make_shared<Textured2dLayerObject>(headingQuad, headingShader, mapInterface);
     accuracyObject = std::make_shared<Circle2dLayerObject>(mapInterface);
 
-    auto textureCenter = callbackInterface->pointImage();
+    auto textureCenter = styleInfo.pointTexture;
     float hWidthCenter = textureCenter->getImageWidth() * 0.5f;
     float hHeightCenter = textureCenter->getImageHeight() * 0.5f;
     centerObject->setPositions(QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidthCenter, -hHeightCenter, 0.0),
                                          Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidthCenter, -hHeightCenter, 0.0),
                                          Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidthCenter, +hHeightCenter, 0.0),
                                          Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidthCenter, +hHeightCenter, 0.0)));
-    auto textureHeading = callbackInterface->headingImage();
+    auto textureHeading = styleInfo.headingTexture;
     float hWidthHeading = textureHeading->getImageWidth() * 0.5f;
     float hHeightHeading = textureHeading->getImageHeight() * 0.5f;
-    centerObject->setPositions(QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidthHeading, -hHeightHeading, 0.0),
-                                         Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidthHeading, -hHeightHeading, 0.0),
-                                         Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidthHeading, +hHeightHeading, 0.0),
-                                         Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidthHeading, +hHeightHeading, 0.0)));
-    Color accuracyColor = callbackInterface->accuracyColor();
+    headingObject->setPositions(QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidthHeading, -hHeightHeading, 0.0),
+                                          Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidthHeading, -hHeightHeading, 0.0),
+                                          Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidthHeading, +hHeightHeading, 0.0),
+                                          Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidthHeading, +hHeightHeading,
+                                                0.0)));
+    accuracyObject->setColor(styleInfo.accuracyColor);
+    accuracyObject->setPosition(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0), 1.0);
 
     auto renderingContext = mapInterface->getRenderingContext();
 
@@ -223,23 +231,23 @@ void GpsLayer::setupLayerObjects() {
                 centerObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
                 centerObject->getQuadObject()->loadTexture(textureCenter);
                 headingObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
-                headingObject->getQuadObject()->loadTexture(textureCenter);
+                headingObject->getQuadObject()->loadTexture(textureHeading);
                 accuracyObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
             }));
 }
 
-std::vector<float> GpsLayer::computeModelMatrix() {
+std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double objectScaling) {
     std::vector<float> newMatrix(16, 0);
     Matrix::setIdentityM(newMatrix, 0);
 
-    double zoomFactor = camera->mapUnitsFromPixels(1);
-    Matrix::scaleM(newMatrix, 0.0, zoomFactor, zoomFactor, 1.0);
-
-    float angle = camera->getRotation();
-    Matrix::rotateM(newMatrix, 0.0, angleHeading - angle, 0.0, 0.0, 1.0);
-
     Coord renderCoord = mapInterface->getCoordinateConverterHelper()->convertToRenderSystem(position);
-    Matrix::translateM(newMatrix, 0, -renderCoord.x, -renderCoord.y, -renderCoord.z);
+
+    double scaleFactor = scaleInvariant ? camera->mapUnitsFromPixels(1) * objectScaling : objectScaling;
+    Matrix::scaleM(newMatrix, 0.0, scaleFactor, scaleFactor, 1.0);
+
+    Matrix::rotateM(newMatrix, 0.0, -angleHeading, 0.0, 0.0, 1.0);
+
+    //Matrix::translateM(newMatrix, 0, -renderCoord.x, -renderCoord.y, -renderCoord.z);
 
     return newMatrix;
 }

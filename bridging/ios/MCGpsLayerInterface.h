@@ -3,15 +3,15 @@
 
 #import "MCCoord.h"
 #import "MCGpsMode.h"
+#import "MCGpsStyleInfo.h"
 #import "MCLayerInterface.h"
 #import <Foundation/Foundation.h>
 @class MCGpsLayerInterface;
-@protocol MCGpsLayerCallbackInterface;
 
 
 @interface MCGpsLayerInterface : NSObject
 
-+ (nullable MCGpsLayerInterface *)create:(nullable id<MCGpsLayerCallbackInterface>)handler;
++ (nullable MCGpsLayerInterface *)create:(nonnull MCGpsStyleInfo *)styleInfo;
 
 - (void)setMode:(MCGpsMode)mode;
 

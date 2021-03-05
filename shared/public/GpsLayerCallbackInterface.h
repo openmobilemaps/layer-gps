@@ -3,17 +3,11 @@
 
 #pragma once
 
-#include "Color.h"
-#include "TextureHolderInterface.h"
-#include <memory>
+struct GpsStyleInfo;
 
 class GpsLayerCallbackInterface {
 public:
     virtual ~GpsLayerCallbackInterface() {}
 
-    virtual std::shared_ptr<::TextureHolderInterface> pointImage() = 0;
-
-    virtual std::shared_ptr<::TextureHolderInterface> headingImage() = 0;
-
-    virtual ::Color accuracyColor() = 0;
+    virtual GpsStyleInfo getStyleInfo() = 0;
 };

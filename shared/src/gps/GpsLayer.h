@@ -17,6 +17,7 @@
 #include "MapCamera2dInterface.h"
 #include "Textured2dLayerObject.h"
 #include "Circle2dLayerObject.h"
+#include "GpsStyleInfo.h"
 #include "GpsMode.h"
 
 class GpsLayer : public GpsLayerInterface,
@@ -24,7 +25,7 @@ class GpsLayer : public GpsLayerInterface,
                  public SimpleTouchInterface,
                  public std::enable_shared_from_this<GpsLayer> {
 public:
-    GpsLayer(const std::shared_ptr<GpsLayerCallbackInterface> &callbackInterface);
+    GpsLayer(const GpsStyleInfo & styleInfo);
 
     // GpsLayerInterface
 
@@ -71,7 +72,7 @@ private:
 
     virtual void setupLayerObjects();
 
-    virtual std::vector<float> computeModelMatrix();
+    virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling);
 
     std::shared_ptr<Textured2dLayerObject> centerObject;
     std::shared_ptr<Textured2dLayerObject> headingObject;
@@ -87,8 +88,9 @@ private:
 
     GpsMode mode = GpsMode::DISABLED;
     bool drawLocation = false;
+    bool headingValid = false;
     bool followModeEnabled = false;
     bool rotationModeEnabled = false;
 
-    std::shared_ptr<GpsLayerCallbackInterface> callbackInterface;
+    GpsStyleInfo styleInfo;
 };

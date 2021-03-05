@@ -7,8 +7,8 @@
 #import "DJIError.h"
 #import "DJIMarshal+Private.h"
 #import "MCCoord+Private.h"
-#import "MCGpsLayerCallbackInterface+Private.h"
 #import "MCGpsMode+Private.h"
+#import "MCGpsStyleInfo+Private.h"
 #import "MCLayerInterface+Private.h"
 #include <exception>
 #include <stdexcept>
@@ -34,9 +34,9 @@ static_assert(__has_feature(objc_arc), "Djinni requires ARC to be enabled for th
     return self;
 }
 
-+ (nullable MCGpsLayerInterface *)create:(nullable id<MCGpsLayerCallbackInterface>)handler {
++ (nullable MCGpsLayerInterface *)create:(nonnull MCGpsStyleInfo *)styleInfo {
     try {
-        auto objcpp_result_ = ::GpsLayerInterface::create(::djinni_generated::GpsLayerCallbackInterface::toCpp(handler));
+        auto objcpp_result_ = ::GpsLayerInterface::create(::djinni_generated::GpsStyleInfo::toCpp(styleInfo));
         return ::djinni_generated::GpsLayerInterface::fromCpp(objcpp_result_);
     } DJINNI_TRANSLATE_EXCEPTIONS()
 }

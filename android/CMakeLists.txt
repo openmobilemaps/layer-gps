@@ -75,6 +75,6 @@ target_link_libraries(layer_gps
         ${opengl-lib})
 
 add_library(mapscore_shared SHARED IMPORTED)
-set_property(TARGET mapscore_shared PROPERTY IMPORTED_LOCATION "../../../../../external/maps-core/android/build/intermediates/cmake/release/obj/${CMAKE_ANDROID_ARCH_ABI}/libmapscore_shared.so")
+set_property(TARGET mapscore_shared PROPERTY IMPORTED_LOCATION "../../../../../external/maps-core/android/build/intermediates/cmake/debug/obj/${CMAKE_ANDROID_ARCH_ABI}/libmapscore_shared.so")
 #set_property(TARGET mapscore_shared PROPERTY IMPORTED_LOCATION "../../../../../external/openmobilemaps/libs/android.${CMAKE_ANDROID_ARCH_ABI}/libmapscore_shared.so")
 target_link_libraries(layer_gps mapscore_shared)

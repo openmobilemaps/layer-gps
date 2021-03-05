@@ -2,6 +2,7 @@
 @extern "../../external/maps-core/djinni/yaml/texture_holder_interface.yaml"
 @extern "../../external/maps-core/djinni/yaml/color.yaml"
 @extern "../../external/maps-core/djinni/yaml/coord.yaml"
+@extern "../../external/maps-core/djinni/yaml/vec_2_d.yaml"
 
 gps_mode = enum {
 	disabled;
@@ -10,14 +11,16 @@ gps_mode = enum {
 	follow_and_turn;
 }
 
-gps_layer_callback_interface = interface +c +j +o {
-	point_image() : texture_holder_interface;
-	heading_image() : texture_holder_interface;
-	accuracy_color() : color;
+gps_style_info = record {
+	point_texture : optional<texture_holder_interface>;
+	point_size_px : vec_2_d;
+	heading_texture : optional<texture_holder_interface>;
+	heading_size_px : vec_2_d;
+	accuracy_color : color;
 }
 
 gps_layer_interface = interface +c {
-    static create(handler: gps_layer_callback_interface) : gps_layer_interface;
+    static create(style_info: gps_style_info) : gps_layer_interface;
 	set_mode(mode: gps_mode);
 	update_position(position: coord, horizontal_accuracy_m: f64);
 	update_heading(angle_heading: f32);

@@ -4,8 +4,8 @@
 #include "NativeGpsLayerInterface.h"  // my header
 #include "Marshal.hpp"
 #include "NativeCoord.h"
-#include "NativeGpsLayerCallbackInterface.h"
 #include "NativeGpsMode.h"
+#include "NativeGpsStyleInfo.h"
 #include "NativeLayerInterface.h"
 
 namespace djinni_generated {
@@ -23,11 +23,11 @@ CJNIEXPORT void JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerInter
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
 }
 
-CJNIEXPORT jobject JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerInterface_00024CppProxy_create(JNIEnv* jniEnv, jobject /*this*/, jobject j_handler)
+CJNIEXPORT jobject JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerInterface_00024CppProxy_create(JNIEnv* jniEnv, jobject /*this*/, jobject j_styleInfo)
 {
     try {
         DJINNI_FUNCTION_PROLOGUE0(jniEnv);
-        auto r = ::GpsLayerInterface::create(::djinni_generated::NativeGpsLayerCallbackInterface::toCpp(jniEnv, j_handler));
+        auto r = ::GpsLayerInterface::create(::djinni_generated::NativeGpsStyleInfo::toCpp(jniEnv, j_styleInfo));
         return ::djinni::release(::djinni_generated::NativeGpsLayerInterface::fromCpp(jniEnv, r));
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
 }
