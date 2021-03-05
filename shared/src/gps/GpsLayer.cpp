@@ -61,12 +61,23 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM)
 
     this->position = position;
     this->horizontalAccuracyM = horizontalAccuracyM;
+
+    if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
+        camera->moveToCenterPosition(position, false);
+    }
+
     mapInterface->invalidate();
 }
 
 void GpsLayer::updateHeading(float angleHeading) {
     this->angleHeading = fmod(angleHeading + 360.0f, 360.0f);
     headingValid = true;
+
+    if (mode == GpsMode::FOLLOW_AND_TURN) {
+        camera->setRotation(this->angleHeading, false);
+    }
+
+    mapInterface->invalidate();
 }
 
 std::shared_ptr<::LayerInterface> GpsLayer::asLayerInterface() {
@@ -74,7 +85,6 @@ std::shared_ptr<::LayerInterface> GpsLayer::asLayerInterface() {
 }
 
 void GpsLayer::update() {
-
 }
 
 std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses() {
@@ -190,6 +200,7 @@ bool GpsLayer::onTwoFingerMove(const std::vector<::Vec2F> &posScreenOld, const s
 
 void GpsLayer::resetMode() {
     if (mode != GpsMode::DISABLED) {
+        if (mode == GpsMode::FOLLOW_AND_TURN) camera->setRotation(angleHeading < (360 - angleHeading) ? 0 : 360, true);
         setMode(GpsMode::STANDARD);
     }
 }
