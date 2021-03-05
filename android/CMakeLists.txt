@@ -25,7 +25,7 @@ file(GLOB_RECURSE cpp_SRC
         )
 
 add_library( # Sets the name of the library.
-        layer-gps
+        layer_gps
 
         # Sets the library as a shared library.
         SHARED
@@ -34,8 +34,10 @@ add_library( # Sets the name of the library.
 
 include_directories(../external/djinni/support-lib)
 include_directories(../external/djinni/support-lib/jni)
-include_directories(../bridging/android/jni/)
+include_directories(../bridging/android/jni)
+include_directories(../bridging/android/jni/gps)
 include_directories(../shared/src)
+include_directories(../shared/src/gps)
 include_directories(../shared/public)
 include_directories(src/main/cpp)
 
@@ -60,7 +62,7 @@ find_library( # Sets the name of the path variable.
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-        layer-gps
+        layer_gps
 
         # Links the target library to the log library
         # included in the NDK.
@@ -69,10 +71,10 @@ target_link_libraries( # Specifies the target library.
 find_library(opengl-lib
         GLESv2)
 
-target_link_libraries(layer-gps
+target_link_libraries(layer_gps
         ${opengl-lib})
 
 add_library(mapscore_shared SHARED IMPORTED)
 set_property(TARGET mapscore_shared PROPERTY IMPORTED_LOCATION "../../../../../external/maps-core/android/build/intermediates/cmake/release/obj/${CMAKE_ANDROID_ARCH_ABI}/libmapscore_shared.so")
 #set_property(TARGET mapscore_shared PROPERTY IMPORTED_LOCATION "../../../../../external/openmobilemaps/libs/android.${CMAKE_ANDROID_ARCH_ABI}/libmapscore_shared.so")
-target_link_libraries(layer-gps mapscore_shared)
+target_link_libraries(layer_gps mapscore_shared)

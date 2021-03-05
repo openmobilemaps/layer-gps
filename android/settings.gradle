@@ -1,1 +1,3 @@
+include ':maps-core'
+project(':maps-core').projectDir = new File('../external/maps-core/android')
 rootProject.name='layer-gps'
