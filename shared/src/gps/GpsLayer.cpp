@@ -16,6 +16,10 @@
 #include "Matrix.h"
 #include "RenderPass.h"
 #include "RenderObject.h"
+#include "CoordAnimation.h"
+#include "DoubleAnimation.h"
+
+#define DEFAULT_ANIM_LENGTH 200
 
 GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo) {
 }
@@ -54,28 +58,77 @@ void GpsLayer::setMode(GpsMode mode) {
 }
 
 void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM) {
-    if (position.x == 0 && position.y == 0 && position.z == 0) {
+    if (!mapInterface) return;
+
+    if (!camera->isInBounds(position) || (position.x == 0 && position.y == 0 && position.z == 0)) {
         setMode(GpsMode::DISABLED);
         return;
     }
 
-    this->position = position;
-    this->horizontalAccuracyM = horizontalAccuracyM;
+    Coord newPosition = mapInterface->getCoordinateConverterHelper()->convert(
+            mapInterface->getMapConfig().mapCoordinateSystem.identifier, position);
 
-    if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
-        camera->moveToCenterPosition(position, false);
+    if (this->position.systemIdentifier != CoordinateSystemIdentifiers::RENDERSYSTEM()) {
+        std::lock_guard<std::recursive_mutex> lock(animationMutex);
+        if (coordAnimation) coordAnimation->cancel();
+        coordAnimation = std::make_shared<CoordAnimation>(DEFAULT_ANIM_LENGTH,
+                                                          this->position,
+                                                          newPosition,
+                                                          InterpolatorFunction::Linear,
+                                                          [=](Coord positionMapSystem) {
+                                                              if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
+                                                                  camera->moveToCenterPosition(positionMapSystem, false);
+                                                              }
+                                                              this->position = positionMapSystem;
+                                                              mapInterface->invalidate();
+                                                          }, [=] {
+                    if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
+                        camera->moveToCenterPosition(newPosition, false);
+                    }
+                    this->position = newPosition;
+                    mapInterface->invalidate();
+                });
+        coordAnimation->start();
+    } else {
+        if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
+            camera->moveToCenterPosition(newPosition, false);
+        }
+        this->position = newPosition;
     }
+
+    this->horizontalAccuracyM = horizontalAccuracyM;
 
     mapInterface->invalidate();
 }
 
 void GpsLayer::updateHeading(float angleHeading) {
-    this->angleHeading = fmod(angleHeading + 360.0f, 360.0f);
-    headingValid = true;
+    if (!mapInterface) return;
 
-    if (mode == GpsMode::FOLLOW_AND_TURN) {
-        camera->setRotation(this->angleHeading, false);
-    }
+    headingValid = true;
+    float newHeading = fmod(angleHeading + 360.0f, 360.0f);
+    float oldHeading = this->angleHeading;
+    newHeading = std::abs(newHeading - oldHeading) < std::abs((newHeading + 360) - oldHeading) ? newHeading : (newHeading + 360);
+
+    std::lock_guard<std::recursive_mutex> lock(animationMutex);
+    if (headingAnimation) headingAnimation->cancel();
+    headingAnimation = std::make_shared<DoubleAnimation>(DEFAULT_ANIM_LENGTH,
+                                                         oldHeading,
+                                                         newHeading,
+                                                         InterpolatorFunction::Linear,
+                                                         [=](double angleAnim) {
+                                                             if (mode == GpsMode::FOLLOW_AND_TURN) {
+                                                                 camera->setRotation(angleAnim, false);
+                                                             }
+                                                             this->angleHeading = fmod(angleAnim + 360.0f, 360.0f);
+                                                             mapInterface->invalidate();
+                                                         }, [=] {
+                if (mode == GpsMode::FOLLOW_AND_TURN) {
+                    camera->setRotation(newHeading, false);
+                    this->angleHeading = fmod(newHeading + 360.0f, 360.0f);
+                    mapInterface->invalidate();
+                }
+            });
+    headingAnimation->start();
 
     mapInterface->invalidate();
 }
@@ -85,6 +138,23 @@ std::shared_ptr<::LayerInterface> GpsLayer::asLayerInterface() {
 }
 
 void GpsLayer::update() {
+    {
+        std::lock_guard<std::recursive_mutex> lock(animationMutex);
+        if (headingAnimation) {
+            if (headingAnimation->isFinished()) {
+                headingAnimation = nullptr;
+            } else {
+                headingAnimation->update();
+            }
+        }
+        if (coordAnimation) {
+            if (coordAnimation->isFinished()) {
+                coordAnimation = nullptr;
+            } else {
+                coordAnimation->update();
+            }
+        }
+    }
 }
 
 std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses() {

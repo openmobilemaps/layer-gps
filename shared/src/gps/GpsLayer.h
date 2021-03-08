@@ -19,6 +19,7 @@
 #include "Circle2dLayerObject.h"
 #include "GpsStyleInfo.h"
 #include "GpsMode.h"
+#include <mutex>
 
 class GpsLayer : public GpsLayerInterface,
                  public LayerInterface,
@@ -83,8 +84,8 @@ private:
     std::atomic<bool> isHidden = false;
 
     Coord position = Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0, 0, 0);
-    double horizontalAccuracyM;
-    float angleHeading;
+    double horizontalAccuracyM = 0;
+    float angleHeading = 0;
 
     GpsMode mode = GpsMode::DISABLED;
     bool drawLocation = false;
@@ -93,4 +94,8 @@ private:
     bool rotationModeEnabled = false;
 
     GpsStyleInfo styleInfo;
+
+    std::recursive_mutex animationMutex;
+    std::shared_ptr<AnimationInterface> coordAnimation;
+    std::shared_ptr<AnimationInterface> headingAnimation;
 };
