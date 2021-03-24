@@ -24,7 +24,7 @@ let package = Package(
     dependencies: [
         .package(name: "MapCore",
                  url: "https://github.com/openmobilemaps/maps-core.git",
-                 .branch("feature/circle-layer-object")),
+                 .branch("develop")),
     ],
     targets: [
         .target(
