@@ -10,12 +10,12 @@
 
 namespace djinni_generated {
 
-NativeGpsLayerInterface::NativeGpsLayerInterface() : ::djinni::JniInterface<::GpsLayerInterface, NativeGpsLayerInterface>("io/openmobilemaps/mapscore/shared/gps/GpsLayerInterface$CppProxy") {}
+NativeGpsLayerInterface::NativeGpsLayerInterface() : ::djinni::JniInterface<::GpsLayerInterface, NativeGpsLayerInterface>("io/openmobilemaps/gps/shared/gps/GpsLayerInterface$CppProxy") {}
 
 NativeGpsLayerInterface::~NativeGpsLayerInterface() = default;
 
 
-CJNIEXPORT void JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerInterface_00024CppProxy_nativeDestroy(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef)
+CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_nativeDestroy(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef)
 {
     try {
         DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
@@ -23,7 +23,7 @@ CJNIEXPORT void JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerInter
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
 }
 
-CJNIEXPORT jobject JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerInterface_00024CppProxy_create(JNIEnv* jniEnv, jobject /*this*/, jobject j_styleInfo)
+CJNIEXPORT jobject JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_create(JNIEnv* jniEnv, jobject /*this*/, jobject j_styleInfo)
 {
     try {
         DJINNI_FUNCTION_PROLOGUE0(jniEnv);
@@ -32,7 +32,7 @@ CJNIEXPORT jobject JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerIn
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
 }
 
-CJNIEXPORT void JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerInterface_00024CppProxy_native_1setMode(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jobject j_mode)
+CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1setMode(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jobject j_mode)
 {
     try {
         DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
@@ -41,7 +41,7 @@ CJNIEXPORT void JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerInter
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
 }
 
-CJNIEXPORT void JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerInterface_00024CppProxy_native_1updatePosition(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeCoord::JniType j_position, jdouble j_horizontalAccuracyM)
+CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1updatePosition(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, ::djinni_generated::NativeCoord::JniType j_position, jdouble j_horizontalAccuracyM)
 {
     try {
         DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
@@ -51,7 +51,7 @@ CJNIEXPORT void JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerInter
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
 }
 
-CJNIEXPORT void JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerInterface_00024CppProxy_native_1updateHeading(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jfloat j_angleHeading)
+CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1updateHeading(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jfloat j_angleHeading)
 {
     try {
         DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
@@ -60,7 +60,7 @@ CJNIEXPORT void JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerInter
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
 }
 
-CJNIEXPORT ::djinni_generated::NativeLayerInterface::JniType JNICALL Java_io_openmobilemaps_mapscore_shared_gps_GpsLayerInterface_00024CppProxy_native_1asLayerInterface(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef)
+CJNIEXPORT ::djinni_generated::NativeLayerInterface::JniType JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1asLayerInterface(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef)
 {
     try {
         DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);

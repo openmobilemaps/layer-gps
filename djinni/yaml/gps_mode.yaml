@@ -19,14 +19,14 @@ objcpp:
   header: '"MCGpsMode+Private.h"'
 java:
   reference: true
-  typename: 'io.openmobilemaps.mapscore.shared.gps.GpsMode'
+  typename: 'io.openmobilemaps.gps.shared.gps.GpsMode'
   writeToParcel: '%s.writeToParcel(out, flags)'
   generic: true
   readFromParcel: 'new %s(in)'
   hash: '%s.hashCode()'
-  boxed: 'io.openmobilemaps.mapscore.shared.gps.GpsMode'
+  boxed: 'io.openmobilemaps.gps.shared.gps.GpsMode'
 jni:
   translator: '::djinni_generated::NativeGpsMode'
   header: '"NativeGpsMode.h"'
   typename: jobject
-  typeSignature: 'Lio/openmobilemaps/mapscore/shared/gps/GpsMode;'
+  typeSignature: 'Lio/openmobilemaps/gps/shared/gps/GpsMode;'

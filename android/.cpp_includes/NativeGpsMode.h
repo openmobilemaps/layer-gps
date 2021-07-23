@@ -19,7 +19,7 @@ public:
     static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, CppType c) { return ::djinni::JniClass<NativeGpsMode>::get().create(jniEnv, static_cast<jint>(c)); }
 
 private:
-    NativeGpsMode() : JniEnum("io/openmobilemaps/gps/shared/gps/GpsMode") {}
+    NativeGpsMode() : JniEnum("io/openmobilemaps/mapscore/shared/gps/GpsMode") {}
     friend ::djinni::JniClass<NativeGpsMode>;
 };
 

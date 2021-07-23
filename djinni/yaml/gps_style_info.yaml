@@ -19,14 +19,14 @@ objcpp:
   header: '"MCGpsStyleInfo+Private.h"'
 java:
   reference: true
-  typename: 'io.openmobilemaps.mapscore.shared.gps.GpsStyleInfo'
+  typename: 'io.openmobilemaps.gps.shared.gps.GpsStyleInfo'
   writeToParcel: '%s.writeToParcel(out, flags)'
   generic: true
   readFromParcel: 'new %s(in)'
   hash: '%s.hashCode()'
-  boxed: 'io.openmobilemaps.mapscore.shared.gps.GpsStyleInfo'
+  boxed: 'io.openmobilemaps.gps.shared.gps.GpsStyleInfo'
 jni:
   translator: '::djinni_generated::NativeGpsStyleInfo'
   header: '"NativeGpsStyleInfo.h"'
   typename: jobject
-  typeSignature: 'Lio/openmobilemaps/mapscore/shared/gps/GpsStyleInfo;'
+  typeSignature: 'Lio/openmobilemaps/gps/shared/gps/GpsStyleInfo;'
