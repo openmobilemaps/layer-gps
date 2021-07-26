@@ -83,10 +83,10 @@ extension MCGpsLayer: UBLocationManagerDelegate {
 public extension MCGpsStyleInfo {
     static var defaultStyle: MCGpsStyleInfo {
 
-        let pointImage = UIImage(named: "ic-gps-point")!
+        let pointImage = UIImage(named: "ic-gps-point", in: .module, compatibleWith: nil)!
         let pointTexture = try! TextureHolder(pointImage.cgImage!)
 
-        let headingImage = UIImage(named: "ic-gps-direction")!
+        let headingImage = UIImage(named: "ic-gps-direction", in: .module, compatibleWith: nil)!
         let headingTexture = try! TextureHolder(headingImage.cgImage!)
 
         return MCGpsStyleInfo(pointTexture: pointTexture,
