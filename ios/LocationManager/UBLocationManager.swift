@@ -52,6 +52,22 @@ public class UBLocationManager: NSObject {
         delegateWrappers.values.compactMap { $0.delegate }
     }
 
+    private var permissionRequestCallback : ((LocationPermissionRequestResult) -> ())?
+    private var permissionRequestUsage : LocationMonitoringUsage?
+
+    @UBUserDefault(key: "UBLocationManager_askedForAlwaysAtLeastOnce", defaultValue: false)
+    private var askedForAlwaysPermissionAtLeastOnce : Bool
+
+    /// :nodoc:
+    public enum LocationPermissionRequestResult {
+        /// Location permission was obtained successfully
+        case success
+        /// Location permission was not obtained
+        case failure
+        /// Location permission was not obtained and the user needs to be prompted the settings
+        case showSettings
+    }
+
     /// The union of the usages for all the delegaets
     private var usage: LocationMonitoringUsage {
         delegateWrappers.values
@@ -206,14 +222,6 @@ public class UBLocationManager: NSObject {
     ///   - usage: The desired usage. Can also be an array, e.g. `[.location(background: false), .heading(background: true)]`
     ///   - canAskForPermission: Whether the location manager can ask for the required permission on its own behalf
     public func startLocationMonitoring(for usage: LocationMonitoringUsage, delegate: UBLocationManagerDelegate, canAskForPermission: Bool) {
-        func requestPermission(for authorizationLevel: AuthorizationLevel) {
-            switch authorizationLevel {
-            case .always:
-                locationManager.requestAlwaysAuthorization()
-            case .whenInUse:
-                locationManager.requestWhenInUseAuthorization()
-            }
-        }
 
         let wrapper = UBLocationManagerDelegateWrapper(delegate, usage: usage)
         let id = ObjectIdentifier(delegate)
@@ -285,6 +293,54 @@ public class UBLocationManager: NSObject {
         }
     }
 
+    /// Permission request to get state of location permission (varies by `usage`)
+    ///
+    /// - Parameters:
+    ///   - usage: The desired usage.
+    ///   - callback: Asynchronous callback with result.
+    public func requestPermission(for usage: LocationMonitoringUsage, callback: @escaping ((LocationPermissionRequestResult) -> ())) {
+
+        // if it's already running, callback .failed & continue
+        if self.permissionRequestCallback != nil {
+            self.permissionRequestCallback?(.failure)
+            self.permissionRequestCallback = nil
+            self.permissionRequestUsage = nil
+        }
+
+        let authorizationStatus = locationManager.authorizationStatus()
+        let minimumAuthorizationLevelRequired = usage.minimumAuthorizationLevelRequired
+
+        switch authorizationStatus {
+        case .authorizedAlways:
+            callback(.success)
+        case .authorizedWhenInUse:
+            guard minimumAuthorizationLevelRequired == .whenInUse else {
+                // can only ask once
+                if(minimumAuthorizationLevelRequired == .always && self.askedForAlwaysPermissionAtLeastOnce) {
+                    callback(.showSettings)
+                    return
+                }
+
+                self.permissionRequestUsage = usage
+                self.permissionRequestCallback = callback
+                requestPermission(for: minimumAuthorizationLevelRequired)
+                return
+            }
+
+            callback(.success)
+        case .denied, .restricted:
+            callback(.showSettings)
+
+        case .notDetermined:
+            self.permissionRequestUsage = usage
+            self.permissionRequestCallback = callback
+            self.requestPermission(for: minimumAuthorizationLevelRequired)
+
+        @unknown default:
+            fatalError()
+        }
+    }
+
     /// :nodoc:
     private func startLocationMonitoringWithoutChecks(_ delegate: UBLocationManagerDelegate) {
         guard locationManager.locationServicesEnabled() else {
@@ -325,6 +381,17 @@ public class UBLocationManager: NSObject {
             }
         }
     }
+
+    /// request permission from the location manager
+    func requestPermission(for authorizationLevel: AuthorizationLevel) {
+        switch authorizationLevel {
+        case .always:
+            locationManager.requestAlwaysAuthorization()
+            self.askedForAlwaysPermissionAtLeastOnce = true
+        case .whenInUse:
+            locationManager.requestWhenInUseAuthorization()
+        }
+    }
 }
 
 extension UBLocationManager: CLLocationManagerDelegate {
@@ -345,6 +412,16 @@ extension UBLocationManager: CLLocationManagerDelegate {
             for delegate in delegates {
                 delegate.locationManager(permissionDeniedFor: self)
             }
+        }
+
+        // permission request callbacks
+        if let usage = self.permissionRequestUsage,
+           let callback = self.permissionRequestCallback {
+            let hasRequiredLevel = Self.hasRequiredAuthorizationLevel(forUsage: usage)
+            callback(hasRequiredLevel ? .success : .failure)
+
+            self.permissionRequestCallback = nil
+            self.permissionRequestUsage = nil
         }
     }
 
@@ -494,3 +571,4 @@ fileprivate extension CLAccuracyAuthorization {
         }
     }
 }
+
