@@ -18,6 +18,8 @@ public:
 
     virtual void setMode(GpsMode mode) = 0;
 
+    virtual GpsMode getMode() = 0;
+
     virtual void updatePosition(const ::Coord & position, double horizontalAccuracyM) = 0;
 
     virtual void updateHeading(float angleHeading) = 0;

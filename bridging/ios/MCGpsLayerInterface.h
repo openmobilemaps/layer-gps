@@ -15,6 +15,8 @@
 
 - (void)setMode:(MCGpsMode)mode;
 
+- (MCGpsMode)getMode;
+
 - (void)updatePosition:(nonnull MCCoord *)position
    horizontalAccuracyM:(double)horizontalAccuracyM;
 

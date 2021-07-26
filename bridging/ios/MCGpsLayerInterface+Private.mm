@@ -47,6 +47,13 @@ static_assert(__has_feature(objc_arc), "Djinni requires ARC to be enabled for th
     } DJINNI_TRANSLATE_EXCEPTIONS()
 }
 
+- (MCGpsMode)getMode {
+    try {
+        auto objcpp_result_ = _cppRefHandle.get()->getMode();
+        return ::djinni::Enum<::GpsMode, MCGpsMode>::fromCpp(objcpp_result_);
+    } DJINNI_TRANSLATE_EXCEPTIONS()
+}
+
 - (void)updatePosition:(nonnull MCCoord *)position
    horizontalAccuracyM:(double)horizontalAccuracyM {
     try {

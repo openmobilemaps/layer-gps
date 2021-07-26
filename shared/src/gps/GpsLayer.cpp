@@ -54,13 +54,18 @@ void GpsLayer::setMode(GpsMode mode) {
         }
     }
 
-    mapInterface->invalidate();
+    if (mapInterface) mapInterface->invalidate();
+}
+
+
+GpsMode GpsLayer::getMode() {
+    return this->mode;
 }
 
 void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM) {
     if (!mapInterface) return;
 
-    if (!camera->isInBounds(position) || (position.x == 0 && position.y == 0 && position.z == 0)) {
+    if ((position.x == 0 && position.y == 0 && position.z == 0)) {
         setMode(GpsMode::DISABLED);
         return;
     }
@@ -98,7 +103,7 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM)
 
     this->horizontalAccuracyM = horizontalAccuracyM;
 
-    mapInterface->invalidate();
+    if (mapInterface) mapInterface->invalidate();
 }
 
 void GpsLayer::updateHeading(float angleHeading) {
@@ -130,7 +135,7 @@ void GpsLayer::updateHeading(float angleHeading) {
             });
     headingAnimation->start();
 
-    mapInterface->invalidate();
+    if (mapInterface) mapInterface->invalidate();
 }
 
 std::shared_ptr<::LayerInterface> GpsLayer::asLayerInterface() {

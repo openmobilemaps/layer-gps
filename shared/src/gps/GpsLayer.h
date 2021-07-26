@@ -32,6 +32,8 @@ public:
 
     virtual void setMode(GpsMode mode) override;
 
+    virtual GpsMode getMode() override;
+
     virtual void updatePosition(const ::Coord &position, double horizontalAccuracyM) override;
 
     virtual void updateHeading(float angleHeading) override;

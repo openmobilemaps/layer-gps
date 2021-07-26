@@ -9,6 +9,8 @@ abstract class GpsLayerInterface {
 
     abstract fun setMode(mode: GpsMode)
 
+    abstract fun getMode(): GpsMode
+
     abstract fun updatePosition(position: io.openmobilemaps.mapscore.shared.map.coordinates.Coord, horizontalAccuracyM: Double)
 
     abstract fun updateHeading(angleHeading: Float)
@@ -45,6 +47,12 @@ abstract class GpsLayerInterface {
             native_setMode(this.nativeRef, mode)
         }
         private external fun native_setMode(_nativeRef: Long, mode: GpsMode)
+
+        override fun getMode(): GpsMode {
+            assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
+            return native_getMode(this.nativeRef)
+        }
+        private external fun native_getMode(_nativeRef: Long): GpsMode
 
         override fun updatePosition(position: io.openmobilemaps.mapscore.shared.map.coordinates.Coord, horizontalAccuracyM: Double) {
             assert(!this.destroyed.get()) { error("trying to use a destroyed object") }

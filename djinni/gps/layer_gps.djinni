@@ -22,6 +22,7 @@ gps_style_info = record {
 gps_layer_interface = interface +c {
     static create(style_info: gps_style_info) : gps_layer_interface;
 	set_mode(mode: gps_mode);
+    get_mode(): gps_mode;
 	update_position(position: coord, horizontal_accuracy_m: f64);
 	update_heading(angle_heading: f32);
     asLayerInterface(): layer_interface;
