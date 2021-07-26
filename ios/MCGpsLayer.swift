@@ -17,7 +17,7 @@ public class MCGpsLayer: NSObject {
 
     private var layer: MCGpsLayerInterface!
 
-    private let locationManager = UBLocationManager.shared
+    let locationManager = UBLocationManager.shared
 
     public init(style: MCGpsStyleInfo = .defaultStyle) {
         layer = MCGpsLayerInterface.create(style)
