@@ -57,9 +57,13 @@ void GpsLayer::setMode(GpsMode mode) {
     if (mapInterface) mapInterface->invalidate();
 }
 
-
 GpsMode GpsLayer::getMode() {
     return this->mode;
+}
+
+void GpsLayer::enableHeading(bool enable) {
+    headingEnabled = enable;
+    if (mapInterface) mapInterface->invalidate();
 }
 
 void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM) {
@@ -67,8 +71,10 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM)
 
     if ((position.x == 0 && position.y == 0 && position.z == 0)) {
         setMode(GpsMode::DISABLED);
+        positionValid = false;
         return;
     }
+    positionValid = true;
 
     Coord newPosition = mapInterface->getCoordinateConverterHelper()->convert(
             mapInterface->getMapConfig().mapCoordinateSystem.identifier, position);
@@ -85,13 +91,13 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM)
                                                                   camera->moveToCenterPosition(positionMapSystem, false);
                                                               }
                                                               this->position = positionMapSystem;
-                                                              mapInterface->invalidate();
+                                                              if (mapInterface) mapInterface->invalidate();
                                                           }, [=] {
                     if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
                         camera->moveToCenterPosition(newPosition, false);
                     }
                     this->position = newPosition;
-                    mapInterface->invalidate();
+                    if (mapInterface) mapInterface->invalidate();
                 });
         coordAnimation->start();
     } else {
@@ -125,12 +131,12 @@ void GpsLayer::updateHeading(float angleHeading) {
                                                                  camera->setRotation(angleAnim, false);
                                                              }
                                                              this->angleHeading = fmod(angleAnim + 360.0f, 360.0f);
-                                                             mapInterface->invalidate();
+                                                             if (mapInterface) mapInterface->invalidate();
                                                          }, [=] {
                 if (mode == GpsMode::FOLLOW_AND_TURN) {
                     camera->setRotation(newHeading, false);
                     this->angleHeading = fmod(newHeading + 360.0f, 360.0f);
-                    mapInterface->invalidate();
+                    if (mapInterface) mapInterface->invalidate();
                 }
             });
     headingAnimation->start();
@@ -163,7 +169,7 @@ void GpsLayer::update() {
 }
 
 std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses() {
-    if (isHidden || !drawLocation || !centerObject) {
+    if (isHidden || !drawLocation || !centerObject || !positionValid) {
         return {};
     }
 
@@ -174,7 +180,7 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
         renderPassObjectMap[config->getRenderIndex()].push_back(
                 std::make_shared<RenderObject>(config->getGraphicsObject(), accuracyModelMatrix));
     }
-    if (headingValid) {
+    if (headingEnabled && headingValid) {
         for (const auto &config : headingObject->getRenderConfig()) {
             renderPassObjectMap[config->getRenderIndex()].push_back(
                     std::make_shared<RenderObject>(config->getGraphicsObject(), invariantModelMatrix));
@@ -238,14 +244,12 @@ void GpsLayer::resume() {
 
 void GpsLayer::hide() {
     isHidden = true;
-    if (mapInterface)
-        mapInterface->invalidate();
+    if (mapInterface) mapInterface->invalidate();
 }
 
 void GpsLayer::show() {
     isHidden = false;
-    if (mapInterface)
-        mapInterface->invalidate();
+    if (mapInterface) mapInterface->invalidate();
 }
 
 bool GpsLayer::onClickConfirmed(const Vec2F &posScreen) {

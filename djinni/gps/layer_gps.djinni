@@ -1,8 +1,8 @@
-@extern "../../external/maps-core/djinni/yaml/layer_interface.yaml"
-@extern "../../external/maps-core/djinni/yaml/texture_holder_interface.yaml"
-@extern "../../external/maps-core/djinni/yaml/color.yaml"
-@extern "../../external/maps-core/djinni/yaml/coord.yaml"
-@extern "../../external/maps-core/djinni/yaml/vec_2_d.yaml"
+@extern "../../../maps-core/djinni/yaml/layer_interface.yaml"
+@extern "../../../maps-core/djinni/yaml/texture_holder_interface.yaml"
+@extern "../../../maps-core/djinni/yaml/color.yaml"
+@extern "../../../maps-core/djinni/yaml/coord.yaml"
+@extern "../../../maps-core/djinni/yaml/vec_2_d.yaml"
 
 gps_mode = enum {
 	disabled;
@@ -23,6 +23,7 @@ gps_layer_interface = interface +c {
     static create(style_info: gps_style_info) : gps_layer_interface;
 	set_mode(mode: gps_mode);
     get_mode(): gps_mode;
+	enable_heading(enable: bool);
 	update_position(position: coord, horizontal_accuracy_m: f64);
 	update_heading(angle_heading: f32);
     asLayerInterface(): layer_interface;

@@ -17,6 +17,8 @@
 
 - (MCGpsMode)getMode;
 
+- (void)enableHeading:(BOOL)enable;
+
 - (void)updatePosition:(nonnull MCCoord *)position
    horizontalAccuracyM:(double)horizontalAccuracyM;
 

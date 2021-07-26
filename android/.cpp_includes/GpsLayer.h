@@ -32,6 +32,10 @@ public:
 
     virtual void setMode(GpsMode mode) override;
 
+    virtual GpsMode getMode() override;
+
+    virtual void enableHeading(bool enable) override;
+
     virtual void updatePosition(const ::Coord &position, double horizontalAccuracyM) override;
 
     virtual void updateHeading(float angleHeading) override;
@@ -89,6 +93,8 @@ private:
 
     GpsMode mode = GpsMode::DISABLED;
     bool drawLocation = false;
+    bool positionValid = false;
+    bool headingEnabled = true;
     bool headingValid = false;
     bool followModeEnabled = false;
     bool rotationModeEnabled = false;
