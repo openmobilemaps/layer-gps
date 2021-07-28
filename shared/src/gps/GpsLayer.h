@@ -42,7 +42,11 @@ public:
 
     virtual std::shared_ptr<::LayerInterface> asLayerInterface() override;
 
+    virtual void setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) override;
+
     // LayerInterface
+
+    virtual void setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) override;
 
     virtual void update() override;
 
@@ -104,4 +108,6 @@ private:
     std::recursive_mutex animationMutex;
     std::shared_ptr<AnimationInterface> coordAnimation;
     std::shared_ptr<AnimationInterface> headingAnimation;
+
+    std::shared_ptr<GpsLayerCallbackInterface> callbackHandler;
 };

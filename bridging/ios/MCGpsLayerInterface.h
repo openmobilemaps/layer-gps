@@ -7,11 +7,14 @@
 #import "MCLayerInterface.h"
 #import <Foundation/Foundation.h>
 @class MCGpsLayerInterface;
+@protocol MCGpsLayerCallbackInterface;
 
 
 @interface MCGpsLayerInterface : NSObject
 
 + (nullable MCGpsLayerInterface *)create:(nonnull MCGpsStyleInfo *)styleInfo;
+
+- (void)setCallbackHandler:(nullable id<MCGpsLayerCallbackInterface>)handler;
 
 - (void)setMode:(MCGpsMode)mode;
 

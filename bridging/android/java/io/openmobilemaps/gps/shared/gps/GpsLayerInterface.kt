@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class GpsLayerInterface {
 
+    abstract fun setCallbackHandler(handler: GpsLayerCallbackInterface)
+
     abstract fun setMode(mode: GpsMode)
 
     abstract fun getMode(): GpsMode
@@ -43,6 +45,12 @@ abstract class GpsLayerInterface {
         protected fun finalize() {
             _djinni_private_destroy()
         }
+
+        override fun setCallbackHandler(handler: GpsLayerCallbackInterface) {
+            assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
+            native_setCallbackHandler(this.nativeRef, handler)
+        }
+        private external fun native_setCallbackHandler(_nativeRef: Long, handler: GpsLayerCallbackInterface)
 
         override fun setMode(mode: GpsMode) {
             assert(!this.destroyed.get()) { error("trying to use a destroyed object") }

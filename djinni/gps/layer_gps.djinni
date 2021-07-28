@@ -19,8 +19,13 @@ gps_style_info = record {
 	accuracy_color : color;
 }
 
+gps_layer_callback_interface = interface +c +j +o {
+    mode_did_change(mode: gps_mode);
+}
+
 gps_layer_interface = interface +c {
     static create(style_info: gps_style_info) : gps_layer_interface;
+    set_callback_handler(handler: gps_layer_callback_interface);
 	set_mode(mode: gps_mode);
     get_mode(): gps_mode;
 	enable_heading(enable: bool);

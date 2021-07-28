@@ -17,7 +17,15 @@ public class MCGpsLayer: NSObject {
 
     private var layer: MCGpsLayerInterface!
 
-    let locationManager = UBLocationManager.shared
+    private var callbackHandler = MCGpsCallbackHandler()
+
+    private let locationManager = UBLocationManager.shared
+
+    var modeDidChangeCallback: ((_ mode: MCGpsMode) -> Void)? {
+        didSet {
+            callbackHandler.modeDidChangeCallback = modeDidChangeCallback
+        }
+    }
 
     public init(style: MCGpsStyleInfo = .defaultStyle) {
         layer = MCGpsLayerInterface.create(style)
@@ -34,7 +42,6 @@ public class MCGpsLayer: NSObject {
     public func setMode(_ mode: MCGpsMode) {
         layer.setMode(mode)
     }
-
 
     public func asLayerInterface() -> MCLayerInterface? {
         layer.asLayerInterface()
@@ -95,4 +102,14 @@ public extension MCGpsStyleInfo {
                        headingSizePx: .init(x: 50, y: 50),
                        accuracyColor:  UIColor.blue.withAlphaComponent(0.5).mapCoreColor)
     }
+}
+
+private class MCGpsCallbackHandler: MCGpsLayerCallbackInterface {
+
+    var modeDidChangeCallback: ((_ mode: MCGpsMode) -> Void)?
+
+    func modeDidChange(_ mode: MCGpsMode) {
+        modeDidChangeCallback?(mode)
+    }
+
 }

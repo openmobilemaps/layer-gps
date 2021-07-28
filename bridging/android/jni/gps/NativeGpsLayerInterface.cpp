@@ -4,6 +4,7 @@
 #include "NativeGpsLayerInterface.h"  // my header
 #include "Marshal.hpp"
 #include "NativeCoord.h"
+#include "NativeGpsLayerCallbackInterface.h"
 #include "NativeGpsMode.h"
 #include "NativeGpsStyleInfo.h"
 #include "NativeLayerInterface.h"
@@ -30,6 +31,15 @@ CJNIEXPORT jobject JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterfa
         auto r = ::GpsLayerInterface::create(::djinni_generated::NativeGpsStyleInfo::toCpp(jniEnv, j_styleInfo));
         return ::djinni::release(::djinni_generated::NativeGpsLayerInterface::fromCpp(jniEnv, r));
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
+}
+
+CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1setCallbackHandler(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jobject j_handler)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::GpsLayerInterface>(nativeRef);
+        ref->setCallbackHandler(::djinni_generated::NativeGpsLayerCallbackInterface::toCpp(jniEnv, j_handler));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
 }
 
 CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1setMode(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jobject j_mode)

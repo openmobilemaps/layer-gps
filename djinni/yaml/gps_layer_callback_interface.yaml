@@ -19,14 +19,14 @@ objcpp:
   header: '"MCGpsLayerCallbackInterface+Private.h"'
 java:
   reference: true
-  typename: 'io.openmobilemaps.mapscore.shared.gps.GpsLayerCallbackInterface'
+  typename: 'io.openmobilemaps.gps.shared.gps.GpsLayerCallbackInterface'
   writeToParcel: '%s.writeToParcel(out, flags)'
   generic: true
   readFromParcel: 'new %s(in)'
   hash: '%s.hashCode()'
-  boxed: 'io.openmobilemaps.mapscore.shared.gps.GpsLayerCallbackInterface'
+  boxed: 'io.openmobilemaps.gps.shared.gps.GpsLayerCallbackInterface'
 jni:
   translator: '::djinni_generated::NativeGpsLayerCallbackInterface'
   header: '"NativeGpsLayerCallbackInterface.h"'
   typename: jobject
-  typeSignature: 'Lio/openmobilemaps/mapscore/shared/gps/GpsLayerCallbackInterface;'
+  typeSignature: 'Lio/openmobilemaps/gps/shared/gps/GpsLayerCallbackInterface;'

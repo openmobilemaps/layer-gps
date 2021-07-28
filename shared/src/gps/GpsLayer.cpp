@@ -55,6 +55,8 @@ void GpsLayer::setMode(GpsMode mode) {
     }
 
     if (mapInterface) mapInterface->invalidate();
+
+    if (callbackHandler) callbackHandler->modeDidChange(this->mode);
 }
 
 GpsMode GpsLayer::getMode() {
@@ -342,4 +344,11 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
 
     Matrix::multiplyMMC(newMatrix, 0, trMatrix, 0, newMatrix, 0);
     return newMatrix;
+}
+
+void GpsLayer::setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) {}
+
+
+void GpsLayer::setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) {
+    callbackHandler = handler;
 }
