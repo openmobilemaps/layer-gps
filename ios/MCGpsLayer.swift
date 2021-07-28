@@ -36,6 +36,8 @@ public class MCGpsLayer: NSObject {
                                                    delegate: self,
                                                    canAskForPermission: true)
 
+        layer.setCallbackHandler(callbackHandler)
+        
         setMode(.STANDARD)
     }
 
@@ -113,7 +115,9 @@ private class MCGpsCallbackHandler: MCGpsLayerCallbackInterface {
     var modeDidChangeCallback: ((_ mode: MCGpsMode) -> Void)?
 
     func modeDidChange(_ mode: MCGpsMode) {
-        modeDidChangeCallback?(mode)
+        DispatchQueue.main.async {
+            self.modeDidChangeCallback?(mode)
+        }
     }
 
 }

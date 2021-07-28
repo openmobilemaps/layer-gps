@@ -44,12 +44,15 @@ void GpsLayer::setMode(GpsMode mode) {
             drawLocation = true;
             followModeEnabled = true;
             rotationModeEnabled = false;
+            updatePosition(position, horizontalAccuracyM);
             break;
         }
         case GpsMode::FOLLOW_AND_TURN: {
             drawLocation = true;
             followModeEnabled = true;
             rotationModeEnabled = true;
+            updatePosition(position, horizontalAccuracyM);
+            updateHeading(angleHeading);
             break;
         }
     }
