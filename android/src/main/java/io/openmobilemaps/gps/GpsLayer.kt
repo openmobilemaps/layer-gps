@@ -102,7 +102,7 @@ class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: Location
 	}
 
 	override fun onCompassUpdate(degrees: Float) {
-		layerInterface.updateHeading(-degrees)
+		layerInterface.updateHeading(degrees)
 	}
 
 	override fun modeDidChange(mode: GpsMode) {

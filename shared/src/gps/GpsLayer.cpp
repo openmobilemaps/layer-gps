@@ -19,7 +19,7 @@
 #include "CoordAnimation.h"
 #include "DoubleAnimation.h"
 
-#define DEFAULT_ANIM_LENGTH 200
+#define DEFAULT_ANIM_LENGTH 100
 
 GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo) {
 }
@@ -118,7 +118,8 @@ void GpsLayer::updateHeading(float angleHeading) {
     if (!mapInterface) return;
 
     headingValid = true;
-    float newHeading = fmod(angleHeading + 360.0f, 360.0f);
+    float newHeading = -angleHeading;
+    newHeading = fmod(newHeading + 360.0f, 360.0f);
     float oldHeading = this->angleHeading;
     newHeading = std::abs(newHeading - oldHeading) < std::abs((newHeading + 360) - oldHeading) ? newHeading : (newHeading + 360);
 
