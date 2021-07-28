@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2021 Ubique Innovation AG <https://www.ubique.ch>
+ *
+ *  This Source Code Form is subject to the terms of the Mozilla Public
+ *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ *  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ *  SPDX-License-Identifier: MPL-2.0
+ */
 
 package io.openmobilemaps.gps
 
@@ -6,8 +15,11 @@ import android.location.Location
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import io.openmobilemaps.gps.compass.CompassProvider
+import io.openmobilemaps.gps.compass.CompassUpdateListener
 import io.openmobilemaps.gps.providers.LocationProviderInterface
 import io.openmobilemaps.gps.providers.LocationUpdateListener
+import io.openmobilemaps.gps.shared.gps.GpsLayerCallbackInterface
 import io.openmobilemaps.gps.shared.gps.GpsLayerInterface
 import io.openmobilemaps.gps.shared.gps.GpsMode
 import io.openmobilemaps.gps.shared.gps.GpsStyleInfo
@@ -15,14 +27,20 @@ import io.openmobilemaps.mapscore.shared.map.LayerInterface
 import io.openmobilemaps.mapscore.shared.map.coordinates.Coord
 import io.openmobilemaps.mapscore.shared.map.coordinates.CoordinateSystemIdentifiers
 
-class GpsLayer(private val style: GpsStyleInfo, locationProvider: LocationProviderInterface) : LifecycleObserver,
-	LocationUpdateListener {
+class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: LocationProviderInterface) : GpsLayerCallbackInterface(), LifecycleObserver,
+	LocationUpdateListener, CompassUpdateListener {
 
-	constructor(context: Context, style: GpsStyleInfo, providerType: GpsProviderType) : this (style, providerType.getProvider(context))
+	constructor(context: Context, style: GpsStyleInfo, providerType: GpsProviderType)
+			: this(context, style, providerType.getProvider(context))
 
-	private var locationProvider : LocationProviderInterface = locationProvider
-	private val layerInterface = GpsLayerInterface.create(style)
+	private var locationProvider: LocationProviderInterface = locationProvider
+	private val compassProvider = CompassProvider.getInstance(context)
+	private val layerInterface = GpsLayerInterface.create(style).apply {
+		setCallbackHandler(this@GpsLayer)
+	}
 	private var lifecycle: Lifecycle? = null
+
+	private var modeChangedListener: ((GpsMode) -> Unit)? = null
 
 	fun registerLifecycle(lifecycle: Lifecycle) {
 		this.lifecycle?.removeObserver(this)
@@ -30,7 +48,7 @@ class GpsLayer(private val style: GpsStyleInfo, locationProvider: LocationProvid
 		this.lifecycle = lifecycle
 	}
 
-	fun asLayerInterface() : LayerInterface = layerInterface.asLayerInterface()
+	fun asLayerInterface(): LayerInterface = layerInterface.asLayerInterface()
 
 	fun updatePosition(position: Coord, horizontalAccuracyM: Double) {
 		layerInterface.updatePosition(position, horizontalAccuracyM)
@@ -48,15 +66,22 @@ class GpsLayer(private val style: GpsStyleInfo, locationProvider: LocationProvid
 
 	fun setHeadingEnabled(enable: Boolean) {
 		layerInterface.enableHeading(enable)
+		if (enable) {
+			compassProvider.registerCompassUpdateListener(this)
+		} else {
+			compassProvider.unregisterCompassUpdateListener(this)
+		}
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_START)
 	fun onStart() {
 		locationProvider.registerLocationUpdateListener(this)
+		compassProvider.registerCompassUpdateListener(this)
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_STOP)
 	fun onStop() {
+		locationProvider.unregisterLocationUpdateListener(this)
 		locationProvider.unregisterLocationUpdateListener(this)
 	}
 
@@ -66,11 +91,21 @@ class GpsLayer(private val style: GpsStyleInfo, locationProvider: LocationProvid
 		locationProvider.registerLocationUpdateListener(this)
 	}
 
+	fun setOnModeChangedListener(listener: ((GpsMode) -> Unit)?) {
+		modeChangedListener = listener
+	}
+
 	override fun onLocationUpdate(newLocation: Location) {
 		val coord = Coord(CoordinateSystemIdentifiers.EPSG4326(), newLocation.longitude, newLocation.latitude, newLocation.altitude)
 		val accuracy = newLocation.accuracy.toDouble()
 		layerInterface.updatePosition(coord, accuracy)
 	}
 
+	override fun onCompassUpdate(degrees: Float) {
+		layerInterface.updateHeading(-degrees)
+	}
 
+	override fun modeDidChange(mode: GpsMode) {
+		modeChangedListener?.invoke(mode)
+	}
 }

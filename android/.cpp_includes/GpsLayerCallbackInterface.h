@@ -3,11 +3,11 @@
 
 #pragma once
 
-struct GpsStyleInfo;
+enum class GpsMode;
 
 class GpsLayerCallbackInterface {
 public:
     virtual ~GpsLayerCallbackInterface() {}
 
-    virtual GpsStyleInfo getStyleInfo() = 0;
+    virtual void modeDidChange(GpsMode mode) = 0;
 };

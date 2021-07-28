@@ -7,37 +7,29 @@
 @implementation MCGpsStyleInfo
 
 - (nonnull instancetype)initWithPointTexture:(nullable id<MCTextureHolderInterface>)pointTexture
-                                 pointSizePx:(nonnull MCVec2D *)pointSizePx
                               headingTexture:(nullable id<MCTextureHolderInterface>)headingTexture
-                               headingSizePx:(nonnull MCVec2D *)headingSizePx
                                accuracyColor:(nonnull MCColor *)accuracyColor
 {
     if (self = [super init]) {
         _pointTexture = pointTexture;
-        _pointSizePx = pointSizePx;
         _headingTexture = headingTexture;
-        _headingSizePx = headingSizePx;
         _accuracyColor = accuracyColor;
     }
     return self;
 }
 
 + (nonnull instancetype)gpsStyleInfoWithPointTexture:(nullable id<MCTextureHolderInterface>)pointTexture
-                                         pointSizePx:(nonnull MCVec2D *)pointSizePx
                                       headingTexture:(nullable id<MCTextureHolderInterface>)headingTexture
-                                       headingSizePx:(nonnull MCVec2D *)headingSizePx
                                        accuracyColor:(nonnull MCColor *)accuracyColor
 {
     return [(MCGpsStyleInfo*)[self alloc] initWithPointTexture:pointTexture
-                                                   pointSizePx:pointSizePx
                                                 headingTexture:headingTexture
-                                                 headingSizePx:headingSizePx
                                                  accuracyColor:accuracyColor];
 }
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"<%@ %p pointTexture:%@ pointSizePx:%@ headingTexture:%@ headingSizePx:%@ accuracyColor:%@>", self.class, (void *)self, self.pointTexture, self.pointSizePx, self.headingTexture, self.headingSizePx, self.accuracyColor];
+    return [NSString stringWithFormat:@"<%@ %p pointTexture:%@ headingTexture:%@ accuracyColor:%@>", self.class, (void *)self, self.pointTexture, self.headingTexture, self.accuracyColor];
 }
 
 @end

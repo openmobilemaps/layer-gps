@@ -1,6 +1,16 @@
+/*
+ * Copyright (c) 2021 Ubique Innovation AG <https://www.ubique.ch>
+ *
+ *  This Source Code Form is subject to the terms of the Mozilla Public
+ *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ *  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ *  SPDX-License-Identifier: MPL-2.0
+ */
+
 package io.openmobilemaps.gps.util
 
-internal open class SingletonHolder<out T: Any, in A>(creator: (A) -> T) {
+open class SingletonHolder<out T: Any, in A>(creator: (A) -> T) {
 
 	private var creator: ((A) -> T)? = creator
 	@Volatile private var instance: T? = null

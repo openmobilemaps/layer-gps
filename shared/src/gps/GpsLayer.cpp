@@ -346,9 +346,6 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
     return newMatrix;
 }
 
-void GpsLayer::setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) {}
-
-
 void GpsLayer::setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) {
     callbackHandler = handler;
 }
