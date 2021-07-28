@@ -62,6 +62,9 @@ extension MCGpsLayer: UBLocationManagerDelegate {
 
     public func locationManager(_: UBLocationManager, grantedPermission _: UBLocationManager.AuthorizationLevel, accuracy: UBLocationManager.AccuracyLevel) {}
 
+    public func locationManager(permissionDeniedFor manager: UBLocationManager) {
+        layer.setMode(.DISABLED)
+    }
 
     public func locationManager(_: UBLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
@@ -72,7 +75,9 @@ extension MCGpsLayer: UBLocationManagerDelegate {
 
     }
 
-    public func locationManager(_: UBLocationManager, didFailWithError _: Error) { }
+    public func locationManager(_: UBLocationManager, didFailWithError _: Error) {
+        layer.setMode(.DISABLED)
+    }
 
 
     public func locationManager(_: UBLocationManager, didUpdateHeading newHeading: CLHeading) {
