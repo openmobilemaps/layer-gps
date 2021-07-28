@@ -21,7 +21,7 @@ public class MCGpsLayer: NSObject {
 
     private let locationManager = UBLocationManager.shared
 
-    var modeDidChangeCallback: ((_ mode: MCGpsMode) -> Void)? {
+    public var modeDidChangeCallback: ((_ mode: MCGpsMode) -> Void)? {
         didSet {
             callbackHandler.modeDidChangeCallback = modeDidChangeCallback
         }
@@ -41,6 +41,10 @@ public class MCGpsLayer: NSObject {
 
     public func setMode(_ mode: MCGpsMode) {
         layer.setMode(mode)
+    }
+
+    public var mode: MCGpsMode {
+        layer.getMode()
     }
 
     public func asLayerInterface() -> MCLayerInterface? {
