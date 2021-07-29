@@ -25,7 +25,7 @@ file(GLOB_RECURSE cpp_SRC
         )
 
 add_library( # Sets the name of the library.
-        gps
+        layergps
 
         # Sets the library as a shared library.
         SHARED
@@ -61,7 +61,7 @@ find_library( # Sets the name of the path variable.
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-        gps
+        layergps
 
         # Links the target library to the log library
         # included in the NDK.
@@ -70,7 +70,7 @@ target_link_libraries( # Specifies the target library.
 find_library(opengl-lib
         GLESv2)
 
-target_link_libraries(gps
+target_link_libraries(layergps
         ${opengl-lib})
 
-target_link_libraries(gps mapscore::mapscore)
+target_link_libraries(layergps mapscore::mapscore)
