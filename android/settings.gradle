@@ -1,2 +1,2 @@
 include ':mapscore'
-rootProject.name='layer-gps'
+rootProject.name='layergps'
