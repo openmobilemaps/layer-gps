@@ -97,9 +97,7 @@ public extension MCGpsStyleInfo {
         let headingTexture = try! TextureHolder(headingImage.cgImage!)
 
         return MCGpsStyleInfo(pointTexture: pointTexture,
-                       pointSizePx: .init(x: 50, y: 50),
                        headingTexture: headingTexture,
-                       headingSizePx: .init(x: 50, y: 50),
                        accuracyColor:  UIColor.blue.withAlphaComponent(0.5).mapCoreColor)
     }
 }
