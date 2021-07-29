@@ -1,3 +1,2 @@
 include ':mapscore'
-project(':mapscore').projectDir = new File('../../maps-core/android')
 rootProject.name='layer-gps'
