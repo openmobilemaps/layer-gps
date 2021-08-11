@@ -1,1 +1,102 @@
-# layer-gps
+<h1 align="center">Open Mobile Maps - Gps Layer</h1>
+<br />
+<div align="center">
+  <img width="200" height="45" src="../logo.svg" />
+  <br />
+  <br />
+  A Gps Layer Implementation for Open Mobile Maps.
+  <br />
+  <br />
+  <a href="https://openmobilemaps.io/">openmobilemaps.io</a>
+</div>
+<br />
+
+<div align="center">
+    <!-- License -->
+    <a href="https://github.com/openmobilemaps/maps-core/blob/master/LICENSE">
+      <img alt="License: MPL 2.0"
+      src="https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg">
+    </a>
+</div>
+
+
+<h1>Android</h1>
+
+## How to use
+
+This module is designed to be used together with Open Mobile Maps maps-core.
+
+### Add dependency
+
+To add the OpenSwissMaps SDK to your Android project, add the following line to your build.gradle
+
+```groovy
+implementation 'io.openmobilemaps:layer-gps:0.1.0'
+```
+
+Make sure you have mavenCentral() listed in your project repositories. 
+
+### Add the GPS Layer
+
+The gps layer can be created with:
+
+```kotlin
+val gpsStyleInfo = GpsStyleInfo(
+    BitmapTextureHolder(bitmapGpsDot),
+    BitmapTextureHolder(bitmapGpsHeading),
+    Color(1.0f, 0f, 0f, 0.2f)
+)
+val gpsProviderType = GpsProviderType.GPS_ONLY
+val gpsLayer = GpsLayer(context, gpsStyleInfo, gpsProviderType)
+gpsLayer.registerLifecycle(lifecycle)
+
+// Add the new layer to the MapView
+mapView.addLayer(gpsLayer.asLayerInterface())
+```
+
+### Gps Modes
+
+The behavior of the gps layer depends on the selected mode. It can be adjusted by calling:
+```kotlin
+gpsLayer.setMode(GpsMode)
+```
+
+The available modes are:
+
+**DISABLED**: No gps indicator is rendered on the map.
+
+**STANDARD**: The indicator is drawn  at the current location, along with the current heading (if enabled and a texture is provided)
+
+**FOLLOW**: In addition to the same behavior as `STANDARD`, upon a location update, the camera is animated to keep the indicators position centered in the map.
+
+**FOLLOW_AND_TURN**: While following the indicators location updates (as in `FOLLOW`), the camera is rotated to have the map oriented in the direction of the current heading.
+
+Listening to and rendering the devices current orientation can be enabled or disabled by calling:
+```kotlin
+gpsLayer.setHeadingEnabled(enabled)
+```
+
+### Location Updates
+
+Location Updates are passed to the gps layer either by calling the appropriate functions manually or using a location provider.
+
+```kotlin
+gpsLayer.updatePosition(Coord(...))
+gpsLayer.updateHeading(orientationInDegrees)
+```
+
+Two types of predefined location providers are supplied with this library:
+
+**GPS_ONLY**: A provider that registers to location updates of the devices gps module only.
+
+**GOOGLE_FUSED**: Uses the [FusedLocationProviderClient](https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderClient.html) of the Google Play Services
+
+**Be aware that you must handle the location permissions of the app yourself!**
+
+When creating the gps layer, you can either conveniently pass the Type of provider (as in the example above) into the constructor or provide a custom implementation of the `LocationProviderInterface`.
+
+```kotlin
+val gpsLayer = GpsLayer(context, gpsStyleInfo, GpsProviderType.GOOGLE_FUSED) // use a supplied provider
+val gpsLayer = GpsLayer(context, gpsStyleInfo, CustomLocationProvider()) // use a custom implementation of the LocationProviderInterface
+```
+
