@@ -55,12 +55,15 @@ A default style is already included in the gps layer but a custom one can be pro
 
 ```swift
 public extension MCGpsStyleInfo {
-    static var customStyle: MCGpsStyleInfo {
-        let pointImage = UIImage(named: "ic-gps-point", in: .module, compatibleWith: nil)!
-        let pointTexture = try! TextureHolder(pointImage.cgImage!)
-
-        let headingImage = UIImage(named: "ic-gps-direction", in: .module, compatibleWith: nil)!
-        let headingTexture = try! TextureHolder(headingImage.cgImage!)
+    static var defaultStyle: MCGpsStyleInfo {
+        guard let pointImage = UIImage(named: "ic-gps-point", in: .module, compatibleWith: nil),
+              let pointCgImage = pointImage.cgImage,
+              let pointTexture = try? TextureHolder(pointCgImage),
+              let headingImage = UIImage(named: "ic-gps-direction", in: .module, compatibleWith: nil),
+              let headingCgImage = headingImage.cgImage,
+              let headingTexture = try? TextureHolder(headingCgImage) else {
+                  fatalError("gps style assets not found")
+              }
 
         return MCGpsStyleInfo(pointTexture: pointTexture,
                        headingTexture: headingTexture,
