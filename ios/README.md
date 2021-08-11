@@ -56,10 +56,10 @@ A default style is already included in the gps layer but a custom one can be pro
 ```swift
 public extension MCGpsStyleInfo {
     static var defaultStyle: MCGpsStyleInfo {
-        guard let pointImage = UIImage(named: "ic-gps-point", in: .module, compatibleWith: nil),
+        guard let pointImage = UIImage(named: "ic_gps_point", in: .module, compatibleWith: nil),
               let pointCgImage = pointImage.cgImage,
               let pointTexture = try? TextureHolder(pointCgImage),
-              let headingImage = UIImage(named: "ic-gps-direction", in: .module, compatibleWith: nil),
+              let headingImage = UIImage(named: "ic_gps_direction", in: .module, compatibleWith: nil),
               let headingCgImage = headingImage.cgImage,
               let headingTexture = try? TextureHolder(headingCgImage) else {
                   fatalError("gps style assets not found")
@@ -67,7 +67,10 @@ public extension MCGpsStyleInfo {
 
         return MCGpsStyleInfo(pointTexture: pointTexture,
                        headingTexture: headingTexture,
-                       accuracyColor:  UIColor.blue.withAlphaComponent(0.5).mapCoreColor)
+                              accuracyColor:  UIColor(red: 112/255,
+                                                      green: 173/255,
+                                                      blue: 204/255,
+                                                      alpha: 0.2).mapCoreColor)
     }
 }
 ```
