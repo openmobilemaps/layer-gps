@@ -100,16 +100,21 @@ extension MCGpsLayer: UBLocationManagerDelegate {
 
 public extension MCGpsStyleInfo {
     static var defaultStyle: MCGpsStyleInfo {
-
-        let pointImage = UIImage(named: "ic-gps-point", in: .module, compatibleWith: nil)!
-        let pointTexture = try! TextureHolder(pointImage.cgImage!)
-
-        let headingImage = UIImage(named: "ic-gps-direction", in: .module, compatibleWith: nil)!
-        let headingTexture = try! TextureHolder(headingImage.cgImage!)
+        guard let pointImage = UIImage(named: "ic_gps_point", in: .module, compatibleWith: nil),
+              let pointCgImage = pointImage.cgImage,
+              let pointTexture = try? TextureHolder(pointCgImage),
+              let headingImage = UIImage(named: "ic_gps_direction", in: .module, compatibleWith: nil),
+              let headingCgImage = headingImage.cgImage,
+              let headingTexture = try? TextureHolder(headingCgImage) else {
+                  fatalError("gps style assets not found")
+              }
 
         return MCGpsStyleInfo(pointTexture: pointTexture,
                        headingTexture: headingTexture,
-                       accuracyColor:  UIColor.blue.withAlphaComponent(0.5).mapCoreColor)
+                              accuracyColor:  UIColor(red: 112/255,
+                                                      green: 173/255,
+                                                      blue: 204/255,
+                                                      alpha: 0.2).mapCoreColor)
     }
 }
 
