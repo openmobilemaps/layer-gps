@@ -21,7 +21,7 @@ public class MCGpsLayer: NSObject {
 
     private let locationManager = UBLocationManager.shared
 
-    var modeDidChangeCallback: ((_ mode: MCGpsMode) -> Void)? {
+    public var modeDidChangeCallback: ((_ mode: MCGpsMode) -> Void)? {
         didSet {
             callbackHandler.modeDidChangeCallback = modeDidChangeCallback
         }
@@ -36,11 +36,17 @@ public class MCGpsLayer: NSObject {
                                                    delegate: self,
                                                    canAskForPermission: true)
 
+        layer.setCallbackHandler(callbackHandler)
+        
         setMode(.STANDARD)
     }
 
     public func setMode(_ mode: MCGpsMode) {
         layer.setMode(mode)
+    }
+
+    public var mode: MCGpsMode {
+        layer.getMode()
     }
 
     public func asLayerInterface() -> MCLayerInterface? {
@@ -56,6 +62,9 @@ extension MCGpsLayer: UBLocationManagerDelegate {
 
     public func locationManager(_: UBLocationManager, grantedPermission _: UBLocationManager.AuthorizationLevel, accuracy: UBLocationManager.AccuracyLevel) {}
 
+    public func locationManager(permissionDeniedFor manager: UBLocationManager) {
+        layer.setMode(.DISABLED)
+    }
 
     public func locationManager(_: UBLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
@@ -66,7 +75,9 @@ extension MCGpsLayer: UBLocationManagerDelegate {
 
     }
 
-    public func locationManager(_: UBLocationManager, didFailWithError _: Error) { }
+    public func locationManager(_: UBLocationManager, didFailWithError _: Error) {
+        layer.setMode(.DISABLED)
+    }
 
 
     public func locationManager(_: UBLocationManager, didUpdateHeading newHeading: CLHeading) {
@@ -107,7 +118,9 @@ private class MCGpsCallbackHandler: MCGpsLayerCallbackInterface {
     var modeDidChangeCallback: ((_ mode: MCGpsMode) -> Void)?
 
     func modeDidChange(_ mode: MCGpsMode) {
-        modeDidChangeCallback?(mode)
+        DispatchQueue.main.async {
+            self.modeDidChangeCallback?(mode)
+        }
     }
 
 }
