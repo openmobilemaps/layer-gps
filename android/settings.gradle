@@ -1,0 +1,2 @@
+include ':mapscore'
+rootProject.name='layergps'
