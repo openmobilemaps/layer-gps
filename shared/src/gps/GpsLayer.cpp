@@ -44,15 +44,19 @@ void GpsLayer::setMode(GpsMode mode) {
             drawLocation = true;
             followModeEnabled = true;
             rotationModeEnabled = false;
-            updatePosition(position, horizontalAccuracyM);
+            if (positionValid) {
+                updatePosition(position, horizontalAccuracyM);
+            }
             break;
         }
         case GpsMode::FOLLOW_AND_TURN: {
             drawLocation = true;
             followModeEnabled = true;
             rotationModeEnabled = true;
-            updatePosition(position, horizontalAccuracyM);
-            updateHeading(angleHeading);
+            if (positionValid) {
+                updatePosition(position, horizontalAccuracyM);
+                updateHeading(angleHeading);
+            }
             break;
         }
     }
@@ -348,9 +352,6 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
     Matrix::multiplyMMC(newMatrix, 0, trMatrix, 0, newMatrix, 0);
     return newMatrix;
 }
-
-void GpsLayer::setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) {}
-
 
 void GpsLayer::setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) {
     callbackHandler = handler;
