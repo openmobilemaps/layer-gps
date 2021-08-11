@@ -41,17 +41,24 @@ Make sure you have mavenCentral() listed in your project repositories.
 The gps layer can be created with:
 
 ```kotlin
-val gpsStyleInfo = GpsStyleInfo(
-    BitmapTextureHolder(bitmapGpsDot),
-    BitmapTextureHolder(bitmapGpsHeading),
-    Color(1.0f, 0f, 0f, 0.2f)
-)
+val gpsStyleInfo = GpsStyleInfoFactory.createDefaultStyle(context)
 val gpsProviderType = GpsProviderType.GPS_ONLY
 val gpsLayer = GpsLayer(context, gpsStyleInfo, gpsProviderType)
 gpsLayer.registerLifecycle(lifecycle)
 
 // Add the new layer to the MapView
 mapView.addLayer(gpsLayer.asLayerInterface())
+```
+
+The code above uses the included default style. A custom style for the gps indicator can easily be created with the `GpsStyleInfoFactory`.
+Two images (`ic_gps_point` and `ic_gps_direction`) are included in the module as an example for the two drawables needed for the `GpsStyleInfo`.
+
+```kotlin
+val gpsStyleInfo = GpsStyleInfoFactory.createGpsStyle(
+    gpsPointIdicator, // Drawable or Bitmap. Rendered at the currently provided location
+    gpsDirectionIndicator, // Drawable or Bitmap. Rendered below the point indicator, indicating the device orientation
+    Color(1.0f, 0f, 0f, 0.2f) // Color used to render the accuracy range of the currently provided location
+)
 ```
 
 ### Gps Modes
