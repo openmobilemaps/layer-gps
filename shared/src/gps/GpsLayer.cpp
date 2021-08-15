@@ -221,6 +221,7 @@ void GpsLayer::onAdded(const std::shared_ptr<MapInterface> &mapInterface) {
 
 void GpsLayer::onRemoved() {
     mapInterface->getTouchHandler()->removeListener(shared_from_this());
+    mapInterface = nullptr;
 }
 
 void GpsLayer::pause() {
