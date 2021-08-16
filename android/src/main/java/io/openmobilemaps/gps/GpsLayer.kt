@@ -27,7 +27,7 @@ import io.openmobilemaps.mapscore.shared.map.LayerInterface
 import io.openmobilemaps.mapscore.shared.map.coordinates.Coord
 import io.openmobilemaps.mapscore.shared.map.coordinates.CoordinateSystemIdentifiers
 
-class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: LocationProviderInterface) : GpsLayerCallbackInterface(),
+class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: LocationProviderInterface?) : GpsLayerCallbackInterface(),
 	LifecycleObserver,
 	LocationUpdateListener, CompassUpdateListener {
 
