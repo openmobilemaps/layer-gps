@@ -1,7 +1,10 @@
 package io.openmobilemaps.gps
 
-object LayerGpsInitializer {
+import io.openmobilemaps.mapscore.MapsCore
+
+object LayerGps {
 	fun initialize() {
 		System.loadLibrary("layergps")
+		MapsCore.initialize()
 	}
 }
