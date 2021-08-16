@@ -27,15 +27,16 @@ import io.openmobilemaps.mapscore.shared.map.LayerInterface
 import io.openmobilemaps.mapscore.shared.map.coordinates.Coord
 import io.openmobilemaps.mapscore.shared.map.coordinates.CoordinateSystemIdentifiers
 
-class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: LocationProviderInterface) : GpsLayerCallbackInterface(), LifecycleObserver,
+class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: LocationProviderInterface?) : GpsLayerCallbackInterface(),
+	LifecycleObserver,
 	LocationUpdateListener, CompassUpdateListener {
 
 	constructor(context: Context, style: GpsStyleInfo, providerType: GpsProviderType)
 			: this(context, style, providerType.getProvider(context))
 
-	private var locationProvider: LocationProviderInterface = locationProvider
-	private val compassProvider = CompassProvider.getInstance(context)
-	private val layerInterface = GpsLayerInterface.create(style).apply {
+	private var locationProvider: LocationProviderInterface? = locationProvider
+	private var compassProvider: CompassProvider? = CompassProvider.getInstance(context)
+	private var layerInterface: GpsLayerInterface? = GpsLayerInterface.create(style).apply {
 		setCallbackHandler(this@GpsLayer)
 	}
 	private var lifecycle: Lifecycle? = null
@@ -48,47 +49,55 @@ class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: Location
 		this.lifecycle = lifecycle
 	}
 
-	fun asLayerInterface(): LayerInterface = layerInterface.asLayerInterface()
+	fun asLayerInterface(): LayerInterface = requireLayerInterface().asLayerInterface()
 
 	fun updatePosition(position: Coord, horizontalAccuracyM: Double) {
-		layerInterface.updatePosition(position, horizontalAccuracyM)
+		requireLayerInterface().updatePosition(position, horizontalAccuracyM)
 	}
 
 	fun updateHeading(angleHeading: Float) {
-		layerInterface.updateHeading(angleHeading)
+		requireLayerInterface().updateHeading(angleHeading)
 	}
 
 	fun setMode(mode: GpsMode) {
-		if (layerInterface.getMode() != mode) {
-			layerInterface.setMode(mode)
+		if (requireLayerInterface().getMode() != mode) {
+			requireLayerInterface().setMode(mode)
 		}
 	}
 
 	fun setHeadingEnabled(enable: Boolean) {
-		layerInterface.enableHeading(enable)
+		requireLayerInterface().enableHeading(enable)
 		if (enable) {
-			compassProvider.registerCompassUpdateListener(this)
+			compassProvider?.registerCompassUpdateListener(this)
 		} else {
-			compassProvider.unregisterCompassUpdateListener(this)
+			compassProvider?.unregisterCompassUpdateListener(this)
 		}
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_START)
 	fun onStart() {
-		locationProvider.registerLocationUpdateListener(this)
-		compassProvider.registerCompassUpdateListener(this)
+		locationProvider?.registerLocationUpdateListener(this)
+		compassProvider?.registerCompassUpdateListener(this)
 	}
 
 	@OnLifecycleEvent(Lifecycle.Event.ON_STOP)
 	fun onStop() {
-		locationProvider.unregisterLocationUpdateListener(this)
-		locationProvider.unregisterLocationUpdateListener(this)
+		locationProvider?.unregisterLocationUpdateListener(this)
+		compassProvider?.unregisterCompassUpdateListener(this)
+	}
+
+	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+	fun onDestroy() {
+		layerInterface = null
+		locationProvider = null
+		compassProvider = null
 	}
 
 	fun changeProviderType(context: Context, gpsProviderType: GpsProviderType) {
-		locationProvider.unregisterLocationUpdateListener(this)
-		locationProvider = gpsProviderType.getProvider(context)
+		locationProvider?.unregisterLocationUpdateListener(this)
+		val locationProvider = gpsProviderType.getProvider(context)
 		locationProvider.registerLocationUpdateListener(this)
+		this.locationProvider = locationProvider
 	}
 
 	fun setOnModeChangedListener(listener: ((GpsMode) -> Unit)?) {
@@ -98,14 +107,19 @@ class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: Location
 	override fun onLocationUpdate(newLocation: Location) {
 		val coord = Coord(CoordinateSystemIdentifiers.EPSG4326(), newLocation.longitude, newLocation.latitude, newLocation.altitude)
 		val accuracy = newLocation.accuracy.toDouble()
-		layerInterface.updatePosition(coord, accuracy)
+		requireLayerInterface().updatePosition(coord, accuracy)
 	}
 
 	override fun onCompassUpdate(degrees: Float) {
-		layerInterface.updateHeading(degrees)
+		requireLayerInterface().updateHeading(degrees)
 	}
 
 	override fun modeDidChange(mode: GpsMode) {
 		modeChangedListener?.invoke(mode)
 	}
+
+	private fun requireLayerInterface(): GpsLayerInterface =
+		layerInterface ?: throw IllegalStateException("GpsLayer is already destroyed!")
+	private fun requireCompassProvider(): CompassProvider =
+		compassProvider ?: throw IllegalStateException("GpsLayer is already destroyed!")
 }
