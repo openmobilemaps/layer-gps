@@ -5,7 +5,6 @@
 #include "Marshal.hpp"
 #include "NativeColor.h"
 #include "NativeTextureHolderInterface.h"
-#include "NativeVec2D.h"
 
 namespace djinni_generated {
 
@@ -17,22 +16,18 @@ auto NativeGpsStyleInfo::fromCpp(JNIEnv* jniEnv, const CppType& c) -> ::djinni::
     const auto& data = ::djinni::JniClass<NativeGpsStyleInfo>::get();
     auto r = ::djinni::LocalRef<JniType>{jniEnv->NewObject(data.clazz.get(), data.jconstructor,
                                                            ::djinni::get(::djinni::Optional<std::optional, ::djinni_generated::NativeTextureHolderInterface>::fromCpp(jniEnv, c.pointTexture)),
-                                                           ::djinni::get(::djinni_generated::NativeVec2D::fromCpp(jniEnv, c.pointSizePx)),
                                                            ::djinni::get(::djinni::Optional<std::optional, ::djinni_generated::NativeTextureHolderInterface>::fromCpp(jniEnv, c.headingTexture)),
-                                                           ::djinni::get(::djinni_generated::NativeVec2D::fromCpp(jniEnv, c.headingSizePx)),
                                                            ::djinni::get(::djinni_generated::NativeColor::fromCpp(jniEnv, c.accuracyColor)))};
     ::djinni::jniExceptionCheck(jniEnv);
     return r;
 }
 
 auto NativeGpsStyleInfo::toCpp(JNIEnv* jniEnv, JniType j) -> CppType {
-    ::djinni::JniLocalScope jscope(jniEnv, 6);
+    ::djinni::JniLocalScope jscope(jniEnv, 4);
     assert(j != nullptr);
     const auto& data = ::djinni::JniClass<NativeGpsStyleInfo>::get();
     return {::djinni::Optional<std::optional, ::djinni_generated::NativeTextureHolderInterface>::toCpp(jniEnv, jniEnv->GetObjectField(j, data.field_pointTexture)),
-            ::djinni_generated::NativeVec2D::toCpp(jniEnv, jniEnv->GetObjectField(j, data.field_pointSizePx)),
             ::djinni::Optional<std::optional, ::djinni_generated::NativeTextureHolderInterface>::toCpp(jniEnv, jniEnv->GetObjectField(j, data.field_headingTexture)),
-            ::djinni_generated::NativeVec2D::toCpp(jniEnv, jniEnv->GetObjectField(j, data.field_headingSizePx)),
             ::djinni_generated::NativeColor::toCpp(jniEnv, jniEnv->GetObjectField(j, data.field_accuracyColor))};
 }
 

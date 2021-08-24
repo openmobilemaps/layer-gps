@@ -19,7 +19,7 @@
 #include "CoordAnimation.h"
 #include "DoubleAnimation.h"
 
-#define DEFAULT_ANIM_LENGTH 200
+#define DEFAULT_ANIM_LENGTH 100
 
 GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo) {
 }
@@ -44,15 +44,19 @@ void GpsLayer::setMode(GpsMode mode) {
             drawLocation = true;
             followModeEnabled = true;
             rotationModeEnabled = false;
-            updatePosition(position, horizontalAccuracyM);
+            if (positionValid) {
+                updatePosition(position, horizontalAccuracyM);
+            }
             break;
         }
         case GpsMode::FOLLOW_AND_TURN: {
             drawLocation = true;
             followModeEnabled = true;
             rotationModeEnabled = true;
-            updatePosition(position, horizontalAccuracyM);
-            updateHeading(angleHeading);
+            if (positionValid) {
+                updatePosition(position, horizontalAccuracyM);
+                updateHeading(angleHeading);
+            }
             break;
         }
     }
@@ -121,7 +125,8 @@ void GpsLayer::updateHeading(float angleHeading) {
     if (!mapInterface) return;
 
     headingValid = true;
-    float newHeading = fmod(angleHeading + 360.0f, 360.0f);
+    float newHeading = -angleHeading;
+    newHeading = fmod(newHeading + 360.0f, 360.0f);
     float oldHeading = this->angleHeading;
     newHeading = std::abs(newHeading - oldHeading) < std::abs((newHeading + 360) - oldHeading) ? newHeading : (newHeading + 360);
 
@@ -216,6 +221,7 @@ void GpsLayer::onAdded(const std::shared_ptr<MapInterface> &mapInterface) {
 
 void GpsLayer::onRemoved() {
     mapInterface->getTouchHandler()->removeListener(shared_from_this());
+    mapInterface = nullptr;
 }
 
 void GpsLayer::pause() {

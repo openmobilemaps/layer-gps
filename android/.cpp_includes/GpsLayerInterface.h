@@ -7,6 +7,7 @@
 #include "LayerInterface.h"
 #include <memory>
 
+class GpsLayerCallbackInterface;
 enum class GpsMode;
 struct GpsStyleInfo;
 
@@ -15,6 +16,8 @@ public:
     virtual ~GpsLayerInterface() {}
 
     static std::shared_ptr<GpsLayerInterface> create(const GpsStyleInfo & styleInfo);
+
+    virtual void setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) = 0;
 
     virtual void setMode(GpsMode mode) = 0;
 

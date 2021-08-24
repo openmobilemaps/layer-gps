@@ -22,7 +22,7 @@ repositories {
 
 apply plugin : 'com.android.library'
 apply plugin : 'kotlin-android'
-//apply plugin: 'com.vanniktech.maven.publish'
+apply plugin: 'com.vanniktech.maven.publish'
 
 android {
 	compileSdkVersion 30
@@ -60,13 +60,13 @@ android {
 
 	buildFeatures {
 		prefab true
-		//prefabPublishing true
+		prefabPublishing true
 	}
 
 	prefab{
-		gps {
+		layergps {
 			headers ".cpp_includes"
-			name "gps"
+			name "layergps"
 		}
 	}
 
@@ -110,13 +110,17 @@ ext.readPropertyWithDefault = { paramName, defaultValue ->
 	}
 }
 
+mavenPublish {
+	androidVariantToPublish = PUBLISH_VARIANT
+}
+
 dependencies {
 
 	implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 	implementation 'androidx.core:core-ktx:1.3.2'
 	implementation 'com.google.android.gms:play-services-location:17.0.0'
 
-	mavenApi 'io.openmobilemaps:mapscore-dev:1.3.0.13'
+	mavenApi 'io.openmobilemaps:mapscore:1.3.3'
 	moduleApi project(':mapscore')
 
 	testImplementation 'junit:junit:4.13.2'

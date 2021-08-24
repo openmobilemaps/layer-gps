@@ -13,9 +13,7 @@ gps_mode = enum {
 
 gps_style_info = record {
 	point_texture : optional<texture_holder_interface>;
-	point_size_px : vec_2_d;
 	heading_texture : optional<texture_holder_interface>;
-	heading_size_px : vec_2_d;
 	accuracy_color : color;
 }
 
