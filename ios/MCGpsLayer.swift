@@ -27,6 +27,8 @@ public class MCGpsLayer: NSObject {
         }
     }
 
+    public var locationAdjustmentCallback: (([CLLocation]) -> [CLLocation])? = nil
+
     public init(style: MCGpsStyleInfo = .defaultStyle) {
         layer = MCGpsLayerInterface.create(style)
 
@@ -59,7 +61,6 @@ extension MCGpsLayer: UBLocationManagerDelegate {
 
     public var locationManagerFilterAccuracy: CLLocationAccuracy? { nil }
 
-
     public func locationManager(_: UBLocationManager, grantedPermission _: UBLocationManager.AuthorizationLevel, accuracy: UBLocationManager.AccuracyLevel) {}
 
     public func locationManager(permissionDeniedFor manager: UBLocationManager) {
@@ -67,7 +68,7 @@ extension MCGpsLayer: UBLocationManagerDelegate {
     }
 
     public func locationManager(_: UBLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
+        guard let location = self.locationAdjustmentCallback?(locations).last ?? locations.last else { return }
         layer.updatePosition(.init(systemIdentifier: MCCoordinateSystemIdentifiers.epsg4326(),
                                    x: location.coordinate.longitude,
                                    y: location.coordinate.latitude,
