@@ -29,14 +29,12 @@ public class MCGpsLayer: NSObject {
 
     public var locationAdjustmentCallback: (([CLLocation]) -> [CLLocation])? = nil
 
-    public init(style: MCGpsStyleInfo = .defaultStyle) {
+    public init(style: MCGpsStyleInfo = .defaultStyle, canAskForPermission: Bool = true) {
         layer = MCGpsLayerInterface.create(style)
 
         super.init()
 
-        locationManager.startLocationMonitoring(for: [.location(background: false), .heading(background: false)],
-                                                   delegate: self,
-                                                   canAskForPermission: true)
+        locationManager.startLocationMonitoring(for: [.location(background: false), .heading(background: false)], delegate: self, canAskForPermission: canAskForPermission)
 
         layer.setCallbackHandler(callbackHandler)
         
