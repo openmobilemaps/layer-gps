@@ -51,3 +51,4 @@ This feature is an extension to the [Open Mobile Maps](https://openmobilemaps.io
 
 ## License
 This project is licensed under the terms of the MPL 2 license. See the [LICENSE](LICENSE) file.
+This project is licensed under the terms of the MPL 2 license. See the [LICENSE](LICENSE) file.

@@ -46,6 +46,8 @@ public:
 
     // LayerInterface
 
+    virtual void setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) override;
+
     virtual void update() override;
 
     virtual std::vector<std::shared_ptr<::RenderPassInterface>> buildRenderPasses() override;
@@ -108,4 +110,6 @@ private:
     std::shared_ptr<AnimationInterface> headingAnimation;
 
     std::shared_ptr<GpsLayerCallbackInterface> callbackHandler;
+
+    std::shared_ptr<::MaskingObjectInterface> mask = nullptr;
 };
