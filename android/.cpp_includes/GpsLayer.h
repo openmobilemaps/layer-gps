@@ -110,4 +110,6 @@ private:
     std::shared_ptr<AnimationInterface> headingAnimation;
 
     std::shared_ptr<GpsLayerCallbackInterface> callbackHandler;
+
+    std::shared_ptr<::MaskingObjectInterface> mask = nullptr;
 };

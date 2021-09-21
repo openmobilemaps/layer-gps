@@ -204,7 +204,8 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
     std::vector<std::shared_ptr<RenderPassInterface>> renderPasses;
     for (const auto &passEntry : renderPassObjectMap) {
         std::shared_ptr<RenderPass> renderPass = std::make_shared<RenderPass>(RenderPassConfig(passEntry.first),
-                                                                              passEntry.second);
+                                                                              passEntry.second,
+                                                                              mask);
         renderPasses.push_back(renderPass);
     }
     return renderPasses;
@@ -355,7 +356,10 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
     return newMatrix;
 }
 
-void GpsLayer::setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) {}
+void GpsLayer::setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) {
+    this->mask = maskingObject;
+    if (mapInterface) mapInterface->invalidate();
+}
 
 
 void GpsLayer::setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) {
