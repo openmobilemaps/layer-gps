@@ -14,8 +14,8 @@
         "package": "MapCore",
         "repositoryURL": "https://github.com/openmobilemaps/maps-core.git",
         "state": {
-          "branch": "feature/circle-layer-object",
-          "revision": "6fc6a43c1de0dd1ac78548038eec11cc9c654e15",
+          "branch": "develop",
+          "revision": "02bec6684d7659e38def37de9b8302ed7802f5e4",
           "version": null
         }
       }
