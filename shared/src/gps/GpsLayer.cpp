@@ -229,6 +229,9 @@ void GpsLayer::pause() {
     if (centerObject) centerObject->getQuadObject()->asGraphicsObject()->clear();
     if (headingObject) headingObject->getQuadObject()->asGraphicsObject()->clear();
     if (accuracyObject) accuracyObject->getQuadObject()->asGraphicsObject()->clear();
+    if (mask) {
+        if (mask->asGraphicsObject()->isReady()) mask->asGraphicsObject()->clear();
+    }
 }
 
 void GpsLayer::resume() {
@@ -251,6 +254,10 @@ void GpsLayer::resume() {
         Color accuracyColor = styleInfo.accuracyColor;
         accuracyObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
         accuracyObject->setColor(accuracyColor);
+    }
+
+    if (mask) {
+        if (!mask->asGraphicsObject()->isReady()) mask->asGraphicsObject()->setup(renderingContext);
     }
 }
 
@@ -358,7 +365,12 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
 
 void GpsLayer::setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) {
     this->mask = maskingObject;
-    if (mapInterface) mapInterface->invalidate();
+    if (mapInterface) {
+        if (mask) {
+            if (!mask->asGraphicsObject()->isReady()) mask->asGraphicsObject()->setup(mapInterface->getRenderingContext());
+        }
+        mapInterface->invalidate();
+    }
 }
 
 
