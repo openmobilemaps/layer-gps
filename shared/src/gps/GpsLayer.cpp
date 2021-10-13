@@ -241,13 +241,13 @@ void GpsLayer::resume() {
     if (!centerObject->getQuadObject()->asGraphicsObject()->isReady()) {
         auto textureCenter = styleInfo.pointTexture;
         centerObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
-        centerObject->getQuadObject()->loadTexture(textureCenter);
+        centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
     }
 
     if (!headingObject->getQuadObject()->asGraphicsObject()->isReady()) {
         auto textureHeading = styleInfo.headingTexture;
         headingObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
-        headingObject->getQuadObject()->loadTexture(textureHeading);
+        headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
     }
 
     if (!accuracyObject->getQuadObject()->asGraphicsObject()->isReady()) {
@@ -338,9 +338,9 @@ void GpsLayer::setupLayerObjects() {
             TaskConfig("GpsLayer_setup_objects", 0, TaskPriority::NORMAL, ExecutionEnvironment::GRAPHICS),
             [=] {
                 centerObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
-                centerObject->getQuadObject()->loadTexture(textureCenter);
+                centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
                 headingObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
-                headingObject->getQuadObject()->loadTexture(textureHeading);
+                headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
                 accuracyObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
             }));
 }
