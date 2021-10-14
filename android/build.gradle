@@ -88,6 +88,8 @@ android {
 
 }
 
+preBuild.dependsOn ":mapscore:assemble"
+
 task copyHeaders() {
 	String headersDir = ".cpp_includes"
 	project.delete(headersDir)
