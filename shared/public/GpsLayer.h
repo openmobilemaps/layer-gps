@@ -42,6 +42,8 @@ public:
 
     virtual std::shared_ptr<::LayerInterface> asLayerInterface() override;
 
+    virtual void setDrawPoint(bool enable) override;
+
     virtual void setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) override;
 
     // LayerInterface
@@ -83,12 +85,6 @@ private:
 
     virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling);
 
-    std::shared_ptr<Textured2dLayerObject> centerObject;
-    std::shared_ptr<Textured2dLayerObject> headingObject;
-    std::shared_ptr<Circle2dLayerObject> accuracyObject;
-
-    std::shared_ptr<MapInterface> mapInterface;
-    std::shared_ptr<MapCamera2dInterface> camera;
     std::atomic<bool> isHidden = false;
 
     Coord position = Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0, 0, 0);
@@ -103,6 +99,8 @@ private:
     bool followModeEnabled = false;
     bool rotationModeEnabled = false;
 
+    bool drawCenterObjectEnabled = true;
+
     GpsStyleInfo styleInfo;
 
     std::recursive_mutex animationMutex;
@@ -112,4 +110,12 @@ private:
     std::shared_ptr<GpsLayerCallbackInterface> callbackHandler;
 
     std::shared_ptr<::MaskingObjectInterface> mask = nullptr;
+                     
+protected:
+    std::shared_ptr<MapInterface> mapInterface;
+    std::shared_ptr<MapCamera2dInterface> camera;
+
+    std::shared_ptr<Textured2dLayerObject> centerObject;
+    std::shared_ptr<Textured2dLayerObject> headingObject;
+    std::shared_ptr<Circle2dLayerObject> accuracyObject;
 };
