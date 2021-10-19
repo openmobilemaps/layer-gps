@@ -81,6 +81,12 @@ static_assert(__has_feature(objc_arc), "Djinni requires ARC to be enabled for th
     } DJINNI_TRANSLATE_EXCEPTIONS()
 }
 
+- (void)setDrawPoint:(BOOL)enable {
+    try {
+        _cppRefHandle.get()->setDrawPoint(::djinni::Bool::toCpp(enable));
+    } DJINNI_TRANSLATE_EXCEPTIONS()
+}
+
 - (nullable id<MCLayerInterface>)asLayerInterface {
     try {
         auto objcpp_result_ = _cppRefHandle.get()->asLayerInterface();

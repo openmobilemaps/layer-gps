@@ -29,8 +29,10 @@ public class MCGpsLayer: NSObject {
 
     public var locationAdjustmentCallback: (([CLLocation]) -> [CLLocation])? = nil
 
-    public init(style: MCGpsStyleInfo = .defaultStyle, canAskForPermission: Bool = true) {
-        layer = MCGpsLayerInterface.create(style)
+    public init(style: MCGpsStyleInfo = .defaultStyle,
+                canAskForPermission: Bool = true,
+                nativeLayerProvider: ((MCGpsStyleInfo) -> MCGpsLayerInterface?) = MCGpsLayerInterface.create) {
+        layer = nativeLayerProvider(style)
 
         super.init()
 
@@ -65,12 +67,15 @@ extension MCGpsLayer: UBLocationManagerDelegate {
         layer.setMode(.DISABLED)
     }
 
-    public func locationManager(_: UBLocationManager, didUpdateLocations locations: [CLLocation]) {
+    public func locationManager(_ manager : UBLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = self.locationAdjustmentCallback?(locations).last ?? locations.last else { return }
+
+        layer.setDrawPoint(manager.accuracyLevel == .full)
+
         layer.updatePosition(.init(systemIdentifier: MCCoordinateSystemIdentifiers.epsg4326(),
                                    x: location.coordinate.longitude,
                                    y: location.coordinate.latitude,
-                                   z: 0), horizontalAccuracyM: location.horizontalAccuracy)
+                                   z: location.altitude), horizontalAccuracyM: location.horizontalAccuracy)
 
     }
 
