@@ -195,7 +195,7 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
                 std::make_shared<RenderObject>(config->getGraphicsObject(), accuracyModelMatrix));
     }
 
-    if (headingEnabled && headingValid) {
+    if (headingEnabled && headingValid && drawHeadingObjectEnabled) {
         for (const auto &config : headingObject->getRenderConfig()) {
             renderPassObjectMap[config->getRenderIndex()].push_back(
                     std::make_shared<RenderObject>(config->getGraphicsObject(), invariantModelMatrix));
@@ -383,6 +383,10 @@ void GpsLayer::setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> 
 
 void GpsLayer::setDrawPoint(bool enable) {
     drawCenterObjectEnabled = enable;
+}
+
+void GpsLayer::setDrawHeading(bool enable) {
+    drawHeadingObjectEnabled = enable;
 }
 
 void GpsLayer::setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) {

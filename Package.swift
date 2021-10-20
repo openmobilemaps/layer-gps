@@ -9,6 +9,10 @@ let package = Package(
     ],
     products: [
         .library(
+            name: "LocationManager",
+            targets: ["LocationManager"]
+        ),
+        .library(
             name: "LayerGps",
             targets: ["LayerGps"]
         ),
@@ -28,13 +32,19 @@ let package = Package(
     ],
     targets: [
         .target(
+            name: "LocationManager",
+            dependencies: [
+                "LayerGps"
+            ],
+            path: "ios/LocationManager"
+        ),
+        .target(
             name: "LayerGps",
             dependencies: [
                 .product(name: "MapCore", package: "MapCore"),
                 "LayerGpsSharedModule",
             ],
-            path: "ios",
-            exclude: ["README.md"]
+            path: "ios/Layer"
         ),
         .target(
             name: "LayerGpsSharedModule",

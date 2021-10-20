@@ -21,6 +21,8 @@ abstract class GpsLayerInterface {
 
     abstract fun setDrawPoint(enable: Boolean)
 
+    abstract fun setDrawHeading(enable: Boolean)
+
     abstract fun asLayerInterface(): io.openmobilemaps.mapscore.shared.map.LayerInterface
 
     companion object {
@@ -89,6 +91,12 @@ abstract class GpsLayerInterface {
             native_setDrawPoint(this.nativeRef, enable)
         }
         private external fun native_setDrawPoint(_nativeRef: Long, enable: Boolean)
+
+        override fun setDrawHeading(enable: Boolean) {
+            assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
+            native_setDrawHeading(this.nativeRef, enable)
+        }
+        private external fun native_setDrawHeading(_nativeRef: Long, enable: Boolean)
 
         override fun asLayerInterface(): io.openmobilemaps.mapscore.shared.map.LayerInterface {
             assert(!this.destroyed.get()) { error("trying to use a destroyed object") }

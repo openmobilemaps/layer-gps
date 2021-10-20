@@ -30,5 +30,6 @@ gps_layer_interface = interface +c {
 	update_position(position: coord, horizontal_accuracy_m: f64);
 	update_heading(angle_heading: f32);
     set_draw_point(enable: bool);
+    set_draw_heading(enable: bool);
     asLayerInterface(): layer_interface;
 }
