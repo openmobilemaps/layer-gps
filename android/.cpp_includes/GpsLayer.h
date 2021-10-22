@@ -44,6 +44,8 @@ public:
 
     virtual void setDrawPoint(bool enable) override;
 
+    virtual void setDrawHeading(bool enable) override;
+
     virtual void setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) override;
 
     // LayerInterface
@@ -100,6 +102,7 @@ private:
     bool rotationModeEnabled = false;
 
     bool drawCenterObjectEnabled = true;
+    bool drawHeadingObjectEnabled = true;
 
     GpsStyleInfo styleInfo;
 
