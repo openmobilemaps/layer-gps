@@ -18,4 +18,4 @@ jobs:
           distribution: zulu
           java-version: 11
       - name: Build with Gradle
-        run: cd android; chmod 0777 gradlew; ./gradlew assembleMaven
+        run: cd android; chmod 0777 gradlew; ./gradlew assemble
