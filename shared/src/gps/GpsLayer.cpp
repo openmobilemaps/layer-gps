@@ -87,6 +87,9 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM)
 
     Coord newPosition = mapInterface->getCoordinateConverterHelper()->convert(
             mapInterface->getMapConfig().mapCoordinateSystem.identifier, position);
+    
+    // ignore position altitude
+    newPosition.z = 0.0;
 
     if (this->position.systemIdentifier != CoordinateSystemIdentifiers::RENDERSYSTEM()) {
         std::lock_guard<std::recursive_mutex> lock(animationMutex);
@@ -186,19 +189,24 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
     std::vector<float> invariantModelMatrix = computeModelMatrix(true, 1.0);
     std::vector<float> accuracyModelMatrix = computeModelMatrix(false, horizontalAccuracyM);
     std::map<int, std::vector<std::shared_ptr<RenderObjectInterface>>> renderPassObjectMap;
+    
     for (const auto &config : accuracyObject->getRenderConfig()) {
         renderPassObjectMap[config->getRenderIndex()].push_back(
                 std::make_shared<RenderObject>(config->getGraphicsObject(), accuracyModelMatrix));
     }
-    if (headingEnabled && headingValid) {
+
+    if (headingEnabled && headingValid && drawHeadingObjectEnabled) {
         for (const auto &config : headingObject->getRenderConfig()) {
             renderPassObjectMap[config->getRenderIndex()].push_back(
                     std::make_shared<RenderObject>(config->getGraphicsObject(), invariantModelMatrix));
         }
     }
-    for (const auto &config : centerObject->getRenderConfig()) {
-        renderPassObjectMap[config->getRenderIndex()].push_back(
-                std::make_shared<RenderObject>(config->getGraphicsObject(), invariantModelMatrix));
+
+    if (drawCenterObjectEnabled) {
+        for (const auto &config : centerObject->getRenderConfig()) {
+            renderPassObjectMap[config->getRenderIndex()].push_back(
+                    std::make_shared<RenderObject>(config->getGraphicsObject(), invariantModelMatrix));
+        }
     }
 
     std::vector<std::shared_ptr<RenderPassInterface>> renderPasses;
@@ -310,7 +318,7 @@ void GpsLayer::setupLayerObjects() {
     auto centerQuad = objectFactory->createQuad(centerShader->asShaderProgramInterface());
     centerObject = std::make_shared<Textured2dLayerObject>(centerQuad, centerShader, mapInterface);
     auto headingShader = shaderFactory->createAlphaShader();
-    auto headingQuad = objectFactory->createQuad(centerShader->asShaderProgramInterface());
+    auto headingQuad = objectFactory->createQuad(headingShader->asShaderProgramInterface());
     headingObject = std::make_shared<Textured2dLayerObject>(headingQuad, headingShader, mapInterface);
     accuracyObject = std::make_shared<Circle2dLayerObject>(mapInterface);
 
@@ -373,6 +381,13 @@ void GpsLayer::setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> 
     }
 }
 
+void GpsLayer::setDrawPoint(bool enable) {
+    drawCenterObjectEnabled = enable;
+}
+
+void GpsLayer::setDrawHeading(bool enable) {
+    drawHeadingObjectEnabled = enable;
+}
 
 void GpsLayer::setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) {
     callbackHandler = handler;

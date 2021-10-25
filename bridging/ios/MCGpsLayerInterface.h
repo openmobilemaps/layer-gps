@@ -27,6 +27,10 @@
 
 - (void)updateHeading:(float)angleHeading;
 
+- (void)setDrawPoint:(BOOL)enable;
+
+- (void)setDrawHeading:(BOOL)enable;
+
 - (nullable id<MCLayerInterface>)asLayerInterface;
 
 @end

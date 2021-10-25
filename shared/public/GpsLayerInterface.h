@@ -29,5 +29,9 @@ public:
 
     virtual void updateHeading(float angleHeading) = 0;
 
+    virtual void setDrawPoint(bool enable) = 0;
+
+    virtual void setDrawHeading(bool enable) = 0;
+
     virtual std::shared_ptr<::LayerInterface> asLayerInterface() = 0;
 };

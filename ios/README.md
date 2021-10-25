@@ -47,8 +47,12 @@ The gps layer can be created with:
 
 ```swift
 let gpsLayer = MCGpsLayer(style: .defaultStyle)
+
 // Add the new layer to the MapView
 mapView.add(layer: gpsLayer.asLayerInterface())
+
+// bind the location manager to the gpsLayer
+UBLocationManager.shared.bindTo(layer: layerGps, canAskForPermission: true)
 ```
 
 A default style is already included in the gps layer but a custom one can be provided by creating a `MCGpsStyleInfo` instance.
@@ -108,5 +112,4 @@ For the gps layer to work to two folowing keys have to be defined in the info.pl
 **NSLocationAlwaysAndWhenInUseUsageDescription**
 
 When initializing the gps layer the gps permission promt will automatically be displayed.
-
 
