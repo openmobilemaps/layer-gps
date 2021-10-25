@@ -77,8 +77,6 @@ android {
 
 	defaultPublishConfig "release"
 
-	flavorDimensions "mapscoresource"
-
 }
 
 task copyHeaders() {
