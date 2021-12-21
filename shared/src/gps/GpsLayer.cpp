@@ -128,27 +128,31 @@ void GpsLayer::updateHeading(float angleHeading) {
     if (!mapInterface) return;
 
     headingValid = true;
-    float newHeading = -angleHeading;
-    newHeading = fmod(newHeading + 360.0f, 360.0f);
-    float oldHeading = this->angleHeading;
-    newHeading = std::abs(newHeading - oldHeading) < std::abs((newHeading + 360) - oldHeading) ? newHeading : (newHeading + 360);
+    double currentAngle = fmod(this->angleHeading, 360.0);
+    double newAngle = -angleHeading;
+    newAngle = fmod(newAngle + 360.0, 360.0);
+    if (abs(currentAngle - newAngle) > abs(currentAngle - (newAngle + 360.0))) {
+        newAngle += 360.0;
+    } else if (abs(currentAngle - newAngle) > abs(currentAngle - (newAngle - 360.0))) {
+        newAngle -= 360.0;
+    }
 
     std::lock_guard<std::recursive_mutex> lock(animationMutex);
     if (headingAnimation) headingAnimation->cancel();
     headingAnimation = std::make_shared<DoubleAnimation>(DEFAULT_ANIM_LENGTH,
-                                                         oldHeading,
-                                                         newHeading,
+                                                         currentAngle,
+                                                         newAngle,
                                                          InterpolatorFunction::Linear,
                                                          [=](double angleAnim) {
                                                              if (mode == GpsMode::FOLLOW_AND_TURN) {
                                                                  camera->setRotation(angleAnim, false);
                                                              }
-                                                             this->angleHeading = fmod(angleAnim + 360.0f, 360.0f);
+                                                             this->angleHeading = fmod(angleAnim + 360.0, 360.0);;
                                                              if (mapInterface) mapInterface->invalidate();
                                                          }, [=] {
                 if (mode == GpsMode::FOLLOW_AND_TURN) {
-                    camera->setRotation(newHeading, false);
-                    this->angleHeading = fmod(newHeading + 360.0f, 360.0f);
+                    camera->setRotation(newAngle, false);
+                    this->angleHeading = fmod(newAngle + 360.0f, 360.0f);
                     if (mapInterface) mapInterface->invalidate();
                 }
             });
