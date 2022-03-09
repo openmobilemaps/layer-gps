@@ -97,6 +97,7 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM)
         coordAnimation = std::make_shared<CoordAnimation>(DEFAULT_ANIM_LENGTH,
                                                           this->position,
                                                           newPosition,
+                                                          std::nullopt,
                                                           InterpolatorFunction::Linear,
                                                           [=](Coord positionMapSystem) {
                                                               if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
