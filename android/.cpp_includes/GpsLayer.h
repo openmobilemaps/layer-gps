@@ -48,6 +48,8 @@ public:
 
     virtual void setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) override;
 
+    virtual void setFollowInitializeZoom(std::optional<float> zoom) override;
+
     // LayerInterface
 
     virtual void setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) override;
@@ -81,7 +83,10 @@ public:
     virtual bool onTwoFingerMove(const std::vector<::Vec2F> &posScreenOld, const std::vector<::Vec2F> &posScreenNew) override;
 
 private:
+    virtual void updatePosition(const Coord &position, double horizontalAccuracyM, bool isInitialFollow);
+
     virtual void resetMode();
+    virtual void resetParameters();
 
     virtual void setupLayerObjects();
 
@@ -107,7 +112,6 @@ private:
     GpsStyleInfo styleInfo;
 
     std::recursive_mutex animationMutex;
-    std::shared_ptr<AnimationInterface> coordAnimation;
     std::shared_ptr<AnimationInterface> headingAnimation;
 
     std::shared_ptr<GpsLayerCallbackInterface> callbackHandler;
@@ -121,4 +125,6 @@ protected:
     std::shared_ptr<Textured2dLayerObject> centerObject;
     std::shared_ptr<Textured2dLayerObject> headingObject;
     std::shared_ptr<Circle2dLayerObject> accuracyObject;
+
+    std::optional<float> followInitializeZoom;
 };

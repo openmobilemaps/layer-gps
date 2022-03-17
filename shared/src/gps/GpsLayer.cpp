@@ -81,6 +81,8 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM)
 }
 
 void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM, bool isInitialFollow) {
+    auto lockSelfPtr = shared_from_this();
+    auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
     if (!mapInterface) return;
 
     if ((position.x == 0 && position.y == 0 && position.z == 0)) {
@@ -92,14 +94,14 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM,
 
     Coord newPosition = mapInterface->getCoordinateConverterHelper()->convert(
             mapInterface->getMapConfig().mapCoordinateSystem.identifier, position);
-    
+
     // ignore position altitude
     newPosition.z = 0.0;
 
     if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
         bool animated = position.systemIdentifier != CoordinateSystemIdentifiers::RENDERSYSTEM();
 
-        if(isInitialFollow && followInitializeZoom) {
+        if (isInitialFollow && followInitializeZoom) {
             camera->moveToCenterPositionZoom(newPosition, *followInitializeZoom, animated);
         } else {
             camera->moveToCenterPosition(newPosition, animated);
@@ -113,6 +115,8 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM,
 }
 
 void GpsLayer::updateHeading(float angleHeading) {
+    auto lockSelfPtr = shared_from_this();
+    auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
     if (!mapInterface) return;
 
     headingValid = true;
@@ -178,7 +182,7 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
     std::vector<float> invariantModelMatrix = computeModelMatrix(true, 1.0);
     std::vector<float> accuracyModelMatrix = computeModelMatrix(false, horizontalAccuracyM);
     std::map<int, std::vector<std::shared_ptr<RenderObjectInterface>>> renderPassObjectMap;
-    
+
     for (const auto &config : accuracyObject->getRenderConfig()) {
         renderPassObjectMap[config->getRenderIndex()].push_back(
                 std::make_shared<RenderObject>(config->getGraphicsObject(), accuracyModelMatrix));
@@ -218,7 +222,7 @@ void GpsLayer::onAdded(const std::shared_ptr<MapInterface> &mapInterface) {
 }
 
 void GpsLayer::onRemoved() {
-    mapInterface->getTouchHandler()->removeListener(shared_from_this());
+    if (mapInterface) mapInterface->getTouchHandler()->removeListener(shared_from_this());
     mapInterface = nullptr;
 }
 
@@ -232,7 +236,8 @@ void GpsLayer::pause() {
 }
 
 void GpsLayer::resume() {
-
+    auto lockSelfPtr = shared_from_this();
+    auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
     auto renderingContext = mapInterface->getRenderingContext();
 
     if (!centerObject->getQuadObject()->asGraphicsObject()->isReady()) {
@@ -305,6 +310,8 @@ void GpsLayer::resetParameters() {
 }
 
 void GpsLayer::setupLayerObjects() {
+    auto lockSelfPtr = shared_from_this();
+    auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
     auto shaderFactory = mapInterface->getShaderFactory();
     auto objectFactory = mapInterface->getGraphicsObjectFactory();
     auto centerShader = shaderFactory->createAlphaShader();
@@ -347,6 +354,9 @@ void GpsLayer::setupLayerObjects() {
 }
 
 std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double objectScaling) {
+    auto lockSelfPtr = shared_from_this();
+    auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
+
     std::vector<float> newMatrix(16, 0);
     Matrix::setIdentityM(newMatrix, 0);
 
@@ -355,7 +365,8 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
 
     Matrix::rotateM(newMatrix, 0.0, -angleHeading, 0.0, 0.0, 1.0);
 
-    Coord renderCoord = mapInterface->getCoordinateConverterHelper()->convertToRenderSystem(position);
+    Coord renderCoord = mapInterface ? mapInterface->getCoordinateConverterHelper()->convertToRenderSystem(position) :
+                        Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0);
     std::vector<float> trMatrix(16, 0);
     Matrix::setIdentityM(trMatrix, 0);
     Matrix::translateM(trMatrix, 0, renderCoord.x, renderCoord.y, renderCoord.z);
@@ -364,7 +375,9 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
     return newMatrix;
 }
 
-void GpsLayer::setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) {
+void GpsLayer::setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> &maskingObject) {
+    auto lockSelfPtr = shared_from_this();
+    auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
     this->mask = maskingObject;
     if (mapInterface) {
         if (mask) {
@@ -382,6 +395,6 @@ void GpsLayer::setDrawHeading(bool enable) {
     drawHeadingObjectEnabled = enable;
 }
 
-void GpsLayer::setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) {
+void GpsLayer::setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> &handler) {
     callbackHandler = handler;
 }
