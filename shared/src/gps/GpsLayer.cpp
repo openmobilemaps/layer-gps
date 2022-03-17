@@ -46,7 +46,7 @@ void GpsLayer::setMode(GpsMode mode) {
             followModeEnabled = true;
             rotationModeEnabled = false;
             if (positionValid) {
-                updatePosition(position, horizontalAccuracyM);
+                updatePosition(position, horizontalAccuracyM, true);
             }
             break;
         }
@@ -55,7 +55,7 @@ void GpsLayer::setMode(GpsMode mode) {
             followModeEnabled = true;
             rotationModeEnabled = true;
             if (positionValid) {
-                updatePosition(position, horizontalAccuracyM);
+                updatePosition(position, horizontalAccuracyM, true);
                 updateHeading(angleHeading);
             }
             break;
@@ -77,6 +77,10 @@ void GpsLayer::enableHeading(bool enable) {
 }
 
 void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM) {
+    updatePosition(position, horizontalAccuracyM, false);
+}
+
+void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM, bool isInitialFollow) {
     if (!mapInterface) return;
 
     if ((position.x == 0 && position.y == 0 && position.z == 0)) {
@@ -92,35 +96,17 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM)
     // ignore position altitude
     newPosition.z = 0.0;
 
-    if (this->position.systemIdentifier != CoordinateSystemIdentifiers::RENDERSYSTEM()) {
-        std::lock_guard<std::recursive_mutex> lock(animationMutex);
-        if (coordAnimation) coordAnimation->cancel();
-        coordAnimation = std::make_shared<CoordAnimation>(DEFAULT_ANIM_LENGTH,
-                                                          this->position,
-                                                          newPosition,
-                                                          std::nullopt,
-                                                          InterpolatorFunction::Linear,
-                                                          [=](Coord positionMapSystem) {
-                                                              if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
-                                                                  camera->moveToCenterPosition(positionMapSystem, false);
-                                                              }
-                                                              this->position = positionMapSystem;
-                                                              if (mapInterface) mapInterface->invalidate();
-                                                          }, [=] {
-                    if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
-                        camera->moveToCenterPosition(newPosition, false);
-                    }
-                    this->position = newPosition;
-                    if (mapInterface) mapInterface->invalidate();
-                });
-        coordAnimation->start();
-    } else {
-        if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
-            camera->moveToCenterPosition(newPosition, false);
+    if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
+        bool animated = position.systemIdentifier != CoordinateSystemIdentifiers::RENDERSYSTEM();
+
+        if(isInitialFollow && followInitializeZoom) {
+            camera->moveToCenterPositionZoom(newPosition, *followInitializeZoom, animated);
+        } else {
+            camera->moveToCenterPosition(newPosition, animated);
         }
-        this->position = newPosition;
     }
 
+    this->position = newPosition;
     this->horizontalAccuracyM = horizontalAccuracyM;
 
     if (mapInterface) mapInterface->invalidate();
@@ -163,26 +149,23 @@ void GpsLayer::updateHeading(float angleHeading) {
     if (mapInterface) mapInterface->invalidate();
 }
 
+void GpsLayer::setFollowInitializeZoom(std::optional<float> zoom) {
+    followInitializeZoom = zoom;
+
+    if (mapInterface) mapInterface->invalidate();
+}
+
 std::shared_ptr<::LayerInterface> GpsLayer::asLayerInterface() {
     return shared_from_this();
 }
 
 void GpsLayer::update() {
-    {
-        std::lock_guard<std::recursive_mutex> lock(animationMutex);
-        if (headingAnimation) {
-            if (headingAnimation->isFinished()) {
-                headingAnimation = nullptr;
-            } else {
-                headingAnimation->update();
-            }
-        }
-        if (coordAnimation) {
-            if (coordAnimation->isFinished()) {
-                coordAnimation = nullptr;
-            } else {
-                coordAnimation->update();
-            }
+    std::lock_guard<std::recursive_mutex> lock(animationMutex);
+    if (headingAnimation) {
+        if (headingAnimation->isFinished()) {
+            headingAnimation = nullptr;
+        } else {
+            headingAnimation->update();
         }
     }
 }

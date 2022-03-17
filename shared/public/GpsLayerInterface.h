@@ -6,6 +6,7 @@
 #include "Coord.h"
 #include "LayerInterface.h"
 #include <memory>
+#include <optional>
 
 class GpsLayerCallbackInterface;
 enum class GpsMode;
@@ -32,6 +33,8 @@ public:
     virtual void setDrawPoint(bool enable) = 0;
 
     virtual void setDrawHeading(bool enable) = 0;
+
+    virtual void setFollowInitializeZoom(std::optional<float> zoom) = 0;
 
     virtual std::shared_ptr<::LayerInterface> asLayerInterface() = 0;
 };
