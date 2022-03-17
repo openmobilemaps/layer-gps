@@ -82,6 +82,7 @@ public:
 
 private:
     virtual void resetMode();
+    virtual void resetParameters();
 
     virtual void setupLayerObjects();
 
