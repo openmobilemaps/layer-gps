@@ -31,6 +31,8 @@
 
 - (void)setDrawHeading:(BOOL)enable;
 
+- (void)setFollowInitializeZoom:(nullable NSNumber *)zoom;
+
 - (nullable id<MCLayerInterface>)asLayerInterface;
 
 @end
