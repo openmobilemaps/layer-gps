@@ -25,6 +25,7 @@ GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo) {
 }
 
 void GpsLayer::setMode(GpsMode mode) {
+    resetParameters();
     this->mode = mode;
 
     switch (mode) {
@@ -311,9 +312,13 @@ bool GpsLayer::onTwoFingerMove(const std::vector<::Vec2F> &posScreenOld, const s
 
 void GpsLayer::resetMode() {
     if (mode != GpsMode::DISABLED) {
-        if (mode == GpsMode::FOLLOW_AND_TURN) camera->setRotation(angleHeading < (360 - angleHeading) ? 0 : 360, true);
+        resetParameters();
         setMode(GpsMode::STANDARD);
     }
+}
+
+void GpsLayer::resetParameters() {
+    if (mode == GpsMode::FOLLOW_AND_TURN) camera->setRotation(angleHeading < (360 - angleHeading) ? 0 : 360, true);
 }
 
 void GpsLayer::setupLayerObjects() {
