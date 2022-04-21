@@ -50,6 +50,8 @@ public:
 
     virtual void setFollowInitializeZoom(std::optional<float> zoom) override;
 
+    virtual void updateStyle(const GpsStyleInfo & styleInfo) override;
+
     // LayerInterface
 
     virtual void setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) override;
@@ -110,6 +112,8 @@ private:
     bool drawHeadingObjectEnabled = true;
 
     GpsStyleInfo styleInfo;
+    int64_t pointHeight = 0;
+    int64_t pointWidth = 0;
 
     std::recursive_mutex animationMutex;
     std::shared_ptr<AnimationInterface> headingAnimation;

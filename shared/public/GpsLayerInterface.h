@@ -36,5 +36,7 @@ public:
 
     virtual void setFollowInitializeZoom(std::optional<float> zoom) = 0;
 
+    virtual void updateStyle(const GpsStyleInfo & styleInfo) = 0;
+
     virtual std::shared_ptr<::LayerInterface> asLayerInterface() = 0;
 };

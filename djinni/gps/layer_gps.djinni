@@ -19,6 +19,7 @@ gps_style_info = record {
 
 gps_layer_callback_interface = interface +c +j +o {
     mode_did_change(mode: gps_mode);
+    on_point_click(coordinate: coord);
 }
 
 gps_layer_interface = interface +c {
@@ -32,7 +33,9 @@ gps_layer_interface = interface +c {
     set_draw_point(enable: bool);
     set_draw_heading(enable: bool);
 
-		set_follow_initialize_zoom(zoom: optional<f32>);
+    set_follow_initialize_zoom(zoom: optional<f32>);
+
+    update_style(style_info: gps_style_info);
 
     asLayerInterface(): layer_interface;
 }

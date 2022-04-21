@@ -33,6 +33,8 @@
 
 - (void)setFollowInitializeZoom:(nullable NSNumber *)zoom;
 
+- (void)updateStyle:(nonnull MCGpsStyleInfo *)styleInfo;
+
 - (nullable id<MCLayerInterface>)asLayerInterface;
 
 @end

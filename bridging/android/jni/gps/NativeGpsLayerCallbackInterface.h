@@ -34,6 +34,7 @@ private:
         ~JavaProxy();
 
         void modeDidChange(::GpsMode mode) override;
+        void onPointClick(const ::Coord & coordinate) override;
 
     private:
         friend ::djinni::JniInterface<::GpsLayerCallbackInterface, ::djinni_generated::NativeGpsLayerCallbackInterface>;
@@ -41,6 +42,7 @@ private:
 
     const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("io/openmobilemaps/gps/shared/gps/GpsLayerCallbackInterface") };
     const jmethodID method_modeDidChange { ::djinni::jniGetMethodID(clazz.get(), "modeDidChange", "(Lio/openmobilemaps/gps/shared/gps/GpsMode;)V") };
+    const jmethodID method_onPointClick { ::djinni::jniGetMethodID(clazz.get(), "onPointClick", "(Lio/openmobilemaps/mapscore/shared/map/coordinates/Coord;)V") };
 };
 
 }  // namespace djinni_generated

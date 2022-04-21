@@ -77,4 +77,6 @@ private class MCGpsCallbackHandler: MCGpsLayerCallbackInterface {
         }
     }
 
+    func onPointClick(_ coordinate: MCCoord) {}
+
 }

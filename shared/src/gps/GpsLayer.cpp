@@ -21,8 +21,7 @@
 
 #define DEFAULT_ANIM_LENGTH 100
 
-GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo) {
-}
+GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo) {}
 
 void GpsLayer::setMode(GpsMode mode) {
     resetParameters();
@@ -275,6 +274,45 @@ void GpsLayer::show() {
 
 bool GpsLayer::onClickConfirmed(const Vec2F &posScreen) {
     resetMode();
+
+    if (callbackHandler && mapInterface) {
+        auto const &conversionHelper = mapInterface->getCoordinateConverterHelper();
+        Coord clickCoords = camera->coordFromScreenPosition(posScreen);
+
+        double angle = -(camera->getRotation() * M_PI / 180.0);
+        double sinAng = std::sin(angle);
+        double cosAng = std::cos(angle);
+
+        Vec2F anchor(0.5, 0.5);
+        float ratioLeftRight = std::clamp(anchor.x, 0.0f, 1.0f);
+        float ratioTopBottom = std::clamp(anchor.y, 0.0f, 1.0f);
+        float leftW = pointWidth * ratioLeftRight;
+        float topH = pointHeight * ratioTopBottom;
+        float rightW = pointWidth * (1.0f - ratioLeftRight);
+        float bottomH = pointHeight * (1.0f - ratioTopBottom);
+
+        Coord iconPos = conversionHelper->convert(clickCoords.systemIdentifier, position);
+
+        leftW = camera->mapUnitsFromPixels(leftW);
+        topH = camera->mapUnitsFromPixels(topH);
+        rightW = camera->mapUnitsFromPixels(rightW);
+        bottomH = camera->mapUnitsFromPixels(bottomH);
+
+        Vec2D clickPos = Vec2D(clickCoords.x - iconPos.x, clickCoords.y - iconPos.y);
+
+        float newX = cosAng * clickPos.x - sinAng * clickPos.y;
+        float newY = sinAng * clickPos.x + cosAng * clickPos.y;
+        clickPos.x = newX;
+        clickPos.y = newY;
+
+        if (clickPos.x > -leftW && clickPos.x < rightW &&
+            clickPos.y < topH && clickPos.y > -bottomH) {
+            callbackHandler->onPointClick(position);
+            return true;
+        }
+
+    }
+
     return false;
 }
 
@@ -323,8 +361,10 @@ void GpsLayer::setupLayerObjects() {
     accuracyObject = std::make_shared<Circle2dLayerObject>(mapInterface);
 
     auto textureCenter = styleInfo.pointTexture;
-    float hWidthCenter = textureCenter->getImageWidth() * 0.5f;
-    float hHeightCenter = textureCenter->getImageHeight() * 0.5f;
+    pointWidth = textureCenter->getImageWidth();
+    pointHeight = textureCenter->getImageHeight();
+    float hWidthCenter = pointWidth * 0.5f;
+    float hHeightCenter = pointHeight * 0.5f;
     centerObject->setPositions(QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidthCenter, -hHeightCenter, 0.0),
                                          Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidthCenter, -hHeightCenter, 0.0),
                                          Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidthCenter, +hHeightCenter, 0.0),
@@ -397,4 +437,12 @@ void GpsLayer::setDrawHeading(bool enable) {
 
 void GpsLayer::setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> &handler) {
     callbackHandler = handler;
+}
+
+void GpsLayer::updateStyle(const GpsStyleInfo & styleInfo) {
+    this->styleInfo = styleInfo;
+    if (mapInterface) {
+        setupLayerObjects();
+        mapInterface->invalidate();
+    }
 }

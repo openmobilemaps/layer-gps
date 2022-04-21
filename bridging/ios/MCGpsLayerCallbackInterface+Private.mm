@@ -6,6 +6,7 @@
 #import "DJICppWrapperCache+Private.h"
 #import "DJIError.h"
 #import "DJIObjcWrapperCache+Private.h"
+#import "MCCoord+Private.h"
 #import "MCGpsMode+Private.h"
 #include <exception>
 #include <stdexcept>
@@ -37,6 +38,12 @@ static_assert(__has_feature(objc_arc), "Djinni requires ARC to be enabled for th
     } DJINNI_TRANSLATE_EXCEPTIONS()
 }
 
+- (void)onPointClick:(nonnull MCCoord *)coordinate {
+    try {
+        _cppRefHandle.get()->onPointClick(::djinni_generated::Coord::toCpp(coordinate));
+    } DJINNI_TRANSLATE_EXCEPTIONS()
+}
+
 namespace djinni_generated {
 
 class GpsLayerCallbackInterface::ObjcProxy final
@@ -50,6 +57,12 @@ public:
     {
         @autoreleasepool {
             [djinni_private_get_proxied_objc_object() modeDidChange:(::djinni::Enum<::GpsMode, MCGpsMode>::fromCpp(c_mode))];
+        }
+    }
+    void onPointClick(const ::Coord & c_coordinate) override
+    {
+        @autoreleasepool {
+            [djinni_private_get_proxied_objc_object() onPointClick:(::djinni_generated::Coord::fromCpp(c_coordinate))];
         }
     }
 };
