@@ -178,8 +178,8 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
         return {};
     }
 
-    std::vector<float> invariantModelMatrix = computeModelMatrix(true, 1.0);
-    std::vector<float> accuracyModelMatrix = computeModelMatrix(false, horizontalAccuracyM);
+    std::vector<float> const &invariantModelMatrix = computeModelMatrix(true, 1.0, false);
+    std::vector<float> const &accuracyModelMatrix = computeModelMatrix(false, horizontalAccuracyM, false);
     std::map<int, std::vector<std::shared_ptr<RenderObjectInterface>>> renderPassObjectMap;
 
     for (const auto &config : accuracyObject->getRenderConfig()) {
@@ -195,9 +195,10 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
     }
 
     if (drawCenterObjectEnabled) {
+        auto const &centerObjectModelMatrix = pointRotationInvariantEnabled ? computeModelMatrix(true, 1.0, pointRotationInvariantEnabled) : invariantModelMatrix;
         for (const auto &config : centerObject->getRenderConfig()) {
             renderPassObjectMap[config->getRenderIndex()].push_back(
-                    std::make_shared<RenderObject>(config->getGraphicsObject(), invariantModelMatrix));
+                    std::make_shared<RenderObject>(config->getGraphicsObject(), centerObjectModelMatrix));
         }
     }
 
@@ -393,7 +394,7 @@ void GpsLayer::setupLayerObjects() {
             }));
 }
 
-std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double objectScaling) {
+std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant) {
     auto lockSelfPtr = shared_from_this();
     auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
 
@@ -403,7 +404,11 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
     double scaleFactor = scaleInvariant ? camera->mapUnitsFromPixels(1) * objectScaling : objectScaling;
     Matrix::scaleM(newMatrix, 0.0, scaleFactor, scaleFactor, 1.0);
 
-    Matrix::rotateM(newMatrix, 0.0, -angleHeading, 0.0, 0.0, 1.0);
+    if (rotationInvariant) {
+        Matrix::rotateM(newMatrix, 0.0, -mapInterface->getCamera()->getRotation(), 0.0, 0.0, 1.0);
+    } else {
+        Matrix::rotateM(newMatrix, 0.0, -angleHeading, 0.0, 0.0, 1.0);
+    }
 
     Coord renderCoord = mapInterface ? mapInterface->getCoordinateConverterHelper()->convertToRenderSystem(position) :
                         Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0);
@@ -446,3 +451,9 @@ void GpsLayer::updateStyle(const GpsStyleInfo & styleInfo) {
         mapInterface->invalidate();
     }
 }
+
+
+void GpsLayer::enablePointRotationInvariant(bool enable) {
+    pointRotationInvariantEnabled = enable;
+}
+

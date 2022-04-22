@@ -32,9 +32,8 @@ gps_layer_interface = interface +c {
 	update_heading(angle_heading: f32);
     set_draw_point(enable: bool);
     set_draw_heading(enable: bool);
-
+    enable_point_rotation_invariant(enable: bool);
     set_follow_initialize_zoom(zoom: optional<f32>);
-
     update_style(style_info: gps_style_info);
 
     asLayerInterface(): layer_interface;

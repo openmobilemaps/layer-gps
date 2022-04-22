@@ -52,6 +52,8 @@ public:
 
     virtual void updateStyle(const GpsStyleInfo & styleInfo) override;
 
+    virtual void enablePointRotationInvariant(bool enable) override;
+
     // LayerInterface
 
     virtual void setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) override;
@@ -92,7 +94,7 @@ private:
 
     virtual void setupLayerObjects();
 
-    virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling);
+    virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant);
 
     std::atomic<bool> isHidden = false;
 
@@ -110,6 +112,8 @@ private:
 
     bool drawCenterObjectEnabled = true;
     bool drawHeadingObjectEnabled = true;
+
+    bool pointRotationInvariantEnabled = false;
 
     GpsStyleInfo styleInfo;
     int64_t pointHeight = 0;
