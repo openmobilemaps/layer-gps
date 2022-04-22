@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "SimpleLayerInterface.h"
 #include "GpsLayerInterface.h"
 #include "GpsLayerCallbackInterface.h"
 #include "SimpleTouchInterface.h"
@@ -22,7 +23,7 @@
 #include <mutex>
 
 class GpsLayer : public GpsLayerInterface,
-                 public LayerInterface,
+                 public SimpleLayerInterface,
                  public SimpleTouchInterface,
                  public std::enable_shared_from_this<GpsLayer> {
 public:
