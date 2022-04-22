@@ -34,7 +34,7 @@ let package = Package(
         .target(
             name: "LocationManager",
             dependencies: [
-                "LayerGps"
+                "LayerGps",
             ],
             path: "ios/LocationManager"
         ),
@@ -66,7 +66,7 @@ let package = Package(
             cxxSettings: [
                 .headerSearchPath("**"),
                 .headerSearchPath("public"),
-                .headerSearchPath("src/gps")
+                .headerSearchPath("src/gps"),
             ]
         ),
     ],

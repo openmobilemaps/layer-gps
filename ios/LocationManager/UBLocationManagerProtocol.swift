@@ -8,7 +8,6 @@
  *  SPDX-License-Identifier: MPL-2.0
  */
 
-
 import CoreLocation
 
 /// Enables supplying a mock location manager to `UBLocationManager`

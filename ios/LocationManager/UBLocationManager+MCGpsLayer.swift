@@ -1,8 +1,8 @@
-import UIKit
 import CoreLocation
 import LayerGps
+import UIKit
 
-fileprivate var binder: LocationManagerLayerBinder?
+private var binder: LocationManagerLayerBinder?
 
 public extension UBLocationManager {
     func bindTo(layer: MCGpsLayer, canAskForPermission: Bool = false) {
@@ -13,9 +13,9 @@ public extension UBLocationManager {
         }
 
         startLocationMonitoring(for: [.location(background: false), .heading(background: false)],
-                                   delegate: binder,
-                                   canAskForPermission: canAskForPermission)
-        
+                                delegate: binder,
+                                canAskForPermission: canAskForPermission)
+
         layer.setMode(.STANDARD)
     }
 }
@@ -29,36 +29,36 @@ class LocationManagerLayerBinder: NSObject {
 }
 
 extension LocationManagerLayerBinder: UBLocationManagerDelegate {
-    public func locationManager(_ manager: UBLocationManager, requiresPermission permission: UBLocationManager.AuthorizationLevel) {}
+    public func locationManager(_ manager: UBLocationManager, requiresPermission permission: UBLocationManager.AuthorizationLevel) {
+    }
 
     public var locationManagerFilterAccuracy: CLLocationAccuracy? { nil }
 
-    public func locationManager(_: UBLocationManager, grantedPermission _: UBLocationManager.AuthorizationLevel, accuracy: UBLocationManager.AccuracyLevel) {}
+    public func locationManager(_: UBLocationManager, grantedPermission _: UBLocationManager.AuthorizationLevel, accuracy: UBLocationManager.AccuracyLevel) {
+    }
 
     public func locationManager(permissionDeniedFor manager: UBLocationManager) {
         layer?.setMode(.DISABLED)
     }
 
-    public func locationManager(_ manager : UBLocationManager, didUpdateLocations locations: [CLLocation]) {
+    public func locationManager(_ manager: UBLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
 
         layer?.nativeLayer.setDrawPoint(manager.accuracyLevel == .full)
         layer?.nativeLayer.setDrawHeading(manager.accuracyLevel == .full)
 
         layer?.nativeLayer.updatePosition(.init(systemIdentifier: MCCoordinateSystemIdentifiers.epsg4326(),
-                                   x: location.coordinate.longitude,
-                                   y: location.coordinate.latitude,
-                                   z: location.altitude), horizontalAccuracyM: location.horizontalAccuracy)
-
+                                                x: location.coordinate.longitude,
+                                                y: location.coordinate.latitude,
+                                                z: location.altitude), horizontalAccuracyM: location.horizontalAccuracy)
     }
 
     public func locationManager(_: UBLocationManager, didFailWithError _: Error) {
         layer?.setMode(.DISABLED)
     }
 
-
     public func locationManager(_: UBLocationManager, didUpdateHeading newHeading: CLHeading) {
-        var h: Float = Float(newHeading.trueHeading)
+        var h = Float(newHeading.trueHeading)
 
         switch UIDevice.current.orientation {
         case .landscapeRight:
