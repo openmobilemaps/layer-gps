@@ -44,8 +44,8 @@ void GpsLayer::setMode(GpsMode mode) {
             drawLocation = true;
             followModeEnabled = true;
             rotationModeEnabled = false;
-            if (positionValid) {
-                updatePosition(position, horizontalAccuracyM, true);
+            if (positionValid && position) {
+                updatePosition(*position, horizontalAccuracyM, true);
             }
             break;
         }
@@ -53,8 +53,8 @@ void GpsLayer::setMode(GpsMode mode) {
             drawLocation = true;
             followModeEnabled = true;
             rotationModeEnabled = true;
-            if (positionValid) {
-                updatePosition(position, horizontalAccuracyM, true);
+            if (positionValid && position) {
+                updatePosition(*position, horizontalAccuracyM, true);
                 updateHeading(angleHeading);
             }
             break;
@@ -276,7 +276,7 @@ void GpsLayer::show() {
 bool GpsLayer::onClickConfirmed(const Vec2F &posScreen) {
     resetMode();
 
-    if (callbackHandler && mapInterface) {
+    if (callbackHandler && mapInterface && position) {
         auto const &conversionHelper = mapInterface->getCoordinateConverterHelper();
         Coord clickCoords = camera->coordFromScreenPosition(posScreen);
 
@@ -292,7 +292,7 @@ bool GpsLayer::onClickConfirmed(const Vec2F &posScreen) {
         float rightW = pointWidth * (1.0f - ratioLeftRight);
         float bottomH = pointHeight * (1.0f - ratioTopBottom);
 
-        Coord iconPos = conversionHelper->convert(clickCoords.systemIdentifier, position);
+        Coord iconPos = conversionHelper->convert(clickCoords.systemIdentifier, *position);
 
         leftW = camera->mapUnitsFromPixels(leftW);
         topH = camera->mapUnitsFromPixels(topH);
@@ -308,7 +308,7 @@ bool GpsLayer::onClickConfirmed(const Vec2F &posScreen) {
 
         if (clickPos.x > -leftW && clickPos.x < rightW &&
             clickPos.y < topH && clickPos.y > -bottomH) {
-            callbackHandler->onPointClick(position);
+            callbackHandler->onPointClick(*position);
             return true;
         }
 
@@ -410,7 +410,11 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
         Matrix::rotateM(newMatrix, 0.0, -angleHeading, 0.0, 0.0, 1.0);
     }
 
-    Coord renderCoord = mapInterface ? mapInterface->getCoordinateConverterHelper()->convertToRenderSystem(position) :
+    if (!position) {
+        return newMatrix;
+    }
+
+    Coord renderCoord = mapInterface ? mapInterface->getCoordinateConverterHelper()->convertToRenderSystem(*position) :
                         Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0);
     std::vector<float> trMatrix(16, 0);
     Matrix::setIdentityM(trMatrix, 0);

@@ -98,7 +98,7 @@ private:
 
     std::atomic<bool> isHidden = false;
 
-    Coord position = Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0, 0, 0);
+    std::optional<Coord> position = std::nullopt;
     double horizontalAccuracyM = 0;
     float angleHeading = 0;
 
