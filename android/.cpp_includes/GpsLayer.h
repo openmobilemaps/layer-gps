@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "SimpleLayerInterface.h"
 #include "GpsLayerInterface.h"
 #include "GpsLayerCallbackInterface.h"
 #include "SimpleTouchInterface.h"
@@ -22,7 +23,7 @@
 #include <mutex>
 
 class GpsLayer : public GpsLayerInterface,
-                 public LayerInterface,
+                 public SimpleLayerInterface,
                  public SimpleTouchInterface,
                  public std::enable_shared_from_this<GpsLayer> {
 public:
@@ -49,6 +50,10 @@ public:
     virtual void setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) override;
 
     virtual void setFollowInitializeZoom(std::optional<float> zoom) override;
+
+    virtual void updateStyle(const GpsStyleInfo & styleInfo) override;
+
+    virtual void enablePointRotationInvariant(bool enable) override;
 
     // LayerInterface
 
@@ -90,11 +95,11 @@ private:
 
     virtual void setupLayerObjects();
 
-    virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling);
+    virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant);
 
     std::atomic<bool> isHidden = false;
 
-    Coord position = Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0, 0, 0);
+    std::optional<Coord> position = std::nullopt;
     double horizontalAccuracyM = 0;
     float angleHeading = 0;
 
@@ -109,7 +114,11 @@ private:
     bool drawCenterObjectEnabled = true;
     bool drawHeadingObjectEnabled = true;
 
+    bool pointRotationInvariantEnabled = false;
+
     GpsStyleInfo styleInfo;
+    int64_t pointHeight = 0;
+    int64_t pointWidth = 0;
 
     std::recursive_mutex animationMutex;
     std::shared_ptr<AnimationInterface> headingAnimation;

@@ -93,9 +93,21 @@ static_assert(__has_feature(objc_arc), "Djinni requires ARC to be enabled for th
     } DJINNI_TRANSLATE_EXCEPTIONS()
 }
 
+- (void)enablePointRotationInvariant:(BOOL)enable {
+    try {
+        _cppRefHandle.get()->enablePointRotationInvariant(::djinni::Bool::toCpp(enable));
+    } DJINNI_TRANSLATE_EXCEPTIONS()
+}
+
 - (void)setFollowInitializeZoom:(nullable NSNumber *)zoom {
     try {
         _cppRefHandle.get()->setFollowInitializeZoom(::djinni::Optional<std::optional, ::djinni::F32>::toCpp(zoom));
+    } DJINNI_TRANSLATE_EXCEPTIONS()
+}
+
+- (void)updateStyle:(nonnull MCGpsStyleInfo *)styleInfo {
+    try {
+        _cppRefHandle.get()->updateStyle(::djinni_generated::GpsStyleInfo::toCpp(styleInfo));
     } DJINNI_TRANSLATE_EXCEPTIONS()
 }
 

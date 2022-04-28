@@ -8,7 +8,6 @@
  *  SPDX-License-Identifier: MPL-2.0
  */
 
-
 import Foundation
 
 /// A value which can be stored in `UserDefaults` using the `UBUserDefault` property wrapper.
@@ -17,53 +16,92 @@ import Foundation
 /// Number, Date, Array, or Dictionary) are supported out of the box.
 /// To store `Codable` types in `UserDefaults`, please conform to `UBCodable`.
 /// To store `RawRepresentable` types in `UserDefaults`, please conform to `UBRawRepresentable`.
- protocol UBUserDefaultValue {
+protocol UBUserDefaultValue {
     init?(with object: Any)
     func object() -> Any?
 }
 
 extension UBUserDefaultValue {
-     init?(with object: Any) {
+    init?(with object: Any) {
         guard let value = object as? Self else { return nil }
         self = value
     }
-     func object() -> Any? { self }
+
+    func object() -> Any? { self }
 }
 
 // MARK: - Plist-Compatible Values
 
 /// The types that can be stored in `UserDefaults` out of the box.
-protocol UBPListValue : UBUserDefaultValue {}
+protocol UBPListValue: UBUserDefaultValue {
+}
 
-extension Data: UBPListValue {}
-extension NSData: UBPListValue {}
+extension Data: UBPListValue {
+}
 
-extension String: UBPListValue {}
-extension NSString: UBPListValue {}
+extension NSData: UBPListValue {
+}
 
-extension Date: UBPListValue {}
-extension NSDate: UBPListValue {}
+extension String: UBPListValue {
+}
 
-extension NSNumber: UBPListValue {}
-extension Bool: UBPListValue {}
-extension Int: UBPListValue {}
-extension Int8: UBPListValue {}
-extension Int16: UBPListValue {}
-extension Int32: UBPListValue {}
-extension Int64: UBPListValue {}
-extension UInt: UBPListValue {}
-extension UInt8: UBPListValue {}
-extension UInt16: UBPListValue {}
-extension UInt32: UBPListValue {}
-extension UInt64: UBPListValue {}
-extension Double: UBPListValue {}
-extension Float: UBPListValue {}
+extension NSString: UBPListValue {
+}
+
+extension Date: UBPListValue {
+}
+
+extension NSDate: UBPListValue {
+}
+
+extension NSNumber: UBPListValue {
+}
+
+extension Bool: UBPListValue {
+}
+
+extension Int: UBPListValue {
+}
+
+extension Int8: UBPListValue {
+}
+
+extension Int16: UBPListValue {
+}
+
+extension Int32: UBPListValue {
+}
+
+extension Int64: UBPListValue {
+}
+
+extension UInt: UBPListValue {
+}
+
+extension UInt8: UBPListValue {
+}
+
+extension UInt16: UBPListValue {
+}
+
+extension UInt32: UBPListValue {
+}
+
+extension UInt64: UBPListValue {
+}
+
+extension Double: UBPListValue {
+}
+
+extension Float: UBPListValue {
+}
 
 // MARK: - Codable Values
 
- protocol UBCodable: Codable, UBUserDefaultValue {}
+protocol UBCodable: Codable, UBUserDefaultValue {
+}
 
- extension UBUserDefaultValue where Self: UBCodable {
+extension UBUserDefaultValue where Self: UBCodable {
     init?(with object: Any) {
         guard let value = (object as? Data).flatMap({ try? JSONDecoder().decode(Self.self, from: $0) }) else { return nil }
         self = value
@@ -76,9 +114,10 @@ extension Float: UBPListValue {}
 
 // MARK: - RawRepresentable Values
 
- protocol UBRawRepresentable: RawRepresentable, UBUserDefaultValue {}
+protocol UBRawRepresentable: RawRepresentable, UBUserDefaultValue {
+}
 
- extension UBUserDefaultValue where Self: UBRawRepresentable {
+extension UBUserDefaultValue where Self: UBRawRepresentable {
     init?(with object: Any) {
         guard let value = object as? Self.RawValue else {
             return nil
@@ -94,12 +133,12 @@ extension Float: UBPListValue {}
 // MARK: - Arrays
 
 extension Array: UBUserDefaultValue where Element: UBUserDefaultValue {
-     init?(with object: Any) {
+    init?(with object: Any) {
         guard let value = (object as? [Any])?.compactMap(Element.init(with:)) else { return nil }
         self = value
     }
 
-     func object() -> Any? {
+    func object() -> Any? {
         compactMap { $0.object() }
     }
 }
@@ -107,14 +146,14 @@ extension Array: UBUserDefaultValue where Element: UBUserDefaultValue {
 // MARK: - Optionals
 
 extension Optional: UBUserDefaultValue where Wrapped: UBUserDefaultValue {
-     init?(with object: Any) {
+    init?(with object: Any) {
         guard let value = Wrapped(with: object) else { return nil }
         self = .some(value)
     }
 
-     func object() -> Any? {
+    func object() -> Any? {
         switch self {
-        case .some(let value):
+        case let .some(value):
             return value.object()
         case .none:
             return nil
@@ -143,20 +182,20 @@ extension Optional: UBUserDefaultValue where Wrapped: UBUserDefaultValue {
 ///       var lastUsedGpsMode: GpsMode? // where enum GpsMode: UBRawRepresentable
 ///
 @propertyWrapper
- struct UBUserDefault<Value: UBUserDefaultValue> {
+struct UBUserDefault<Value: UBUserDefaultValue> {
     let key: String
     let defaultValue: Value
     var userDefaults: UserDefaults
 
     /// :nodoc:
-     init(key: String, defaultValue: Value, userDefaults: UserDefaults = .standard) {
+    init(key: String, defaultValue: Value, userDefaults: UserDefaults = .standard) {
         self.key = key
         self.defaultValue = defaultValue
         self.userDefaults = userDefaults
     }
 
     /// :nodoc:
-     var wrappedValue: Value {
+    var wrappedValue: Value {
         get {
             userDefaults.object(forKey: key).flatMap(Value.init(with:))
                 ?? defaultValue

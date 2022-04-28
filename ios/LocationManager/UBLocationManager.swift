@@ -8,7 +8,6 @@
  *  SPDX-License-Identifier: MPL-2.0
  */
 
-
 import CoreLocation
 
 /// An object defining methods that handle events related to GPS location.
@@ -32,11 +31,20 @@ public protocol UBLocationManagerDelegate: CLLocationManagerDelegate {
 }
 
 public extension UBLocationManagerDelegate {
-    func locationManager(permissionDeniedFor _: UBLocationManager) {}
-    func locationManager(_ manager: UBLocationManager, grantedPermission permission: UBLocationManager.AuthorizationLevel, accuracy: UBLocationManager.AccuracyLevel) {}
-    func locationManager(_: UBLocationManager, didUpdateLocations _: [CLLocation]) {}
-    func locationManager(_: UBLocationManager, didUpdateHeading _: CLHeading) {}
-    func locationManager(_: UBLocationManager, didVisit _: CLVisit) {}
+    func locationManager(permissionDeniedFor _: UBLocationManager) {
+    }
+
+    func locationManager(_ manager: UBLocationManager, grantedPermission permission: UBLocationManager.AuthorizationLevel, accuracy: UBLocationManager.AccuracyLevel) {
+    }
+
+    func locationManager(_: UBLocationManager, didUpdateLocations _: [CLLocation]) {
+    }
+
+    func locationManager(_: UBLocationManager, didUpdateHeading _: CLHeading) {
+    }
+
+    func locationManager(_: UBLocationManager, didVisit _: CLVisit) {
+    }
 }
 
 /// A convenience wrapper for `CLLocationManager` which facilitates obtaining the required authorization
@@ -52,11 +60,11 @@ public class UBLocationManager: NSObject {
         delegateWrappers.values.compactMap { $0.delegate }
     }
 
-    private var permissionRequestCallback : ((LocationPermissionRequestResult) -> ())?
-    private var permissionRequestUsage : LocationMonitoringUsage?
+    private var permissionRequestCallback: ((LocationPermissionRequestResult) -> Void)?
+    private var permissionRequestUsage: LocationMonitoringUsage?
 
     @UBUserDefault(key: "UBLocationManager_askedForAlwaysAtLeastOnce", defaultValue: false)
-    private var askedForAlwaysPermissionAtLeastOnce : Bool
+    private var askedForAlwaysPermissionAtLeastOnce: Bool
 
     /// :nodoc:
     public enum LocationPermissionRequestResult {
@@ -222,7 +230,6 @@ public class UBLocationManager: NSObject {
     ///   - usage: The desired usage. Can also be an array, e.g. `[.location(background: false), .heading(background: true)]`
     ///   - canAskForPermission: Whether the location manager can ask for the required permission on its own behalf
     public func startLocationMonitoring(for usage: LocationMonitoringUsage, delegate: UBLocationManagerDelegate, canAskForPermission: Bool) {
-
         let wrapper = UBLocationManagerDelegateWrapper(delegate, usage: usage)
         let id = ObjectIdentifier(delegate)
         delegateWrappers[id] = wrapper
@@ -298,8 +305,7 @@ public class UBLocationManager: NSObject {
     /// - Parameters:
     ///   - usage: The desired usage.
     ///   - callback: Asynchronous callback with result.
-    public func requestPermission(for usage: LocationMonitoringUsage, callback: @escaping ((LocationPermissionRequestResult) -> ())) {
-
+    public func requestPermission(for usage: LocationMonitoringUsage, callback: @escaping ((LocationPermissionRequestResult) -> Void)) {
         // if it's already running, callback .failed & continue
         if self.permissionRequestCallback != nil {
             self.permissionRequestCallback?(.failure)
@@ -316,7 +322,7 @@ public class UBLocationManager: NSObject {
         case .authorizedWhenInUse:
             guard minimumAuthorizationLevelRequired == .whenInUse else {
                 // can only ask once
-                if(minimumAuthorizationLevelRequired == .always && self.askedForAlwaysPermissionAtLeastOnce) {
+                if minimumAuthorizationLevelRequired == .always, self.askedForAlwaysPermissionAtLeastOnce {
                     callback(.showSettings)
                     return
                 }
@@ -395,7 +401,6 @@ public class UBLocationManager: NSObject {
 }
 
 extension UBLocationManager: CLLocationManagerDelegate {
-
     public func locationManager(_ manager: CLLocationManager, didChangeAuthorization authorization: CLAuthorizationStatus) {
         logLocationPermissionChange?(authorization)
 
@@ -426,9 +431,8 @@ extension UBLocationManager: CLLocationManagerDelegate {
     }
 
     public func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-
         // remove invalid locations
-        let results: [CLLocation] = locations.filter { (location) -> Bool in
+        let results: [CLLocation] = locations.filter { location -> Bool in
             // A negative value indicates that the latitude and longitude are invalid
             location.horizontalAccuracy >= 0 &&
                 // GPS  may return 0 to indicate no location
@@ -483,9 +487,9 @@ extension UBLocationManager: CLLocationManagerDelegate {
     }
 }
 
-extension UBLocationManager {
+public extension UBLocationManager {
     /// An authorization level granted by the user which allows starting location services
-    public enum AuthorizationLevel: Int {
+    enum AuthorizationLevel: Int {
         /// User authorized the app to start location services while it is in use
         case whenInUse
         /// User authorized the app to start location services at any time
@@ -493,12 +497,12 @@ extension UBLocationManager {
     }
 
     /// Defines the level of accuracy granted by the user.
-    public enum AccuracyLevel: Int {
+    enum AccuracyLevel: Int {
         case reduced, full
     }
 
     /// Defines the usage for `UBLocationManager`. Can be a combination of the defined options.
-    public struct LocationMonitoringUsage: OptionSet {
+    struct LocationMonitoringUsage: OptionSet {
         public let rawValue: UInt8
 
         public init(rawValue: UInt8) {
@@ -552,7 +556,7 @@ extension UBLocationManager {
     }
 }
 
-fileprivate extension CLAccuracyAuthorization {
+private extension CLAccuracyAuthorization {
     var accuracyLevel: UBLocationManager.AccuracyLevel {
         switch self {
         case .fullAccuracy:
@@ -564,4 +568,3 @@ fileprivate extension CLAccuracyAuthorization {
         }
     }
 }
-

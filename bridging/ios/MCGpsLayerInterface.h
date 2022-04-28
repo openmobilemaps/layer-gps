@@ -31,7 +31,11 @@
 
 - (void)setDrawHeading:(BOOL)enable;
 
+- (void)enablePointRotationInvariant:(BOOL)enable;
+
 - (void)setFollowInitializeZoom:(nullable NSNumber *)zoom;
+
+- (void)updateStyle:(nonnull MCGpsStyleInfo *)styleInfo;
 
 - (nullable id<MCLayerInterface>)asLayerInterface;
 

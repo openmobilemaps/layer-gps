@@ -23,7 +23,11 @@ abstract class GpsLayerInterface {
 
     abstract fun setDrawHeading(enable: Boolean)
 
+    abstract fun enablePointRotationInvariant(enable: Boolean)
+
     abstract fun setFollowInitializeZoom(zoom: Float?)
+
+    abstract fun updateStyle(styleInfo: GpsStyleInfo)
 
     abstract fun asLayerInterface(): io.openmobilemaps.mapscore.shared.map.LayerInterface
 
@@ -100,11 +104,23 @@ abstract class GpsLayerInterface {
         }
         private external fun native_setDrawHeading(_nativeRef: Long, enable: Boolean)
 
+        override fun enablePointRotationInvariant(enable: Boolean) {
+            assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
+            native_enablePointRotationInvariant(this.nativeRef, enable)
+        }
+        private external fun native_enablePointRotationInvariant(_nativeRef: Long, enable: Boolean)
+
         override fun setFollowInitializeZoom(zoom: Float?) {
             assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
             native_setFollowInitializeZoom(this.nativeRef, zoom)
         }
         private external fun native_setFollowInitializeZoom(_nativeRef: Long, zoom: Float?)
+
+        override fun updateStyle(styleInfo: GpsStyleInfo) {
+            assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
+            native_updateStyle(this.nativeRef, styleInfo)
+        }
+        private external fun native_updateStyle(_nativeRef: Long, styleInfo: GpsStyleInfo)
 
         override fun asLayerInterface(): io.openmobilemaps.mapscore.shared.map.LayerInterface {
             assert(!this.destroyed.get()) { error("trying to use a destroyed object") }

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "Coord.h"
+
 enum class GpsMode;
 
 class GpsLayerCallbackInterface {
@@ -10,4 +12,6 @@ public:
     virtual ~GpsLayerCallbackInterface() {}
 
     virtual void modeDidChange(GpsMode mode) = 0;
+
+    virtual void onPointClick(const ::Coord & coordinate) = 0;
 };
