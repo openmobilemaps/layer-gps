@@ -34,7 +34,11 @@ public:
 
     virtual void setDrawHeading(bool enable) = 0;
 
+    virtual void enablePointRotationInvariant(bool enable) = 0;
+
     virtual void setFollowInitializeZoom(std::optional<float> zoom) = 0;
+
+    virtual void updateStyle(const GpsStyleInfo & styleInfo) = 0;
 
     virtual std::shared_ptr<::LayerInterface> asLayerInterface() = 0;
 };
