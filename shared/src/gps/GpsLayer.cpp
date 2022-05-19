@@ -18,6 +18,7 @@
 #include "RenderObject.h"
 #include "CoordAnimation.h"
 #include "DoubleAnimation.h"
+#include "CoordinatesUtil.h"
 
 #define DEFAULT_ANIM_LENGTH 100
 
@@ -110,7 +111,12 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM,
     this->position = newPosition;
     this->horizontalAccuracyM = horizontalAccuracyM;
 
-    if (mapInterface) mapInterface->invalidate();
+    // only invalidate if the position is visible
+    // if we are in follow or follow and turn mode the invalidaton is triggered by the camera movement
+    if (mapInterface &&
+        coordsutil::checkRectContainsCoord(camera->getVisibleRect(), newPosition, mapInterface->getCoordinateConverterHelper())) {
+        mapInterface->invalidate();
+    }
 }
 
 void GpsLayer::updateHeading(float angleHeading) {
@@ -128,7 +134,23 @@ void GpsLayer::updateHeading(float angleHeading) {
         newAngle -= 360.0;
     }
 
+    //do not constantly render frames for small heading adjustments
+    auto const diff = std::abs(currentAngle - newAngle);
+    if (diff < 0.2) { return; }
+
     std::lock_guard<std::recursive_mutex> lock(animationMutex);
+
+    // do not bother animating the hading movement if the position is offscreen
+    if (mode != GpsMode::FOLLOW_AND_TURN &&
+        mapInterface &&
+        this->position && positionValid &&
+        !coordsutil::checkRectContainsCoord(camera->getVisibleRect(), *this->position, mapInterface->getCoordinateConverterHelper())) {
+
+        this->angleHeading = fmod(newAngle + 360.0f, 360.0f);
+        return;
+    }
+
+
     if (headingAnimation) headingAnimation->cancel();
     headingAnimation = std::make_shared<DoubleAnimation>(DEFAULT_ANIM_LENGTH,
                                                          currentAngle,
@@ -143,9 +165,9 @@ void GpsLayer::updateHeading(float angleHeading) {
                                                          }, [=] {
                 if (mode == GpsMode::FOLLOW_AND_TURN) {
                     camera->setRotation(newAngle, false);
-                    this->angleHeading = fmod(newAngle + 360.0f, 360.0f);
-                    if (mapInterface) mapInterface->invalidate();
                 }
+                this->angleHeading = fmod(newAngle + 360.0f, 360.0f);
+                if (mapInterface) mapInterface->invalidate();
             });
     headingAnimation->start();
 
