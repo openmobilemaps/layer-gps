@@ -128,6 +128,10 @@ void GpsLayer::updateHeading(float angleHeading) {
         newAngle -= 360.0;
     }
 
+    //do not constantly render frames for small heading adjustments
+    auto const diff = std::abs(currentAngle - newAngle);
+    if (diff < 0.1) { return; }
+
     std::lock_guard<std::recursive_mutex> lock(animationMutex);
     if (headingAnimation) headingAnimation->cancel();
     headingAnimation = std::make_shared<DoubleAnimation>(DEFAULT_ANIM_LENGTH,
