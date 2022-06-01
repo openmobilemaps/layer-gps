@@ -83,7 +83,8 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM)
 void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM, bool isInitialFollow) {
     auto lockSelfPtr = shared_from_this();
     auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
-    if (!mapInterface) return;
+    auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
+    if (!camera) return;
 
     if ((position.x == 0 && position.y == 0 && position.z == 0)) {
         setMode(GpsMode::DISABLED);
@@ -122,7 +123,8 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM,
 void GpsLayer::updateHeading(float angleHeading) {
     auto lockSelfPtr = shared_from_this();
     auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
-    if (!mapInterface) return;
+    auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
+    if (!camera) return;
 
     headingValid = true;
     double currentAngle = fmod(this->angleHeading, 360.0);
@@ -236,7 +238,6 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
 
 void GpsLayer::onAdded(const std::shared_ptr<MapInterface> &mapInterface) {
     this->mapInterface = mapInterface;
-    this->camera = mapInterface->getCamera();
     mapInterface->getTouchHandler()->addListener(shared_from_this());
 
     setupLayerObjects();
@@ -244,6 +245,8 @@ void GpsLayer::onAdded(const std::shared_ptr<MapInterface> &mapInterface) {
 }
 
 void GpsLayer::onRemoved() {
+    auto lockSelfPtr = shared_from_this();
+    auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
     if (mapInterface) mapInterface->getTouchHandler()->removeListener(shared_from_this());
     mapInterface = nullptr;
 }
@@ -260,7 +263,10 @@ void GpsLayer::pause() {
 void GpsLayer::resume() {
     auto lockSelfPtr = shared_from_this();
     auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
-    auto renderingContext = mapInterface->getRenderingContext();
+    auto renderingContext = mapInterface ? mapInterface->getRenderingContext() : nullptr;
+    if (!renderingContext) {
+        return;
+    }
 
     if (!centerObject->getQuadObject()->asGraphicsObject()->isReady()) {
         auto textureCenter = styleInfo.pointTexture;
@@ -296,10 +302,17 @@ void GpsLayer::show() {
 }
 
 bool GpsLayer::onClickConfirmed(const Vec2F &posScreen) {
+    auto lockSelfPtr = shared_from_this();
+    auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
+    auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
+    auto conversionHelper = mapInterface ? mapInterface->getCoordinateConverterHelper() : nullptr;
+    if (!camera || !conversionHelper) {
+        return false;
+    }
+
     resetMode();
 
     if (callbackHandler && mapInterface && position) {
-        auto const &conversionHelper = mapInterface->getCoordinateConverterHelper();
         Coord clickCoords = camera->coordFromScreenPosition(posScreen);
 
         double angle = -(camera->getRotation() * M_PI / 180.0);
@@ -367,6 +380,10 @@ void GpsLayer::resetMode() {
 }
 
 void GpsLayer::resetParameters() {
+    auto lockSelfPtr = shared_from_this();
+    auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
+    auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
+    if (!camera) return;
     if (mode == GpsMode::FOLLOW_AND_TURN) camera->setRotation(angleHeading < (360 - angleHeading) ? 0 : 360, true);
 }
 
@@ -405,29 +422,42 @@ void GpsLayer::setupLayerObjects() {
 
     auto renderingContext = mapInterface->getRenderingContext();
 
+    std::weak_ptr<GpsLayer> weakSelfPtr = std::dynamic_pointer_cast<GpsLayer>(shared_from_this());
     mapInterface->getScheduler()->addTask(std::make_shared<LambdaTask>(
             TaskConfig("GpsLayer_setup_objects", 0, TaskPriority::NORMAL, ExecutionEnvironment::GRAPHICS),
-            [=] {
-                centerObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
-                centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
-                headingObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
-                headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
-                accuracyObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+            [weakSelfPtr, textureHeading, textureCenter] {
+                auto selfPtr = weakSelfPtr.lock();
+                if (!selfPtr) return;
+                auto mapInterface = selfPtr->mapInterface;
+                auto renderingContext = mapInterface ? mapInterface->getRenderingContext() : nullptr;
+                if (!renderingContext) {
+                    return;
+                }
+                selfPtr->centerObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+                selfPtr->centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
+                selfPtr->headingObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+                selfPtr->headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
+                selfPtr->accuracyObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
             }));
 }
 
 std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant) {
     auto lockSelfPtr = shared_from_this();
     auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
+    auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
 
     std::vector<float> newMatrix(16, 0);
     Matrix::setIdentityM(newMatrix, 0);
+
+    if (!camera) {
+        return newMatrix;
+    }
 
     double scaleFactor = scaleInvariant ? camera->mapUnitsFromPixels(1) * objectScaling : objectScaling;
     Matrix::scaleM(newMatrix, 0.0, scaleFactor, scaleFactor, 1.0);
 
     if (rotationInvariant) {
-        Matrix::rotateM(newMatrix, 0.0, -mapInterface->getCamera()->getRotation(), 0.0, 0.0, 1.0);
+        Matrix::rotateM(newMatrix, 0.0, -camera->getRotation(), 0.0, 0.0, 1.0);
     } else {
         Matrix::rotateM(newMatrix, 0.0, -angleHeading, 0.0, 0.0, 1.0);
     }
@@ -471,6 +501,8 @@ void GpsLayer::setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterfac
 }
 
 void GpsLayer::updateStyle(const GpsStyleInfo & styleInfo) {
+    auto lockSelfPtr = shared_from_this();
+    auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
     this->styleInfo = styleInfo;
     if (mapInterface) {
         setupLayerObjects();

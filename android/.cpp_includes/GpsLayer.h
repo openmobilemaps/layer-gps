@@ -129,7 +129,6 @@ private:
                      
 protected:
     std::shared_ptr<MapInterface> mapInterface;
-    std::shared_ptr<MapCamera2dInterface> camera;
 
     std::shared_ptr<Textured2dLayerObject> centerObject;
     std::shared_ptr<Textured2dLayerObject> headingObject;
