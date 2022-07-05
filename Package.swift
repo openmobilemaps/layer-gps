@@ -28,7 +28,7 @@ let package = Package(
     dependencies: [
         .package(name: "MapCore",
                  url: "https://github.com/openmobilemaps/maps-core.git",
-                 .branch("develop")),
+                 .upToNextMajor(from: "1.4.0")),
     ],
     targets: [
         .target(
