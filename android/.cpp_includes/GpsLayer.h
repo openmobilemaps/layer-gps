@@ -25,6 +25,7 @@
 class GpsLayer : public GpsLayerInterface,
                  public SimpleLayerInterface,
                  public SimpleTouchInterface,
+                 public MapCamera2dListenerInterface,
                  public std::enable_shared_from_this<GpsLayer> {
 public:
     GpsLayer(const GpsStyleInfo & styleInfo);
@@ -79,13 +80,19 @@ public:
 
     virtual bool onClickConfirmed(const ::Vec2F &posScreen) override;
 
-    virtual bool onDoubleClick(const ::Vec2F &posScreen) override;
+    bool onMoveComplete() override;
 
-    virtual bool onMove(const ::Vec2F &deltaScreen, bool confirmed, bool doubleClick) override;
+    bool onTwoFingerMoveComplete() override;
 
-    virtual bool onTwoFingerClick(const ::Vec2F &posScreen1, const ::Vec2F &posScreen2) override;
+    void clearTouch() override;
 
-    virtual bool onTwoFingerMove(const std::vector<::Vec2F> &posScreenOld, const std::vector<::Vec2F> &posScreenNew) override;
+    // MapCamera2dListenerInterface
+
+    void onVisibleBoundsChanged(const RectCoord &visibleBounds, double zoom) override {};
+
+    void onRotationChanged(float angle) override {};
+
+    void onMapInteraction() override;
 
 private:
     virtual void updatePosition(const Coord &position, double horizontalAccuracyM, bool isInitialFollow);
@@ -96,6 +103,8 @@ private:
     virtual void setupLayerObjects();
 
     virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant);
+
+    virtual void resetAccInteraction();
 
     std::atomic<bool> isHidden = false;
 
@@ -126,6 +135,12 @@ private:
     std::shared_ptr<GpsLayerCallbackInterface> callbackHandler;
 
     std::shared_ptr<::MaskingObjectInterface> mask = nullptr;
+
+    std::recursive_mutex interactionMutex;
+    std::optional<Coord> lastCenter = std::nullopt;
+    std::optional<double> lastRotation = std::nullopt;
+    Vec2D accInteractionMove = Vec2D(0.0, 0.0);
+    double accRotation = 0.0;
                      
 protected:
     std::shared_ptr<MapInterface> mapInterface;

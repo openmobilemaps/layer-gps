@@ -21,11 +21,14 @@
 #include "CoordinatesUtil.h"
 
 #define DEFAULT_ANIM_LENGTH 100
+#define INTERACTION_THRESHOLD_MOVE_CM 1.5
+#define INTERACTION_THRESHOLD_ROT_ANGLE 25
 
 GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo) {}
 
 void GpsLayer::setMode(GpsMode mode) {
     resetParameters();
+    bool isInitialFollow = this->mode != GpsMode::FOLLOW && this->mode != GpsMode::FOLLOW_AND_TURN;
     this->mode = mode;
 
     switch (mode) {
@@ -46,7 +49,7 @@ void GpsLayer::setMode(GpsMode mode) {
             followModeEnabled = true;
             rotationModeEnabled = false;
             if (positionValid && position) {
-                updatePosition(*position, horizontalAccuracyM, true);
+                updatePosition(*position, horizontalAccuracyM, isInitialFollow);
             }
             break;
         }
@@ -55,7 +58,7 @@ void GpsLayer::setMode(GpsMode mode) {
             followModeEnabled = true;
             rotationModeEnabled = true;
             if (positionValid && position) {
-                updatePosition(*position, horizontalAccuracyM, true);
+                updatePosition(*position, horizontalAccuracyM, isInitialFollow);
                 updateHeading(angleHeading);
             }
             break;
@@ -113,7 +116,7 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM,
     this->horizontalAccuracyM = horizontalAccuracyM;
 
     // only invalidate if the position is visible
-    // if we are in follow or follow and turn mode the invalidaton is triggered by the camera movement
+    // if we are in follow or follow and turn mode the invalidation is triggered by the camera movement
     if (mapInterface &&
         coordsutil::checkRectContainsCoord(camera->getVisibleRect(), newPosition, mapInterface->getCoordinateConverterHelper())) {
         mapInterface->invalidate();
@@ -239,6 +242,7 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
 void GpsLayer::onAdded(const std::shared_ptr<MapInterface> &mapInterface) {
     this->mapInterface = mapInterface;
     mapInterface->getTouchHandler()->addListener(shared_from_this());
+    mapInterface->getCamera()->addListener(shared_from_this());
 
     setupLayerObjects();
     mapInterface->invalidate();
@@ -247,7 +251,10 @@ void GpsLayer::onAdded(const std::shared_ptr<MapInterface> &mapInterface) {
 void GpsLayer::onRemoved() {
     auto lockSelfPtr = shared_from_this();
     auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
-    if (mapInterface) mapInterface->getTouchHandler()->removeListener(shared_from_this());
+    if (mapInterface) {
+        mapInterface->getTouchHandler()->removeListener(shared_from_this());
+        mapInterface->getCamera()->removeListener(shared_from_this());
+    }
     mapInterface = nullptr;
 }
 
@@ -310,8 +317,6 @@ bool GpsLayer::onClickConfirmed(const Vec2F &posScreen) {
         return false;
     }
 
-    resetMode();
-
     if (callbackHandler && mapInterface && position) {
         Coord clickCoords = camera->coordFromScreenPosition(posScreen);
 
@@ -352,29 +357,22 @@ bool GpsLayer::onClickConfirmed(const Vec2F &posScreen) {
     return false;
 }
 
-bool GpsLayer::onDoubleClick(const Vec2F &posScreen) {
-    resetMode();
+bool GpsLayer::onMoveComplete() {
+    resetAccInteraction();
     return false;
 }
 
-bool GpsLayer::onTwoFingerClick(const Vec2F &posScreen1, const Vec2F &posScreen2) {
-    resetMode();
+bool GpsLayer::onTwoFingerMoveComplete() {
+    resetAccInteraction();
     return false;
 }
 
-bool GpsLayer::onMove(const Vec2F &deltaScreen, bool confirmed, bool doubleClick) {
-    resetMode();
-    return false;
-}
-
-bool GpsLayer::onTwoFingerMove(const std::vector<::Vec2F> &posScreenOld, const std::vector<::Vec2F> &posScreenNew) {
-    resetMode();
-    return false;
+void GpsLayer::clearTouch() {
+    resetAccInteraction();
 }
 
 void GpsLayer::resetMode() {
     if (mode != GpsMode::DISABLED) {
-        resetParameters();
         setMode(GpsMode::STANDARD);
     }
 }
@@ -515,3 +513,74 @@ void GpsLayer::enablePointRotationInvariant(bool enable) {
     pointRotationInvariantEnabled = enable;
 }
 
+void GpsLayer::onMapInteraction() {
+    auto selfLockPtr = shared_from_this();
+    auto mapInterface = selfLockPtr->mapInterface;
+    auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
+    if (!camera) {
+        return;
+    }
+
+    if (mode != GpsMode::FOLLOW && mode != GpsMode::FOLLOW_AND_TURN) {
+        return;
+    }
+
+    Coord center = camera->getCenterPosition();
+    double accDistanceUnits = 0.0;
+    {
+        std::lock_guard<std::recursive_mutex> lock(interactionMutex);
+        if (lastCenter) {
+            accInteractionMove.x = accInteractionMove.x + (center.x - lastCenter->x);
+            accInteractionMove.y = accInteractionMove.y + (center.y - lastCenter->y);
+        }
+        lastCenter = center;
+
+        accDistanceUnits = sqrt(accInteractionMove.x * accInteractionMove.x + accInteractionMove.y * accInteractionMove.y);
+    }
+    double accDistanceCm = accDistanceUnits / camera->mapUnitsFromPixels(1) / camera->getScreenDensityPpi() * 2.54;
+    if (accDistanceCm > INTERACTION_THRESHOLD_MOVE_CM) {
+        resetMode();
+        resetAccInteraction();
+        return;
+    }
+
+    if (mode != GpsMode::FOLLOW) {
+        return;
+    }
+
+    double rotation = camera->getRotation();
+    double accRotationDeg = 0.0;
+    {
+        std::lock_guard<std::recursive_mutex> lock(interactionMutex);
+        if (lastRotation) {
+            accRotation = accRotation + (rotation - *lastRotation);
+        }
+        lastRotation = rotation;
+        accRotationDeg = accRotation;
+    }
+
+    if (accRotationDeg > INTERACTION_THRESHOLD_ROT_ANGLE) {
+        resetMode();
+        resetAccInteraction();
+        return;
+    }
+}
+
+void GpsLayer::resetAccInteraction() {
+    {
+        std::lock_guard<std::recursive_mutex> lock(interactionMutex);
+        accInteractionMove.x = 0.0;
+        accInteractionMove.y = 0.0;
+        accRotation = 0.0;
+        lastCenter = std::nullopt;
+        lastRotation = std::nullopt;
+    }
+    if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
+        if (positionValid && position) {
+            updatePosition(*position, horizontalAccuracyM, false);
+        }
+    }
+    if (mode == GpsMode::FOLLOW_AND_TURN) {
+        updateHeading(angleHeading);
+    }
+}
