@@ -559,7 +559,7 @@ void GpsLayer::onMapInteraction() {
         accRotationDeg = accRotation;
     }
 
-    if (accRotationDeg > INTERACTION_THRESHOLD_ROT_ANGLE) {
+    if (abs(accRotationDeg) > INTERACTION_THRESHOLD_ROT_ANGLE) {
         resetMode();
         resetAccInteraction();
         return;
