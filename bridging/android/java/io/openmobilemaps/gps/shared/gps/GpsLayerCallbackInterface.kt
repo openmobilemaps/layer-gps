@@ -9,6 +9,8 @@ abstract class GpsLayerCallbackInterface {
 
     abstract fun modeDidChange(mode: GpsMode)
 
+    abstract fun onPointClick(coordinate: io.openmobilemaps.mapscore.shared.map.coordinates.Coord)
+
     private class CppProxy : GpsLayerCallbackInterface {
         private val nativeRef: Long
         private val destroyed: AtomicBoolean = AtomicBoolean(false)
@@ -32,5 +34,11 @@ abstract class GpsLayerCallbackInterface {
             native_modeDidChange(this.nativeRef, mode)
         }
         private external fun native_modeDidChange(_nativeRef: Long, mode: GpsMode)
+
+        override fun onPointClick(coordinate: io.openmobilemaps.mapscore.shared.map.coordinates.Coord) {
+            assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
+            native_onPointClick(this.nativeRef, coordinate)
+        }
+        private external fun native_onPointClick(_nativeRef: Long, coordinate: io.openmobilemaps.mapscore.shared.map.coordinates.Coord)
     }
 }

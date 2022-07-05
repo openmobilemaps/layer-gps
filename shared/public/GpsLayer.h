@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "SimpleLayerInterface.h"
 #include "GpsLayerInterface.h"
 #include "GpsLayerCallbackInterface.h"
 #include "SimpleTouchInterface.h"
@@ -22,8 +23,9 @@
 #include <mutex>
 
 class GpsLayer : public GpsLayerInterface,
-                 public LayerInterface,
+                 public SimpleLayerInterface,
                  public SimpleTouchInterface,
+                 public MapCamera2dListenerInterface,
                  public std::enable_shared_from_this<GpsLayer> {
 public:
     GpsLayer(const GpsStyleInfo & styleInfo);
@@ -42,9 +44,21 @@ public:
 
     virtual std::shared_ptr<::LayerInterface> asLayerInterface() override;
 
+    virtual void setDrawPoint(bool enable) override;
+
+    virtual void setDrawHeading(bool enable) override;
+
     virtual void setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterface> & handler) override;
 
+    virtual void setFollowInitializeZoom(std::optional<float> zoom) override;
+
+    virtual void updateStyle(const GpsStyleInfo & styleInfo) override;
+
+    virtual void enablePointRotationInvariant(bool enable) override;
+
     // LayerInterface
+
+    virtual void setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) override;
 
     virtual void update() override;
 
@@ -66,30 +80,35 @@ public:
 
     virtual bool onClickConfirmed(const ::Vec2F &posScreen) override;
 
-    virtual bool onDoubleClick(const ::Vec2F &posScreen) override;
+    bool onMoveComplete() override;
 
-    virtual bool onMove(const ::Vec2F &deltaScreen, bool confirmed, bool doubleClick) override;
+    bool onTwoFingerMoveComplete() override;
 
-    virtual bool onTwoFingerClick(const ::Vec2F &posScreen1, const ::Vec2F &posScreen2) override;
+    void clearTouch() override;
 
-    virtual bool onTwoFingerMove(const std::vector<::Vec2F> &posScreenOld, const std::vector<::Vec2F> &posScreenNew) override;
+    // MapCamera2dListenerInterface
+
+    void onVisibleBoundsChanged(const RectCoord &visibleBounds, double zoom) override {};
+
+    void onRotationChanged(float angle) override {};
+
+    void onMapInteraction() override;
 
 private:
+    virtual void updatePosition(const Coord &position, double horizontalAccuracyM, bool isInitialFollow);
+
     virtual void resetMode();
+    virtual void resetParameters();
 
     virtual void setupLayerObjects();
 
-    virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling);
+    virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant);
 
-    std::shared_ptr<Textured2dLayerObject> centerObject;
-    std::shared_ptr<Textured2dLayerObject> headingObject;
-    std::shared_ptr<Circle2dLayerObject> accuracyObject;
+    virtual void resetAccInteraction();
 
-    std::shared_ptr<MapInterface> mapInterface;
-    std::shared_ptr<MapCamera2dInterface> camera;
     std::atomic<bool> isHidden = false;
 
-    Coord position = Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0, 0, 0);
+    std::optional<Coord> position = std::nullopt;
     double horizontalAccuracyM = 0;
     float angleHeading = 0;
 
@@ -101,11 +120,34 @@ private:
     bool followModeEnabled = false;
     bool rotationModeEnabled = false;
 
+    bool drawCenterObjectEnabled = true;
+    bool drawHeadingObjectEnabled = true;
+
+    bool pointRotationInvariantEnabled = false;
+
     GpsStyleInfo styleInfo;
+    int64_t pointHeight = 0;
+    int64_t pointWidth = 0;
 
     std::recursive_mutex animationMutex;
-    std::shared_ptr<AnimationInterface> coordAnimation;
     std::shared_ptr<AnimationInterface> headingAnimation;
 
     std::shared_ptr<GpsLayerCallbackInterface> callbackHandler;
+
+    std::shared_ptr<::MaskingObjectInterface> mask = nullptr;
+
+    std::recursive_mutex interactionMutex;
+    std::optional<Coord> lastCenter = std::nullopt;
+    std::optional<double> lastRotation = std::nullopt;
+    Vec2D accInteractionMove = Vec2D(0.0, 0.0);
+    double accRotation = 0.0;
+                     
+protected:
+    std::shared_ptr<MapInterface> mapInterface;
+
+    std::shared_ptr<Textured2dLayerObject> centerObject;
+    std::shared_ptr<Textured2dLayerObject> headingObject;
+    std::shared_ptr<Circle2dLayerObject> accuracyObject;
+
+    std::optional<float> followInitializeZoom;
 };

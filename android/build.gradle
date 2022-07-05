@@ -6,7 +6,7 @@ buildscript {
 		jcenter()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:4.1.2'
+		classpath 'com.android.tools.build:gradle:7.0.2'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
 		classpath 'com.vanniktech:gradle-maven-publish-plugin:0.13.0'
@@ -75,21 +75,33 @@ android {
 		exclude('**/libc++_shared.so')
 	}
 
-	defaultPublishConfig "mavenRelease"
+	defaultPublishConfig "release"
 
-	flavorDimensions "mapscoresource"
-
-	productFlavors {
-		maven {
-		}
-		module {
+	buildTypes {
+		release {
+			ndk {
+				debugSymbolLevel 'SYMBOL_TABLE'
+			}
 		}
 	}
 
 }
 
-task copyHeaders(type: Exec){
-	commandLine './copy_all_header_files_to_include_folder.sh'
+task copyHeaders() {
+	String headersDir = ".cpp_includes"
+	project.delete(headersDir)
+	project.mkdir(headersDir)
+	ConfigurableFileCollection collection = project.files(
+			"src/main/cpp",
+			"../bridging/android/jni",
+			"../shared/public",
+			"../shared/src")
+	project.copy {
+		duplicatesStrategy(DuplicatesStrategy.FAIL)
+		from collection.asFileTree.getFiles()
+		include("**/*.h")
+		into project.file(headersDir)
+	}
 }
 preBuild.dependsOn copyHeaders
 
@@ -120,8 +132,7 @@ dependencies {
 	implementation 'androidx.core:core-ktx:1.3.2'
 	implementation 'com.google.android.gms:play-services-location:17.0.0'
 
-	mavenApi 'io.openmobilemaps:mapscore:1.3.3'
-	moduleApi project(':mapscore')
+	api 'io.openmobilemaps:mapscore:1.4.0'
 
 	testImplementation 'junit:junit:4.13.2'
 	androidTestImplementation 'androidx.test.ext:junit:1.1.2'

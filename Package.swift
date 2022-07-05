@@ -9,6 +9,10 @@ let package = Package(
     ],
     products: [
         .library(
+            name: "LocationManager",
+            targets: ["LocationManager"]
+        ),
+        .library(
             name: "LayerGps",
             targets: ["LayerGps"]
         ),
@@ -24,17 +28,23 @@ let package = Package(
     dependencies: [
         .package(name: "MapCore",
                  url: "https://github.com/openmobilemaps/maps-core.git",
-                 .upToNextMajor(from: "1.1.0")),
+                 .upToNextMajor(from: "1.4.0")),
     ],
     targets: [
+        .target(
+            name: "LocationManager",
+            dependencies: [
+                "LayerGps",
+            ],
+            path: "ios/LocationManager"
+        ),
         .target(
             name: "LayerGps",
             dependencies: [
                 .product(name: "MapCore", package: "MapCore"),
                 "LayerGpsSharedModule",
             ],
-            path: "ios",
-            exclude: ["README.md"]
+            path: "ios/Layer"
         ),
         .target(
             name: "LayerGpsSharedModule",
@@ -56,7 +66,7 @@ let package = Package(
             cxxSettings: [
                 .headerSearchPath("**"),
                 .headerSearchPath("public"),
-                .headerSearchPath("src/gps")
+                .headerSearchPath("src/gps"),
             ]
         ),
     ],

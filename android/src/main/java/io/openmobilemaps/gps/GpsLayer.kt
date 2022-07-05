@@ -42,6 +42,7 @@ class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: Location
 	private var lifecycle: Lifecycle? = null
 
 	private var modeChangedListener: ((GpsMode) -> Unit)? = null
+	private var onClickListener: ((Coord) -> Unit)? = null
 
 	fun registerLifecycle(lifecycle: Lifecycle) {
 		this.lifecycle?.removeObserver(this)
@@ -104,6 +105,10 @@ class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: Location
 		modeChangedListener = listener
 	}
 
+	fun setOnClickListener(listener: ((Coord) -> Unit)?) {
+		onClickListener = listener
+	}
+
 	override fun onLocationUpdate(newLocation: Location) {
 		val coord = Coord(CoordinateSystemIdentifiers.EPSG4326(), newLocation.longitude, newLocation.latitude, newLocation.altitude)
 		val accuracy = newLocation.accuracy.toDouble()
@@ -116,6 +121,10 @@ class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: Location
 
 	override fun modeDidChange(mode: GpsMode) {
 		modeChangedListener?.invoke(mode)
+	}
+
+	override fun onPointClick(coordinate: Coord) {
+		onClickListener?.invoke(coordinate)
 	}
 
 	private fun requireLayerInterface(): GpsLayerInterface =

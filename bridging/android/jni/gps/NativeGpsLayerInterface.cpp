@@ -89,6 +89,51 @@ CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
 }
 
+CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1setDrawPoint(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jboolean j_enable)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::GpsLayerInterface>(nativeRef);
+        ref->setDrawPoint(::djinni::Bool::toCpp(jniEnv, j_enable));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
+}
+
+CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1setDrawHeading(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jboolean j_enable)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::GpsLayerInterface>(nativeRef);
+        ref->setDrawHeading(::djinni::Bool::toCpp(jniEnv, j_enable));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
+}
+
+CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1enablePointRotationInvariant(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jboolean j_enable)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::GpsLayerInterface>(nativeRef);
+        ref->enablePointRotationInvariant(::djinni::Bool::toCpp(jniEnv, j_enable));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
+}
+
+CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1setFollowInitializeZoom(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jobject j_zoom)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::GpsLayerInterface>(nativeRef);
+        ref->setFollowInitializeZoom(::djinni::Optional<std::optional, ::djinni::F32>::toCpp(jniEnv, j_zoom));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
+}
+
+CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1updateStyle(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jobject j_styleInfo)
+{
+    try {
+        DJINNI_FUNCTION_PROLOGUE1(jniEnv, nativeRef);
+        const auto& ref = ::djinni::objectFromHandleAddress<::GpsLayerInterface>(nativeRef);
+        ref->updateStyle(::djinni_generated::NativeGpsStyleInfo::toCpp(jniEnv, j_styleInfo));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
+}
+
 CJNIEXPORT ::djinni_generated::NativeLayerInterface::JniType JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1asLayerInterface(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef)
 {
     try {

@@ -18,14 +18,15 @@ import android.hardware.SensorEvent
 import android.view.Display
 import android.view.WindowManager
 import io.openmobilemaps.gps.util.SingletonHolder
+import kotlin.collections.HashSet
 
 class CompassProvider private constructor(context: Context) : SensorEventListener {
 
 	companion object : SingletonHolder<CompassProvider, Context>(::CompassProvider);
 
 	private val sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-	private val accelerometer: Sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-	private val magnetometer: Sensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+	private val accelerometer: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+	private val magnetometer: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 	private val display: Display = (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
 	private val R = FloatArray(9)
 	private val I = FloatArray(9)
@@ -90,8 +91,8 @@ class CompassProvider private constructor(context: Context) : SensorEventListene
 	}
 
 	fun onActive() {
-		sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
-		sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI)
+		accelerometer?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI) }
+		magnetometer?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI) }
 	}
 
 	fun onInactive() {
