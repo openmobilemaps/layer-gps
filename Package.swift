@@ -9,10 +9,6 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "LocationManager",
-            targets: ["LocationManager"]
-        ),
-        .library(
             name: "LayerGps",
             targets: ["LayerGps"]
         ),
@@ -26,18 +22,10 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(name: "MapCore",
-                 url: "https://github.com/openmobilemaps/maps-core.git",
-                 .branch("develop")),
+        .package(name: "MapCore", url: "https://github.com/openmobilemaps/maps-core.git", from: "1.4.0"),
+        .package(url: "https://github.com/UbiqueInnovation/ubkit-ios", from: "1.4.1")
     ],
     targets: [
-        .target(
-            name: "LocationManager",
-            dependencies: [
-                "LayerGps",
-            ],
-            path: "ios/LocationManager"
-        ),
         .target(
             name: "LayerGps",
             dependencies: [
