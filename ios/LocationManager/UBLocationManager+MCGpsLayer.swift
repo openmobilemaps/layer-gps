@@ -1,6 +1,7 @@
 import CoreLocation
 import LayerGps
 import UIKit
+import UBLocation
 
 private var binder: LocationManagerLayerBinder?
 
