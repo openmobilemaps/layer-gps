@@ -23,9 +23,9 @@
         "package": "UBKit",
         "repositoryURL": "https://github.com/UbiqueInnovation/ubkit-ios",
         "state": {
-          "branch": null,
-          "revision": "a7af7198be92f5208e79ed611fb378df39b71a11",
-          "version": "1.4.1"
+          "branch": "feature/ublocation-region-monitoring",
+          "revision": "122f78c9da8988cf3c3292cb45bd6db93ea1f9dd",
+          "version": null
         }
       }
     ]
