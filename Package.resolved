@@ -14,18 +14,18 @@
         "package": "MapCore",
         "repositoryURL": "https://github.com/openmobilemaps/maps-core.git",
         "state": {
-          "branch": "develop",
-          "revision": "ac1cf4fbe3bfebf1bdae8c5e4b42fd2b9e2d39f9",
-          "version": null
+          "branch": null,
+          "revision": "9843eec6b8b7b244f5f778b13ad215abbe2273c2",
+          "version": "1.4.1"
         }
       },
       {
         "package": "UBKit",
         "repositoryURL": "https://github.com/UbiqueInnovation/ubkit-ios",
         "state": {
-          "branch": "main",
-          "revision": "dd463d3b56ec3e55ae9869d131143716d933a2ca",
-          "version": null
+          "branch": null,
+          "revision": "dd32ca845cb177a1dd59783c6a43a00db3584667",
+          "version": "1.5.0"
         }
       }
     ]
