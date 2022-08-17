@@ -28,6 +28,9 @@ GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo) {}
 
 void GpsLayer::setMode(GpsMode mode) {
     resetParameters();
+
+    if (mode == this->mode) return;
+
     bool isInitialFollow = this->mode != GpsMode::FOLLOW && this->mode != GpsMode::FOLLOW_AND_TURN;
     this->mode = mode;
 
