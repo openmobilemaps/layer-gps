@@ -21,7 +21,7 @@
 #include "CoordinatesUtil.h"
 
 #define DEFAULT_ANIM_LENGTH 100
-#define INTERACTION_THRESHOLD_MOVE_CM 1.5
+#define INTERACTION_THRESHOLD_MOVE_CM 0.5
 #define INTERACTION_THRESHOLD_ROT_ANGLE 25
 
 GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo) {}
