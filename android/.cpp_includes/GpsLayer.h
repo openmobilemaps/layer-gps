@@ -141,6 +141,8 @@ private:
     std::optional<double> lastRotation = std::nullopt;
     Vec2D accInteractionMove = Vec2D(0.0, 0.0);
     double accRotation = 0.0;
+
+    const static int GPS_RENDER_PASS_INDEX = 999;
                      
 protected:
     std::shared_ptr<MapInterface> mapInterface;

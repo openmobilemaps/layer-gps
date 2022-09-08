@@ -234,7 +234,7 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
 
     std::vector<std::shared_ptr<RenderPassInterface>> renderPasses;
     for (const auto &passEntry : renderPassObjectMap) {
-        std::shared_ptr<RenderPass> renderPass = std::make_shared<RenderPass>(RenderPassConfig(passEntry.first),
+        std::shared_ptr<RenderPass> renderPass = std::make_shared<RenderPass>(RenderPassConfig(GPS_RENDER_PASS_INDEX),
                                                                               passEntry.second,
                                                                               mask);
         renderPasses.push_back(renderPass);
