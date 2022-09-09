@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.5
 
 import PackageDescription
 
@@ -6,6 +6,7 @@ let package = Package(
     name: "LayerGps",
     platforms: [
         .iOS(.v11),
+        .macOS(.v12)
     ],
     products: [
         .library(
@@ -22,7 +23,9 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(name: "MapCore", url: "https://github.com/openmobilemaps/maps-core.git", .upToNextMajor(from: "1.4.1")),
+        .package(name: "MapCore",
+                 url: "https://github.com/openmobilemaps/maps-core.git",
+                 .branch("develop")),
         .package(url: "https://github.com/UbiqueInnovation/ubkit-ios", .upToNextMajor(from: "1.5.0"))
     ],
     targets: [
