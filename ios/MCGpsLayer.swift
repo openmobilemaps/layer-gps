@@ -10,6 +10,7 @@
 
 @_exported import LayerGpsSharedModule
 import MapCore
+import Foundation
 import UIKit
 
 public class MCGpsLayer: NSObject {
@@ -48,9 +49,9 @@ public class MCGpsLayer: NSObject {
 
 public extension MCGpsStyleInfo {
     static var defaultStyle: MCGpsStyleInfo {
-        guard let pointImage = UIImage(named: "ic_gps_point", in: .module, compatibleWith: nil)!.cgImage,
+        guard let pointImage = UIImage(named: "ic_gps_point", in: Bundle.module, compatibleWith: nil)!.cgImage,
               let pointTexture = try? TextureHolder(pointImage),
-              let headingImage = UIImage(named: "ic_gps_direction", in: .module, compatibleWith: nil)!.cgImage,
+              let headingImage = UIImage(named: "ic_gps_direction", in: Bundle.module, compatibleWith: nil)!.cgImage,
               let headingTexture = try? TextureHolder(headingImage) else {
             fatalError("gps style assets not found")
         }

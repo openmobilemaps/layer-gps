@@ -5,8 +5,7 @@ import PackageDescription
 let package = Package(
     name: "LayerGps",
     platforms: [
-        .iOS(.v11),
-        .macOS(.v12)
+        .iOS(.v11)
     ],
     products: [
         .library(
@@ -26,16 +25,21 @@ let package = Package(
         .package(name: "MapCore",
                  url: "https://github.com/openmobilemaps/maps-core.git",
                  .branch("develop")),
-        .package(url: "https://github.com/UbiqueInnovation/ubkit-ios", .upToNextMajor(from: "1.5.0"))
+        .package(name: "UBKit", url: "https://github.com/UbiqueInnovation/ubkit-ios", .upToNextMajor(from: "1.5.0"))
     ],
     targets: [
         .target(
             name: "LayerGps",
             dependencies: [
                 .product(name: "MapCore", package: "MapCore"),
+                .product(name: "UBLocation", package: "UBKit"),
                 "LayerGpsSharedModule",
             ],
-            path: "ios/Layer"
+            path: "ios",
+            exclude: ["README.md"],
+            resources: [
+                .process("Resources/Assets.xcassets")
+            ]
         ),
         .target(
             name: "LayerGpsSharedModule",
@@ -61,5 +65,5 @@ let package = Package(
             ]
         ),
     ],
-    cxxLanguageStandard: .cxx1z
+    cxxLanguageStandard: .cxx17
 )
