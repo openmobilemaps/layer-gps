@@ -19,6 +19,7 @@
 #include "CoordAnimation.h"
 #include "DoubleAnimation.h"
 #include "CoordinatesUtil.h"
+#include "Logger.h"
 
 #define DEFAULT_ANIM_LENGTH 100
 #define INTERACTION_THRESHOLD_MOVE_CM 0.5
@@ -365,6 +366,14 @@ bool GpsLayer::onMoveComplete() {
     return false;
 }
 
+bool GpsLayer::onTwoFingerMove(const std::vector<::Vec2F> &posScreenOld, const std::vector<::Vec2F> &posScreenNew) {
+    {
+        std::lock_guard<std::recursive_mutex> lock(interactionMutex);
+        isPinchMove = true;
+    }
+    return false;
+}
+
 bool GpsLayer::onTwoFingerMoveComplete() {
     resetAccInteraction();
     return false;
@@ -524,12 +533,13 @@ void GpsLayer::onMapInteraction() {
         return;
     }
 
-    if (mode != GpsMode::FOLLOW && mode != GpsMode::FOLLOW_AND_TURN) {
+/*    if (mode != GpsMode::FOLLOW && mode != GpsMode::FOLLOW_AND_TURN) {
         return;
-    }
+    }*/
 
     Coord center = camera->getCenterPosition();
     double accDistanceUnits = 0.0;
+    bool isPinch = false;
     {
         std::lock_guard<std::recursive_mutex> lock(interactionMutex);
         if (lastCenter) {
@@ -539,9 +549,10 @@ void GpsLayer::onMapInteraction() {
         lastCenter = center;
 
         accDistanceUnits = sqrt(accInteractionMove.x * accInteractionMove.x + accInteractionMove.y * accInteractionMove.y);
+        isPinch = isPinchMove;
     }
     double accDistanceCm = accDistanceUnits / camera->mapUnitsFromPixels(1) / camera->getScreenDensityPpi() * 2.54;
-    if (accDistanceCm > INTERACTION_THRESHOLD_MOVE_CM) {
+    if (accDistanceCm > INTERACTION_THRESHOLD_MOVE_CM * (isPinch ? 4.0 : 1.0)) {
         resetMode();
         resetAccInteraction();
         return;
@@ -575,6 +586,7 @@ void GpsLayer::resetAccInteraction() {
         accInteractionMove.x = 0.0;
         accInteractionMove.y = 0.0;
         accRotation = 0.0;
+        isPinchMove = false;
         lastCenter = std::nullopt;
         lastRotation = std::nullopt;
     }
