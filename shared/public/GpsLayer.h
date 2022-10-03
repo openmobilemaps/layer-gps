@@ -82,6 +82,8 @@ public:
 
     bool onMoveComplete() override;
 
+    bool onTwoFingerMove(const std::vector<::Vec2F> &posScreenOld, const std::vector<::Vec2F> &posScreenNew) override;
+
     bool onTwoFingerMoveComplete() override;
 
     void clearTouch() override;
@@ -140,6 +142,7 @@ private:
     std::optional<Coord> lastCenter = std::nullopt;
     std::optional<double> lastRotation = std::nullopt;
     Vec2D accInteractionMove = Vec2D(0.0, 0.0);
+    bool isPinchMove = false;
     double accRotation = 0.0;
 
     const static int GPS_RENDER_PASS_INDEX = 999;
