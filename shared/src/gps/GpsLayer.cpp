@@ -19,7 +19,6 @@
 #include "CoordAnimation.h"
 #include "DoubleAnimation.h"
 #include "CoordinatesUtil.h"
-#include "Logger.h"
 
 #define DEFAULT_ANIM_LENGTH 100
 #define INTERACTION_THRESHOLD_MOVE_CM 0.5
@@ -533,9 +532,9 @@ void GpsLayer::onMapInteraction() {
         return;
     }
 
-/*    if (mode != GpsMode::FOLLOW && mode != GpsMode::FOLLOW_AND_TURN) {
+    if (mode != GpsMode::FOLLOW && mode != GpsMode::FOLLOW_AND_TURN) {
         return;
-    }*/
+    }
 
     Coord center = camera->getCenterPosition();
     double accDistanceUnits = 0.0;
