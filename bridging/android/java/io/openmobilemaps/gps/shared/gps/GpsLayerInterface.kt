@@ -29,6 +29,10 @@ abstract class GpsLayerInterface {
 
     abstract fun updateStyle(styleInfo: GpsStyleInfo)
 
+    abstract fun setAlpha(alpha: Float)
+
+    abstract fun getAlpha(): Float
+
     abstract fun asLayerInterface(): io.openmobilemaps.mapscore.shared.map.LayerInterface
 
     companion object {
@@ -121,6 +125,18 @@ abstract class GpsLayerInterface {
             native_updateStyle(this.nativeRef, styleInfo)
         }
         private external fun native_updateStyle(_nativeRef: Long, styleInfo: GpsStyleInfo)
+
+        override fun setAlpha(alpha: Float) {
+            assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
+            native_setAlpha(this.nativeRef, alpha)
+        }
+        private external fun native_setAlpha(_nativeRef: Long, alpha: Float)
+
+        override fun getAlpha(): Float {
+            assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
+            return native_getAlpha(this.nativeRef)
+        }
+        private external fun native_getAlpha(_nativeRef: Long): Float
 
         override fun asLayerInterface(): io.openmobilemaps.mapscore.shared.map.LayerInterface {
             assert(!this.destroyed.get()) { error("trying to use a destroyed object") }

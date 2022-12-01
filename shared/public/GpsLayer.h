@@ -56,6 +56,10 @@ public:
 
     virtual void enablePointRotationInvariant(bool enable) override;
 
+    virtual void setAlpha(float alpha) override;
+
+    virtual float getAlpha() override;
+
     // LayerInterface
 
     virtual void setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) override;
@@ -99,6 +103,8 @@ public:
 private:
     virtual void updatePosition(const Coord &position, double horizontalAccuracyM, bool isInitialFollow);
 
+    void updateColors();
+
     virtual void resetMode();
     virtual void resetParameters();
 
@@ -113,6 +119,7 @@ private:
     std::optional<Coord> position = std::nullopt;
     double horizontalAccuracyM = 0;
     float angleHeading = 0;
+    float alpha = 1.0;
 
     GpsMode mode = GpsMode::DISABLED;
     bool drawLocation = false;

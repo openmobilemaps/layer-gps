@@ -40,5 +40,9 @@ public:
 
     virtual void updateStyle(const GpsStyleInfo & styleInfo) = 0;
 
+    virtual void setAlpha(float alpha) = 0;
+
+    virtual float getAlpha() = 0;
+
     virtual std::shared_ptr<::LayerInterface> asLayerInterface() = 0;
 };
