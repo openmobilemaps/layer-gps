@@ -75,6 +75,10 @@ class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: Location
 		}
 	}
 
+	fun setFollowInitializeZoom(zoom: Float?) {
+		requireLayerInterface().setFollowInitializeZoom(zoom)
+	}
+
 	@OnLifecycleEvent(Lifecycle.Event.ON_START)
 	fun onStart() {
 		locationProvider?.registerLocationUpdateListener(this)
