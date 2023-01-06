@@ -36,5 +36,8 @@ gps_layer_interface = interface +c {
     set_follow_initialize_zoom(zoom: optional<f32>);
     update_style(style_info: gps_style_info);
 
+    set_alpha(alpha: f32);
+    get_alpha(): f32;
+
     asLayerInterface(): layer_interface;
 }

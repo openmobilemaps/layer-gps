@@ -77,6 +77,17 @@ GpsMode GpsLayer::getMode() {
     return this->mode;
 }
 
+void GpsLayer::setAlpha(float alpha_) {
+    alpha = alpha_;
+    updateColors();
+
+    if(mapInterface) { mapInterface->invalidate(); }
+}
+
+float GpsLayer::getAlpha() {
+    return alpha;
+}
+
 void GpsLayer::enableHeading(bool enable) {
     headingEnabled = enable;
     if (mapInterface) mapInterface->invalidate();
@@ -291,14 +302,14 @@ void GpsLayer::resume() {
     }
 
     if (!accuracyObject->getQuadObject()->asGraphicsObject()->isReady()) {
-        Color accuracyColor = styleInfo.accuracyColor;
         accuracyObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
-        accuracyObject->setColor(accuracyColor);
     }
 
     if (mask) {
         if (!mask->asGraphicsObject()->isReady()) mask->asGraphicsObject()->setup(renderingContext);
     }
+
+    updateColors();
 }
 
 void GpsLayer::hide() {
@@ -426,8 +437,9 @@ void GpsLayer::setupLayerObjects() {
                                           Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidthHeading, +hHeightHeading, 0.0),
                                           Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidthHeading, +hHeightHeading,
                                                 0.0)));
-    accuracyObject->setColor(styleInfo.accuracyColor);
     accuracyObject->setPosition(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0), 1.0);
+
+    updateColors();
 
     auto renderingContext = mapInterface->getRenderingContext();
 
@@ -596,5 +608,20 @@ void GpsLayer::resetAccInteraction() {
     }
     if (mode == GpsMode::FOLLOW_AND_TURN) {
         updateHeading(angleHeading);
+    }
+}
+
+void GpsLayer::updateColors() {
+    if(headingObject) {
+        headingObject->setAlpha(alpha);
+    }
+
+    if(centerObject) {
+        centerObject->setAlpha(alpha);
+    }
+
+    if(accuracyObject) {
+        auto color = styleInfo.accuracyColor;
+        accuracyObject->setColor(Color(color.r, color.g, color.b, color.a * alpha));
     }
 }

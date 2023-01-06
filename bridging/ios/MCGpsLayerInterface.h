@@ -37,6 +37,10 @@
 
 - (void)updateStyle:(nonnull MCGpsStyleInfo *)styleInfo;
 
+- (void)setAlpha:(float)alpha;
+
+- (float)getAlpha;
+
 - (nullable id<MCLayerInterface>)asLayerInterface;
 
 @end
