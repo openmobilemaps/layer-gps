@@ -242,9 +242,9 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
     return renderPasses;
 }
 
-void GpsLayer::onAdded(const std::shared_ptr<MapInterface> &mapInterface) {
+void GpsLayer::onAdded(const std::shared_ptr<MapInterface> &mapInterface, int32_t layerIndex) {
     this->mapInterface = mapInterface;
-    mapInterface->getTouchHandler()->addListener(shared_from_this());
+    mapInterface->getTouchHandler()->insertListener(shared_from_this(), layerIndex);
     mapInterface->getCamera()->addListener(shared_from_this());
 
     setupLayerObjects();
