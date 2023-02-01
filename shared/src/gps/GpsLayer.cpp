@@ -262,11 +262,13 @@ void GpsLayer::onRemoved() {
 }
 
 void GpsLayer::pause() {
-    if (centerObject) centerObject->getQuadObject()->asGraphicsObject()->clear();
-    if (headingObject) headingObject->getQuadObject()->asGraphicsObject()->clear();
-    if (accuracyObject) accuracyObject->getQuadObject()->asGraphicsObject()->clear();
+    if (centerObject) centerObject->getGraphicsObject()->clear();
+    if (headingObject) headingObject->getGraphicsObject()->clear();
+    if (accuracyObject) accuracyObject->getGraphicsObject()->clear();
+
     if (mask) {
-        if (mask->asGraphicsObject()->isReady()) mask->asGraphicsObject()->clear();
+        auto obj = mask->asGraphicsObject();
+        if (obj->isReady()) { obj->clear(); };
     }
 }
 
@@ -278,21 +280,21 @@ void GpsLayer::resume() {
         return;
     }
 
-    if (!centerObject->getQuadObject()->asGraphicsObject()->isReady()) {
+    if (!centerObject->getGraphicsObject()->isReady()) {
         auto textureCenter = styleInfo.pointTexture;
-        centerObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+        centerObject->getGraphicsObject()->setup(renderingContext);
         centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
     }
 
-    if (!headingObject->getQuadObject()->asGraphicsObject()->isReady()) {
+    if (!headingObject->getGraphicsObject()->isReady()) {
         auto textureHeading = styleInfo.headingTexture;
-        headingObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+        headingObject->getGraphicsObject()->setup(renderingContext);
         headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
     }
 
-    if (!accuracyObject->getQuadObject()->asGraphicsObject()->isReady()) {
+    if (!accuracyObject->getGraphicsObject()->isReady()) {
         Color accuracyColor = styleInfo.accuracyColor;
-        accuracyObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+        accuracyObject->getGraphicsObject()->setup(renderingContext);
         accuracyObject->setColor(accuracyColor);
     }
 
@@ -442,11 +444,11 @@ void GpsLayer::setupLayerObjects() {
                 if (!renderingContext) {
                     return;
                 }
-                selfPtr->centerObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+                selfPtr->centerObject->getGraphicsObject()->setup(renderingContext);
                 selfPtr->centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
-                selfPtr->headingObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+                selfPtr->headingObject->getGraphicsObject()->setup(renderingContext);
                 selfPtr->headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
-                selfPtr->accuracyObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+                selfPtr->accuracyObject->getGraphicsObject()->setup(renderingContext);
             }));
 }
 
