@@ -182,7 +182,7 @@ dependencies {
 	implementation 'androidx.core:core-ktx:1.9.0'
 	implementation 'com.google.android.gms:play-services-location:21.0.1'
 
-    api 'io.openmobilemaps:mapscore-dev:1.4.1.234'
+    api 'io.openmobilemaps:mapscore-dev:1.4.1.235'
 
 	testImplementation 'junit:junit:4.13.2'
 	androidTestImplementation 'androidx.test.ext:junit:1.1.5'
