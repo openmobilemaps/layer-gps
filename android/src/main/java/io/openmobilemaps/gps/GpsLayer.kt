@@ -12,9 +12,10 @@ package io.openmobilemaps.gps
 
 import android.content.Context
 import android.location.Location
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.LifecycleOwner
 import io.openmobilemaps.gps.compass.CompassProvider
 import io.openmobilemaps.gps.compass.CompassUpdateListener
 import io.openmobilemaps.gps.providers.LocationProviderInterface
@@ -27,26 +28,53 @@ import io.openmobilemaps.mapscore.shared.map.LayerInterface
 import io.openmobilemaps.mapscore.shared.map.coordinates.Coord
 import io.openmobilemaps.mapscore.shared.map.coordinates.CoordinateSystemIdentifiers
 
-class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: LocationProviderInterface?) : GpsLayerCallbackInterface(),
-	LifecycleObserver,
-	LocationUpdateListener, CompassUpdateListener {
+class GpsLayer(
+	context: Context,
+	style: GpsStyleInfo,
+	initialLocationProvider: LocationProviderInterface?,
+) : GpsLayerCallbackInterface(), LifecycleObserver, LocationUpdateListener, CompassUpdateListener {
 
-	constructor(context: Context, style: GpsStyleInfo, providerType: GpsProviderType)
-			: this(context, style, providerType.getProvider(context))
+	constructor(
+		context: Context,
+		style: GpsStyleInfo,
+		providerType: GpsProviderType,
+	) : this(context, style, providerType.getProvider(context))
 
-	private var locationProvider: LocationProviderInterface? = locationProvider
+	private var locationProvider: LocationProviderInterface? = initialLocationProvider
 	private var compassProvider: CompassProvider? = CompassProvider.getInstance(context)
 	private var layerInterface: GpsLayerInterface? = GpsLayerInterface.create(style).apply {
 		setCallbackHandler(this@GpsLayer)
 	}
+
 	private var lifecycle: Lifecycle? = null
+	private var isHeadingEnabled = true
 
 	private var modeChangedListener: ((GpsMode) -> Unit)? = null
 	private var onClickListener: ((Coord) -> Unit)? = null
 
+	private val lifecycleObserver = object : DefaultLifecycleObserver {
+		override fun onStart(owner: LifecycleOwner) {
+			locationProvider?.registerLocationUpdateListener(this@GpsLayer)
+			if (isHeadingEnabled) {
+				compassProvider?.registerCompassUpdateListener(this@GpsLayer)
+			}
+		}
+
+		override fun onStop(owner: LifecycleOwner) {
+			locationProvider?.unregisterLocationUpdateListener(this@GpsLayer)
+			compassProvider?.unregisterCompassUpdateListener(this@GpsLayer)
+		}
+
+		override fun onDestroy(owner: LifecycleOwner) {
+			layerInterface = null
+			locationProvider = null
+			compassProvider = null
+		}
+	}
+
 	fun registerLifecycle(lifecycle: Lifecycle) {
-		this.lifecycle?.removeObserver(this)
-		lifecycle.addObserver(this)
+		this.lifecycle?.removeObserver(lifecycleObserver)
+		lifecycle.addObserver(lifecycleObserver)
 		this.lifecycle = lifecycle
 	}
 
@@ -67,8 +95,10 @@ class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: Location
 	}
 
 	fun setHeadingEnabled(enable: Boolean) {
+		isHeadingEnabled = enable
 		requireLayerInterface().enableHeading(enable)
-		if (enable) {
+		val isLifecycleAtLeastStarted = lifecycle?.currentState?.isAtLeast(Lifecycle.State.STARTED) ?: false
+		if (enable && isLifecycleAtLeastStarted) {
 			compassProvider?.registerCompassUpdateListener(this)
 		} else {
 			compassProvider?.unregisterCompassUpdateListener(this)
@@ -77,25 +107,6 @@ class GpsLayer(context: Context, style: GpsStyleInfo, locationProvider: Location
 
 	fun setFollowInitializeZoom(zoom: Float?) {
 		requireLayerInterface().setFollowInitializeZoom(zoom)
-	}
-
-	@OnLifecycleEvent(Lifecycle.Event.ON_START)
-	fun onStart() {
-		locationProvider?.registerLocationUpdateListener(this)
-		compassProvider?.registerCompassUpdateListener(this)
-	}
-
-	@OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-	fun onStop() {
-		locationProvider?.unregisterLocationUpdateListener(this)
-		compassProvider?.unregisterCompassUpdateListener(this)
-	}
-
-	@OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-	fun onDestroy() {
-		layerInterface = null
-		locationProvider = null
-		compassProvider = null
 	}
 
 	fun changeProviderType(context: Context, gpsProviderType: GpsProviderType) {
