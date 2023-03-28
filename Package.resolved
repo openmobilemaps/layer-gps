@@ -14,8 +14,8 @@
         "package": "MapCore",
         "repositoryURL": "https://github.com/openmobilemaps/maps-core.git",
         "state": {
-          "branch": "develop",
-          "revision": "5238545ffe12fd1dbc2599392e720cfcf49cbbae",
+          "branch": "feature/tile-centric-pipeline",
+          "revision": "1ab3b9e2af1c0b00e919b20c2b895b7a187bf78a",
           "version": null
         }
       },
