@@ -25,7 +25,7 @@ let package = Package(
     dependencies: [
         .package(name: "MapCore",
                  url: "https://github.com/openmobilemaps/maps-core.git",
-                 .branch("develop")),
+                 .branch("feature/tile-centric-pipeline")),
         .package(name: "UBKit", url: "https://github.com/UbiqueInnovation/ubkit-ios", .upToNextMajor(from: "1.5.0"))
     ],
     targets: [
