@@ -24,10 +24,21 @@
 #define INTERACTION_THRESHOLD_MOVE_CM 0.5
 #define INTERACTION_THRESHOLD_ROT_ANGLE 25
 
-GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo) {}
+GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo), resetRotationOnInteraction(true) {}
+
 
 void GpsLayer::setMode(GpsMode mode) {
-    resetParameters();
+    GpsLayer::setModeWithRotationReset(mode, true);
+}
+
+void GpsLayer::setResetRotationOnMapInteraction(bool resetRotation) {
+    resetRotationOnInteraction = resetRotation;
+}
+
+void GpsLayer::setModeWithRotationReset(GpsMode mode, bool resetRotation) {
+    if (resetRotation) {
+        resetParameters();
+    }
 
     if (mode == this->mode) return;
 
@@ -384,7 +395,7 @@ void GpsLayer::clearTouch() {
 
 void GpsLayer::resetMode() {
     if (mode != GpsMode::DISABLED) {
-        setMode(GpsMode::STANDARD);
+        setModeWithRotationReset(GpsMode::STANDARD, resetRotationOnInteraction);
     }
 }
 

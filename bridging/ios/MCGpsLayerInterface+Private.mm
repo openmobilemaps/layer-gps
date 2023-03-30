@@ -54,6 +54,20 @@ static_assert(__has_feature(objc_arc), "Djinni requires ARC to be enabled for th
     } DJINNI_TRANSLATE_EXCEPTIONS()
 }
 
+- (void)setModeWithRotationReset:(MCGpsMode)mode
+                   resetRotation:(BOOL)resetRotation {
+    try {
+        _cppRefHandle.get()->setModeWithRotationReset(::djinni::Enum<::GpsMode, MCGpsMode>::toCpp(mode),
+                                                      ::djinni::Bool::toCpp(resetRotation));
+    } DJINNI_TRANSLATE_EXCEPTIONS()
+}
+
+- (void)setResetRotationOnMapInteraction:(BOOL)resetRotation {
+    try {
+        _cppRefHandle.get()->setResetRotationOnMapInteraction(::djinni::Bool::toCpp(resetRotation));
+    } DJINNI_TRANSLATE_EXCEPTIONS()
+}
+
 - (MCGpsMode)getMode {
     try {
         auto objcpp_result_ = _cppRefHandle.get()->getMode();

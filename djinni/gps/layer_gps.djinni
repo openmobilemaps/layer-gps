@@ -26,6 +26,8 @@ gps_layer_interface = interface +c {
     static create(style_info: gps_style_info) : gps_layer_interface;
     set_callback_handler(handler: gps_layer_callback_interface);
 	set_mode(mode: gps_mode);
+	set_mode_with_rotation_reset(mode: gps_mode, reset_rotation: bool);
+    set_reset_rotation_on_map_interaction(reset_rotation: bool);
     get_mode(): gps_mode;
 	enable_heading(enable: bool);
 	update_position(position: coord, horizontal_accuracy_m: f64);
