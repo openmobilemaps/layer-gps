@@ -18,6 +18,11 @@
 
 - (void)setMode:(MCGpsMode)mode;
 
+- (void)setModeWithRotationReset:(MCGpsMode)mode
+                   resetRotation:(BOOL)resetRotation;
+
+- (void)setResetRotationOnMapInteraction:(BOOL)resetRotation;
+
 - (MCGpsMode)getMode;
 
 - (void)enableHeading:(BOOL)enable;
