@@ -1,5 +1,8 @@
 # Changelog for Open Mobile Maps
 
+## Version 1.5.1 (17.04.2023)
+- update and adjust to [mapscore 1.5.1](https://github.com/openmobilemaps/maps-core/releases/tag/1.5.1)
+
 ## Version 1.0.1 (16.08.2022)
 - update and adjust to [mapscore 1.4.1](https://github.com/openmobilemaps/maps-core/releases/tag/1.4.1)
 
