@@ -34,6 +34,10 @@ public:
 
     virtual void setMode(GpsMode mode) override;
 
+    virtual void setModeWithRotationReset(GpsMode mode, bool resetRotation) override;
+
+    virtual void setResetRotationOnMapInteraction(bool resetRotation) override;
+
     virtual GpsMode getMode() override;
 
     virtual void enableHeading(bool enable) override;
@@ -64,7 +68,7 @@ public:
 
     virtual std::vector<std::shared_ptr<::RenderPassInterface>> buildRenderPasses() override;
 
-    virtual void onAdded(const std::shared_ptr<MapInterface> &mapInterface) override;
+    virtual void onAdded(const std::shared_ptr<MapInterface> &mapInterface, int32_t layerIndex) override;
 
     virtual void onRemoved() override;
 
@@ -81,6 +85,8 @@ public:
     virtual bool onClickConfirmed(const ::Vec2F &posScreen) override;
 
     bool onMoveComplete() override;
+
+    bool onTwoFingerMove(const std::vector<::Vec2F> &posScreenOld, const std::vector<::Vec2F> &posScreenNew) override;
 
     bool onTwoFingerMoveComplete() override;
 
@@ -140,7 +146,12 @@ private:
     std::optional<Coord> lastCenter = std::nullopt;
     std::optional<double> lastRotation = std::nullopt;
     Vec2D accInteractionMove = Vec2D(0.0, 0.0);
+    bool isPinchMove = false;
     double accRotation = 0.0;
+
+    const static int GPS_RENDER_PASS_INDEX = 999;
+
+    bool resetRotationOnInteraction;
                      
 protected:
     std::shared_ptr<MapInterface> mapInterface;

@@ -21,13 +21,24 @@
 #include "CoordinatesUtil.h"
 
 #define DEFAULT_ANIM_LENGTH 100
-#define INTERACTION_THRESHOLD_MOVE_CM 1.5
+#define INTERACTION_THRESHOLD_MOVE_CM 0.5
 #define INTERACTION_THRESHOLD_ROT_ANGLE 25
 
-GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo) {}
+GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo), resetRotationOnInteraction(true) {}
+
 
 void GpsLayer::setMode(GpsMode mode) {
-    resetParameters();
+    GpsLayer::setModeWithRotationReset(mode, true);
+}
+
+void GpsLayer::setResetRotationOnMapInteraction(bool resetRotation) {
+    resetRotationOnInteraction = resetRotation;
+}
+
+void GpsLayer::setModeWithRotationReset(GpsMode mode, bool resetRotation) {
+    if (resetRotation) {
+        resetParameters();
+    }
 
     if (mode == this->mode) return;
 
@@ -234,7 +245,7 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
 
     std::vector<std::shared_ptr<RenderPassInterface>> renderPasses;
     for (const auto &passEntry : renderPassObjectMap) {
-        std::shared_ptr<RenderPass> renderPass = std::make_shared<RenderPass>(RenderPassConfig(passEntry.first),
+        std::shared_ptr<RenderPass> renderPass = std::make_shared<RenderPass>(RenderPassConfig(GPS_RENDER_PASS_INDEX),
                                                                               passEntry.second,
                                                                               mask);
         renderPasses.push_back(renderPass);
@@ -242,9 +253,9 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
     return renderPasses;
 }
 
-void GpsLayer::onAdded(const std::shared_ptr<MapInterface> &mapInterface) {
+void GpsLayer::onAdded(const std::shared_ptr<MapInterface> &mapInterface, int32_t layerIndex) {
     this->mapInterface = mapInterface;
-    mapInterface->getTouchHandler()->addListener(shared_from_this());
+    mapInterface->getTouchHandler()->insertListener(shared_from_this(), layerIndex);
     mapInterface->getCamera()->addListener(shared_from_this());
 
     setupLayerObjects();
@@ -262,11 +273,13 @@ void GpsLayer::onRemoved() {
 }
 
 void GpsLayer::pause() {
-    if (centerObject) centerObject->getQuadObject()->asGraphicsObject()->clear();
-    if (headingObject) headingObject->getQuadObject()->asGraphicsObject()->clear();
-    if (accuracyObject) accuracyObject->getQuadObject()->asGraphicsObject()->clear();
+    if (centerObject) centerObject->getGraphicsObject()->clear();
+    if (headingObject) headingObject->getGraphicsObject()->clear();
+    if (accuracyObject) accuracyObject->getGraphicsObject()->clear();
+
     if (mask) {
-        if (mask->asGraphicsObject()->isReady()) mask->asGraphicsObject()->clear();
+        auto obj = mask->asGraphicsObject();
+        if (obj->isReady()) { obj->clear(); };
     }
 }
 
@@ -278,21 +291,21 @@ void GpsLayer::resume() {
         return;
     }
 
-    if (!centerObject->getQuadObject()->asGraphicsObject()->isReady()) {
+    if (!centerObject->getGraphicsObject()->isReady()) {
         auto textureCenter = styleInfo.pointTexture;
-        centerObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+        centerObject->getGraphicsObject()->setup(renderingContext);
         centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
     }
 
-    if (!headingObject->getQuadObject()->asGraphicsObject()->isReady()) {
+    if (!headingObject->getGraphicsObject()->isReady()) {
         auto textureHeading = styleInfo.headingTexture;
-        headingObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+        headingObject->getGraphicsObject()->setup(renderingContext);
         headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
     }
 
-    if (!accuracyObject->getQuadObject()->asGraphicsObject()->isReady()) {
+    if (!accuracyObject->getGraphicsObject()->isReady()) {
         Color accuracyColor = styleInfo.accuracyColor;
-        accuracyObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+        accuracyObject->getGraphicsObject()->setup(renderingContext);
         accuracyObject->setColor(accuracyColor);
     }
 
@@ -365,6 +378,14 @@ bool GpsLayer::onMoveComplete() {
     return false;
 }
 
+bool GpsLayer::onTwoFingerMove(const std::vector<::Vec2F> &posScreenOld, const std::vector<::Vec2F> &posScreenNew) {
+    {
+        std::lock_guard<std::recursive_mutex> lock(interactionMutex);
+        isPinchMove = true;
+    }
+    return false;
+}
+
 bool GpsLayer::onTwoFingerMoveComplete() {
     resetAccInteraction();
     return false;
@@ -376,7 +397,7 @@ void GpsLayer::clearTouch() {
 
 void GpsLayer::resetMode() {
     if (mode != GpsMode::DISABLED) {
-        setMode(GpsMode::STANDARD);
+        setModeWithRotationReset(GpsMode::STANDARD, resetRotationOnInteraction);
     }
 }
 
@@ -434,11 +455,11 @@ void GpsLayer::setupLayerObjects() {
                 if (!renderingContext) {
                     return;
                 }
-                selfPtr->centerObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+                selfPtr->centerObject->getGraphicsObject()->setup(renderingContext);
                 selfPtr->centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
-                selfPtr->headingObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+                selfPtr->headingObject->getGraphicsObject()->setup(renderingContext);
                 selfPtr->headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
-                selfPtr->accuracyObject->getQuadObject()->asGraphicsObject()->setup(renderingContext);
+                selfPtr->accuracyObject->getGraphicsObject()->setup(renderingContext);
             }));
 }
 
@@ -530,6 +551,7 @@ void GpsLayer::onMapInteraction() {
 
     Coord center = camera->getCenterPosition();
     double accDistanceUnits = 0.0;
+    bool isPinch = false;
     {
         std::lock_guard<std::recursive_mutex> lock(interactionMutex);
         if (lastCenter) {
@@ -539,9 +561,10 @@ void GpsLayer::onMapInteraction() {
         lastCenter = center;
 
         accDistanceUnits = sqrt(accInteractionMove.x * accInteractionMove.x + accInteractionMove.y * accInteractionMove.y);
+        isPinch = isPinchMove;
     }
     double accDistanceCm = accDistanceUnits / camera->mapUnitsFromPixels(1) / camera->getScreenDensityPpi() * 2.54;
-    if (accDistanceCm > INTERACTION_THRESHOLD_MOVE_CM) {
+    if (accDistanceCm > INTERACTION_THRESHOLD_MOVE_CM * (isPinch ? 4.0 : 1.0)) {
         resetMode();
         resetAccInteraction();
         return;
@@ -575,6 +598,7 @@ void GpsLayer::resetAccInteraction() {
         accInteractionMove.x = 0.0;
         accInteractionMove.y = 0.0;
         accRotation = 0.0;
+        isPinchMove = false;
         lastCenter = std::nullopt;
         lastRotation = std::nullopt;
     }

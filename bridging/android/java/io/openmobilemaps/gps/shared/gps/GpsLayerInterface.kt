@@ -11,6 +11,10 @@ abstract class GpsLayerInterface {
 
     abstract fun setMode(mode: GpsMode)
 
+    abstract fun setModeWithRotationReset(mode: GpsMode, resetRotation: Boolean)
+
+    abstract fun setResetRotationOnMapInteraction(resetRotation: Boolean)
+
     abstract fun getMode(): GpsMode
 
     abstract fun enableHeading(enable: Boolean)
@@ -67,6 +71,18 @@ abstract class GpsLayerInterface {
             native_setMode(this.nativeRef, mode)
         }
         private external fun native_setMode(_nativeRef: Long, mode: GpsMode)
+
+        override fun setModeWithRotationReset(mode: GpsMode, resetRotation: Boolean) {
+            assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
+            native_setModeWithRotationReset(this.nativeRef, mode, resetRotation)
+        }
+        private external fun native_setModeWithRotationReset(_nativeRef: Long, mode: GpsMode, resetRotation: Boolean)
+
+        override fun setResetRotationOnMapInteraction(resetRotation: Boolean) {
+            assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
+            native_setResetRotationOnMapInteraction(this.nativeRef, resetRotation)
+        }
+        private external fun native_setResetRotationOnMapInteraction(_nativeRef: Long, resetRotation: Boolean)
 
         override fun getMode(): GpsMode {
             assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
