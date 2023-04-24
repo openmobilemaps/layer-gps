@@ -34,6 +34,10 @@ public:
 
     virtual void setMode(GpsMode mode) override;
 
+    virtual void setModeWithRotationReset(GpsMode mode, bool resetRotation) override;
+
+    virtual void setResetRotationOnMapInteraction(bool resetRotation) override;
+
     virtual GpsMode getMode() override;
 
     virtual void enableHeading(bool enable) override;
@@ -146,6 +150,8 @@ private:
     double accRotation = 0.0;
 
     const static int GPS_RENDER_PASS_INDEX = 999;
+
+    bool resetRotationOnInteraction;
                      
 protected:
     std::shared_ptr<MapInterface> mapInterface;
