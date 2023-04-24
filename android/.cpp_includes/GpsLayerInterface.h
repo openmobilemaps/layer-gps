@@ -22,6 +22,10 @@ public:
 
     virtual void setMode(GpsMode mode) = 0;
 
+    virtual void setModeWithRotationReset(GpsMode mode, bool resetRotation) = 0;
+
+    virtual void setResetRotationOnMapInteraction(bool resetRotation) = 0;
+
     virtual GpsMode getMode() = 0;
 
     virtual void enableHeading(bool enable) = 0;
