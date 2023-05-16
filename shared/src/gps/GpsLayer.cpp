@@ -412,8 +412,13 @@ void GpsLayer::resetParameters() {
 void GpsLayer::setupLayerObjects() {
     auto lockSelfPtr = shared_from_this();
     auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
-    auto shaderFactory = mapInterface->getShaderFactory();
-    auto objectFactory = mapInterface->getGraphicsObjectFactory();
+    auto scheduler = mapInterface ? mapInterface->getScheduler() : nullptr;
+    auto shaderFactory = mapInterface ? mapInterface->getShaderFactory() : nullptr;
+    auto objectFactory = mapInterface ? mapInterface->getGraphicsObjectFactory() : nullptr;
+    if (!scheduler || !shaderFactory || !objectFactory) {
+        return;
+    }
+
     auto centerShader = shaderFactory->createAlphaShader();
     auto centerQuad = objectFactory->createQuad(centerShader->asShaderProgramInterface());
     centerObject = std::make_shared<Textured2dLayerObject>(centerQuad, centerShader, mapInterface);
@@ -445,7 +450,7 @@ void GpsLayer::setupLayerObjects() {
     auto renderingContext = mapInterface->getRenderingContext();
 
     std::weak_ptr<GpsLayer> weakSelfPtr = std::dynamic_pointer_cast<GpsLayer>(shared_from_this());
-    mapInterface->getScheduler()->addTask(std::make_shared<LambdaTask>(
+    scheduler->addTask(std::make_shared<LambdaTask>(
             TaskConfig("GpsLayer_setup_objects", 0, TaskPriority::NORMAL, ExecutionEnvironment::GRAPHICS),
             [weakSelfPtr, textureHeading, textureCenter] {
                 auto selfPtr = weakSelfPtr.lock();
