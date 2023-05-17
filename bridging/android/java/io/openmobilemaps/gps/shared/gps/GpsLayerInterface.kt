@@ -39,6 +39,10 @@ abstract class GpsLayerInterface {
 
     abstract fun updateStyle(styleInfo: GpsStyleInfo)
 
+    abstract fun enableCourse(enable: Boolean)
+
+    abstract fun updateCourse(courseInfo: GpsCourseInfo)
+
     abstract fun asLayerInterface(): io.openmobilemaps.mapscore.shared.map.LayerInterface
 
     private class CppProxy : GpsLayerInterface {
@@ -130,6 +134,18 @@ abstract class GpsLayerInterface {
             native_updateStyle(this.nativeRef, styleInfo)
         }
         private external fun native_updateStyle(_nativeRef: Long, styleInfo: GpsStyleInfo)
+
+        override fun enableCourse(enable: Boolean) {
+            assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
+            native_enableCourse(this.nativeRef, enable)
+        }
+        private external fun native_enableCourse(_nativeRef: Long, enable: Boolean)
+
+        override fun updateCourse(courseInfo: GpsCourseInfo) {
+            assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
+            native_updateCourse(this.nativeRef, courseInfo)
+        }
+        private external fun native_updateCourse(_nativeRef: Long, courseInfo: GpsCourseInfo)
 
         override fun asLayerInterface(): io.openmobilemaps.mapscore.shared.map.LayerInterface {
             assert(!this.destroyed.get()) { error("trying to use a destroyed object") }

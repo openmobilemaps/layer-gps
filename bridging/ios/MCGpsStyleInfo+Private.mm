@@ -14,6 +14,7 @@ auto GpsStyleInfo::toCpp(ObjcType obj) -> CppType
     assert(obj);
     return {::djinni::Optional<std::optional, ::djinni_generated::TextureHolderInterface>::toCpp(obj.pointTexture),
             ::djinni::Optional<std::optional, ::djinni_generated::TextureHolderInterface>::toCpp(obj.headingTexture),
+            ::djinni::Optional<std::optional, ::djinni_generated::TextureHolderInterface>::toCpp(obj.courseTexture),
             ::djinni_generated::Color::toCpp(obj.accuracyColor)};
 }
 
@@ -21,6 +22,7 @@ auto GpsStyleInfo::fromCpp(const CppType& cpp) -> ObjcType
 {
     return [[MCGpsStyleInfo alloc] initWithPointTexture:(::djinni::Optional<std::optional, ::djinni_generated::TextureHolderInterface>::fromCpp(cpp.pointTexture))
                                          headingTexture:(::djinni::Optional<std::optional, ::djinni_generated::TextureHolderInterface>::fromCpp(cpp.headingTexture))
+                                          courseTexture:(::djinni::Optional<std::optional, ::djinni_generated::TextureHolderInterface>::fromCpp(cpp.courseTexture))
                                           accuracyColor:(::djinni_generated::Color::fromCpp(cpp.accuracyColor))];
 }
 

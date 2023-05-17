@@ -17,17 +17,19 @@ auto NativeGpsStyleInfo::fromCpp(JNIEnv* jniEnv, const CppType& c) -> ::djinni::
     auto r = ::djinni::LocalRef<JniType>{jniEnv->NewObject(data.clazz.get(), data.jconstructor,
                                                            ::djinni::get(::djinni::Optional<std::optional, ::djinni_generated::NativeTextureHolderInterface>::fromCpp(jniEnv, c.pointTexture)),
                                                            ::djinni::get(::djinni::Optional<std::optional, ::djinni_generated::NativeTextureHolderInterface>::fromCpp(jniEnv, c.headingTexture)),
+                                                           ::djinni::get(::djinni::Optional<std::optional, ::djinni_generated::NativeTextureHolderInterface>::fromCpp(jniEnv, c.courseTexture)),
                                                            ::djinni::get(::djinni_generated::NativeColor::fromCpp(jniEnv, c.accuracyColor)))};
     ::djinni::jniExceptionCheck(jniEnv);
     return r;
 }
 
 auto NativeGpsStyleInfo::toCpp(JNIEnv* jniEnv, JniType j) -> CppType {
-    ::djinni::JniLocalScope jscope(jniEnv, 4);
+    ::djinni::JniLocalScope jscope(jniEnv, 5);
     assert(j != nullptr);
     const auto& data = ::djinni::JniClass<NativeGpsStyleInfo>::get();
     return {::djinni::Optional<std::optional, ::djinni_generated::NativeTextureHolderInterface>::toCpp(jniEnv, jniEnv->GetObjectField(j, data.field_pointTexture)),
             ::djinni::Optional<std::optional, ::djinni_generated::NativeTextureHolderInterface>::toCpp(jniEnv, jniEnv->GetObjectField(j, data.field_headingTexture)),
+            ::djinni::Optional<std::optional, ::djinni_generated::NativeTextureHolderInterface>::toCpp(jniEnv, jniEnv->GetObjectField(j, data.field_courseTexture)),
             ::djinni_generated::NativeColor::toCpp(jniEnv, jniEnv->GetObjectField(j, data.field_accuracyColor))};
 }
 

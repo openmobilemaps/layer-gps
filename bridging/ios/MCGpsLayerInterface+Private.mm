@@ -7,6 +7,7 @@
 #import "DJIError.h"
 #import "DJIMarshal+Private.h"
 #import "MCCoord+Private.h"
+#import "MCGpsCourseInfo+Private.h"
 #import "MCGpsLayerCallbackInterface+Private.h"
 #import "MCGpsMode+Private.h"
 #import "MCGpsStyleInfo+Private.h"
@@ -122,6 +123,18 @@ static_assert(__has_feature(objc_arc), "Djinni requires ARC to be enabled for th
 - (void)updateStyle:(nonnull MCGpsStyleInfo *)styleInfo {
     try {
         _cppRefHandle.get()->updateStyle(::djinni_generated::GpsStyleInfo::toCpp(styleInfo));
+    } DJINNI_TRANSLATE_EXCEPTIONS()
+}
+
+- (void)enableCourse:(BOOL)enable {
+    try {
+        _cppRefHandle.get()->enableCourse(::djinni::Bool::toCpp(enable));
+    } DJINNI_TRANSLATE_EXCEPTIONS()
+}
+
+- (void)updateCourse:(nonnull MCGpsCourseInfo *)courseInfo {
+    try {
+        _cppRefHandle.get()->updateCourse(::djinni_generated::GpsCourseInfo::toCpp(courseInfo));
     } DJINNI_TRANSLATE_EXCEPTIONS()
 }
 

@@ -58,6 +58,7 @@ public extension MCGpsStyleInfo {
 
         return MCGpsStyleInfo(pointTexture: pointTexture,
                               headingTexture: headingTexture,
+                              courseTexture: nil,
                               accuracyColor: UIColor(red: 112 / 255,
                                                      green: 173 / 255,
                                                      blue: 204 / 255,

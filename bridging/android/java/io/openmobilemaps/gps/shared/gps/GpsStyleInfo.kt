@@ -6,5 +6,6 @@ package io.openmobilemaps.gps.shared.gps
 data class GpsStyleInfo(
     var pointTexture: io.openmobilemaps.mapscore.shared.graphics.objects.TextureHolderInterface?,
     var headingTexture: io.openmobilemaps.mapscore.shared.graphics.objects.TextureHolderInterface?,
+    var courseTexture: io.openmobilemaps.mapscore.shared.graphics.objects.TextureHolderInterface?,
     var accuracyColor: io.openmobilemaps.mapscore.shared.graphics.common.Color,
 )
