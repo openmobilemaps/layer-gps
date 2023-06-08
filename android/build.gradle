@@ -97,12 +97,8 @@ android {
 	}
 
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_17
-		targetCompatibility JavaVersion.VERSION_17
-	}
-
-	kotlinOptions {
-		jvmTarget = '17'
+		sourceCompatibility JavaVersion.VERSION_11
+		targetCompatibility JavaVersion.VERSION_11
 	}
 
 	buildFeatures {
@@ -132,6 +128,11 @@ android {
 		}
 	}
 
+}
+
+project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+	compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11 // Kotlin 1.8+
+	kotlinOptions.jvmTarget = "11" // deprecated since Kotlin 1.8
 }
 
 task copyHeaders() {
@@ -193,7 +194,7 @@ dependencies {
 	implementation 'androidx.core:core-ktx:1.10.1'
 	implementation 'com.google.android.gms:play-services-location:21.0.1'
 
-	api 'io.openmobilemaps:mapscore-dev:1.5.3.281'
+	api 'io.openmobilemaps:mapscore-dev:1.5.3.283'
 
 	implementation "ch.ubique.android:djinni-support-lib:1.0.0"
 
