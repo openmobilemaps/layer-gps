@@ -80,6 +80,10 @@ class GpsLayer(
 
 	fun asLayerInterface(): LayerInterface = requireLayerInterface().asLayerInterface()
 
+	fun updateStyle(styleInfo: GpsStyleInfo) {
+		requireLayerInterface().updateStyle(styleInfo)
+	}
+
 	fun updatePosition(position: Coord, horizontalAccuracyM: Double) {
 		requireLayerInterface().updatePosition(position, horizontalAccuracyM)
 	}
