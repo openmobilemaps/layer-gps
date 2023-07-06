@@ -80,6 +80,18 @@ class GpsLayer(
 
 	fun asLayerInterface(): LayerInterface = requireLayerInterface().asLayerInterface()
 
+	fun setDrawPoint(enable: Boolean) {
+		requireLayerInterface().setDrawPoint(enable)
+	}
+
+	fun setDrawHeading(enable: Boolean) {
+		requireLayerInterface().setDrawHeading(enable)
+	}
+
+	fun enablePointRotationInvariant(enable: Boolean) {
+		requireLayerInterface().enablePointRotationInvariant(enable)
+	}
+
 	fun updateStyle(styleInfo: GpsStyleInfo) {
 		requireLayerInterface().updateStyle(styleInfo)
 	}
@@ -94,8 +106,12 @@ class GpsLayer(
 
 	fun setMode(mode: GpsMode) {
 		if (requireLayerInterface().getMode() != mode) {
-			requireLayerInterface().setMode(mode)
+			setModeWithRotationReset(mode, resetRotation = false)
 		}
+	}
+
+	fun setModeWithRotationReset(mode: GpsMode, resetRotation: Boolean) {
+		requireLayerInterface().setModeWithRotationReset(mode, resetRotation)
 	}
 
 	fun setHeadingEnabled(enable: Boolean) {
