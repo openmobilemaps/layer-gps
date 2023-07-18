@@ -24,6 +24,12 @@ public class MCGpsLayer: NSObject {
         }
     }
 
+    public var onClickCallback: ((_ coordinate: MCCoord) -> Void)? {
+        didSet {
+            callbackHandler.onPointClickCallback = onClickCallback
+        }
+    }
+
     public init(style: MCGpsStyleInfo = .defaultStyle,
                 canAskForPermission: Bool = true,
                 nativeLayerProvider: ((MCGpsStyleInfo) -> MCGpsLayerInterface?) = MCGpsLayerInterface.create) {
@@ -68,6 +74,7 @@ public extension MCGpsStyleInfo {
 
 private class MCGpsCallbackHandler: MCGpsLayerCallbackInterface {
     var modeDidChangeCallback: ((_ mode: MCGpsMode) -> Void)?
+    var onPointClickCallback: ((_ coordinate: MCCoord) -> Void)?
 
     func modeDidChange(_ mode: MCGpsMode) {
         DispatchQueue.main.async {
@@ -76,5 +83,8 @@ private class MCGpsCallbackHandler: MCGpsLayerCallbackInterface {
     }
 
     func onPointClick(_ coordinate: MCCoord) {
+        DispatchQueue.main.async {
+            self.onPointClickCallback?(coordinate)
+        }
     }
 }
