@@ -228,7 +228,7 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
                 std::make_shared<RenderObject>(config->getGraphicsObject(), accuracyModelMatrix));
     }
 
-    if (headingEnabled && headingValid && drawHeadingObjectEnabled) {
+    if (headingObject && headingEnabled && headingValid && drawHeadingObjectEnabled) {
         for (const auto &config : headingObject->getRenderConfig()) {
             renderPassObjectMap[config->getRenderIndex()].push_back(
                     std::make_shared<RenderObject>(config->getGraphicsObject(), invariantModelMatrix));
@@ -297,7 +297,7 @@ void GpsLayer::resume() {
         centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
     }
 
-    if (!headingObject->getGraphicsObject()->isReady()) {
+    if (headingObject && !headingObject->getGraphicsObject()->isReady()) {
         auto textureHeading = styleInfo.headingTexture;
         headingObject->getGraphicsObject()->setup(renderingContext);
         headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
@@ -419,33 +419,30 @@ void GpsLayer::setupLayerObjects() {
         return;
     }
 
+    // Center
+    auto textureCenter = styleInfo.pointTexture;
     auto centerShader = shaderFactory->createAlphaShader();
     auto centerQuad = objectFactory->createQuad(centerShader->asShaderProgramInterface());
     centerObject = std::make_shared<Textured2dLayerObject>(centerQuad, centerShader, mapInterface);
-    auto headingShader = shaderFactory->createAlphaShader();
-    auto headingQuad = objectFactory->createQuad(headingShader->asShaderProgramInterface());
-    headingObject = std::make_shared<Textured2dLayerObject>(headingQuad, headingShader, mapInterface);
-    accuracyObject = std::make_shared<Circle2dLayerObject>(mapInterface);
+    centerObject->setPositions(getQuadCoord(textureCenter));
 
-    auto textureCenter = styleInfo.pointTexture;
     pointWidth = textureCenter->getImageWidth();
     pointHeight = textureCenter->getImageHeight();
-    float hWidthCenter = pointWidth * 0.5f;
-    float hHeightCenter = pointHeight * 0.5f;
-    centerObject->setPositions(QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidthCenter, -hHeightCenter, 0.0),
-                                         Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidthCenter, -hHeightCenter, 0.0),
-                                         Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidthCenter, +hHeightCenter, 0.0),
-                                         Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidthCenter, +hHeightCenter, 0.0)));
-    auto textureHeading = styleInfo.headingTexture;
-    float hWidthHeading = textureHeading->getImageWidth() * 0.5f;
-    float hHeightHeading = textureHeading->getImageHeight() * 0.5f;
-    headingObject->setPositions(QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidthHeading, -hHeightHeading, 0.0),
-                                          Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidthHeading, -hHeightHeading, 0.0),
-                                          Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidthHeading, +hHeightHeading, 0.0),
-                                          Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidthHeading, +hHeightHeading,
-                                                0.0)));
+    
+    // Accuracy
+    accuracyObject = std::make_shared<Circle2dLayerObject>(mapInterface);
     accuracyObject->setColor(styleInfo.accuracyColor);
     accuracyObject->setPosition(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0), 1.0);
+    
+
+    // Heading
+    auto textureHeading = styleInfo.headingTexture;
+    if (textureHeading) {
+        auto headingShader = shaderFactory->createAlphaShader();
+        auto headingQuad = objectFactory->createQuad(headingShader->asShaderProgramInterface());
+        headingObject = std::make_shared<Textured2dLayerObject>(headingQuad, headingShader, mapInterface);
+        headingObject->setPositions(getQuadCoord(textureHeading));
+    }
 
     auto renderingContext = mapInterface->getRenderingContext();
 
@@ -462,10 +459,23 @@ void GpsLayer::setupLayerObjects() {
                 }
                 selfPtr->centerObject->getGraphicsObject()->setup(renderingContext);
                 selfPtr->centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
-                selfPtr->headingObject->getGraphicsObject()->setup(renderingContext);
-                selfPtr->headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
+                
                 selfPtr->accuracyObject->getGraphicsObject()->setup(renderingContext);
+
+                if (textureHeading) {
+                    selfPtr->headingObject->getGraphicsObject()->setup(renderingContext);
+                    selfPtr->headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
+                }
             }));
+}
+
+QuadCoord GpsLayer::getQuadCoord(std::shared_ptr<TextureHolderInterface> texture) {
+    float hWidth = texture->getImageWidth() * 0.5f;
+    float hHeight = texture->getImageHeight() * 0.5f;
+    return QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, -hHeight, 0.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, -hHeight, 0.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, +hHeight, 0.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, +hHeight, 0.0));
 }
 
 std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant) {
