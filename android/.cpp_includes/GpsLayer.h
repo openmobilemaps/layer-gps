@@ -17,6 +17,7 @@
 #include "CoordinateSystemIdentifiers.h"
 #include "MapCamera2dInterface.h"
 #include "Textured2dLayerObject.h"
+#include "TextureHolderInterface.h"
 #include "Circle2dLayerObject.h"
 #include "GpsStyleInfo.h"
 #include "GpsMode.h"
@@ -108,6 +109,8 @@ private:
 
     virtual void setupLayerObjects();
 
+    virtual QuadCoord getQuadCoord(std::shared_ptr<TextureHolderInterface> texture);
+                     
     virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant);
 
     virtual void resetAccInteraction();
