@@ -497,9 +497,9 @@ QuadCoord GpsLayer::getQuadCoord(std::shared_ptr<TextureHolderInterface> texture
     float hWidth = texture->getImageWidth() * 0.5f;
     float hHeight = texture->getImageHeight() * 0.5f;
     return QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, -hHeight, 0.0),
-                                         Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, -hHeight, 0.0),
-                                         Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, +hHeight, 0.0),
-                                         Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, +hHeight, 0.0));
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, -hHeight, 0.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, +hHeight, 0.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, +hHeight, 0.0));
 }
 
 void GpsLayer::setupLayerObjects() {
