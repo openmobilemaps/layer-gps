@@ -513,10 +513,10 @@ void GpsLayer::setupLayerObjects() {
     }
 
     // Center
+    auto textureCenter = styleInfo.pointTexture;
     auto centerShader = shaderFactory->createAlphaShader();
     auto centerQuad = objectFactory->createQuad(centerShader->asShaderProgramInterface());
     centerObject = std::make_shared<Textured2dLayerObject>(centerQuad, centerShader, mapInterface);
-    auto textureCenter = styleInfo.pointTexture;
     centerObject->setPositions(getQuadCoord(textureCenter));
     
     // Accuracy
