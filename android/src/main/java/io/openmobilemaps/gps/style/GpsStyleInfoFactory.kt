@@ -14,18 +14,21 @@ object GpsStyleInfoFactory {
     fun createDefaultStyle(context: Context): GpsStyleInfo = GpsStyleInfo(
         ContextCompat.getDrawable(context, R.drawable.ic_gps_point)?.let { BitmapTextureHolder(it) },
         ContextCompat.getDrawable(context, R.drawable.ic_gps_direction)?.let { BitmapTextureHolder(it) },
+        null,
         Color(112 / 255f, 173 / 255f, 204 / 255f, 0.4f)
     )
 
     fun createGpsStyle(pointDrawable: Drawable?, headingDrawable: Drawable?, accuracyColor: Color): GpsStyleInfo = GpsStyleInfo(
         pointDrawable?.let { BitmapTextureHolder(it) },
         headingDrawable?.let { BitmapTextureHolder(it) },
+        null,
         accuracyColor
     )
 
     fun createGpsStyle(pointBitmap: Bitmap?, headingBitmap: Bitmap?, accuracyColor: Color): GpsStyleInfo = GpsStyleInfo(
         pointBitmap?.let { BitmapTextureHolder(it) },
         headingBitmap?.let { BitmapTextureHolder(it) },
+        null,
         accuracyColor
     )
 
