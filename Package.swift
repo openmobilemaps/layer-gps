@@ -25,7 +25,7 @@ let package = Package(
     dependencies: [
         .package(name: "MapCore",
                  url: "https://github.com/openmobilemaps/maps-core.git",
-                 .upToNextMajor(from: "1.5.1")),
+                 .branch("bugfix/raster-source")),
         .package(name: "UBKit", url: "https://github.com/UbiqueInnovation/ubkit-ios", .upToNextMajor(from: "1.7.4"))
     ],
     targets: [
