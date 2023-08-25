@@ -15,7 +15,7 @@
         "repositoryURL": "https://github.com/openmobilemaps/maps-core.git",
         "state": {
           "branch": "bugfix/raster-source",
-          "revision": "dabda42f7c5189c822b08e7347a0c428ccad96d6",
+          "revision": "3a681ad778f5594e54c63922c18286b6a652cd72",
           "version": null
         }
       },
