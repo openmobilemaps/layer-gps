@@ -63,6 +63,8 @@ let package = Package(
                 .headerSearchPath("**"),
                 .headerSearchPath("public"),
                 .headerSearchPath("src/gps"),
+                .define("_LIBCPP_DISABLE_AVAILABILITY", to: "1", .when(configuration: .debug)),
+                .define("_LIBCPP_DISABLE_AVAILABILITY", to: "1", .when(configuration: .release)),
             ]
         ),
     ],
