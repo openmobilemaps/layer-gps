@@ -556,7 +556,7 @@ void GpsLayer::setupLayerObjects() {
     std::weak_ptr<GpsLayer> weakSelfPtr = std::dynamic_pointer_cast<GpsLayer>(shared_from_this());
     scheduler->addTask(std::make_shared<LambdaTask>(
             TaskConfig("GpsLayer_setup_objects", 0, TaskPriority::NORMAL, ExecutionEnvironment::GRAPHICS),
-            [weakSelfPtr, textureHeading, textureCenter, textureCourse, accuracyObject] {
+            [weakSelfPtr, textureHeading, textureCenter, textureCourse] {
                 auto selfPtr = weakSelfPtr.lock();
                 if (!selfPtr) return;
                 auto mapInterface = selfPtr->mapInterface;
@@ -577,13 +577,6 @@ void GpsLayer::setupLayerObjects() {
                 if (textureCourse) {
                     selfPtr->courseObject->getGraphicsObject()->setup(renderingContext);
                     selfPtr->courseObject->getQuadObject()->loadTexture(renderingContext, textureCourse);
-                }
-                
-                selfPtr->accuracyObject->getGraphicsObject()->setup(renderingContext);
-
-                if (textureHeading) {
-                    selfPtr->headingObject->getGraphicsObject()->setup(renderingContext);
-                    selfPtr->headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
                 }
             }));
 }
