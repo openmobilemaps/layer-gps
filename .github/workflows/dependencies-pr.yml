@@ -1,4 +1,4 @@
-name: android
+name: Dependencies PR
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       mapsCoreArtifactVersion:
-        description: The Android artifact version for maps-coe
+        description: The Android artifact version for maps-core
         required: true
         type: string
 
