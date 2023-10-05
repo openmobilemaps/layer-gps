@@ -46,6 +46,7 @@ jobs:
         with:
           message: "Update maps-core dependency"
           new_branch: ${{ steps.vars.outputs.branch }}
+          push: 'origin ${{ steps.vars.outputs.branch }} --set-upstream --force'
       - name: Create pull request
         run: |
           state=$(gh pr view feature/upade-mapscore --json state | jq '.state')
