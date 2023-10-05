@@ -43,10 +43,6 @@ jobs:
           new_branch: "feature/update-mapscore"
       - name: Create pull request
         run: |
-          gh pr create 
-            --base develop 
-            --head feature/update-mapscore 
-            --title 'Update maps-core dependency' 
-            --body 'Update maps-core to ${{ inputs.mapsCoreBranch }} (${{ inputs.mapsCoreCommitHash }}'
+          gh pr create --base develop --head feature/update-mapscore --title 'Update maps-core dependency' --body 'Update maps-core to ${{ inputs.mapsCoreBranch }} (${{ inputs.mapsCoreCommitHash }}'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
