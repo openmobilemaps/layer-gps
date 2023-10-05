@@ -5,18 +5,18 @@
         "package": "DjinniSupport",
         "repositoryURL": "https://github.com/UbiqueInnovation/djinni.git",
         "state": {
-          "branch": null,
-          "revision": "fa5599869ee330886f053db31bb724cd95a01500",
-          "version": "1.0.1"
+          "branch": "master",
+          "revision": "0df93e12da82b7ebd7253976cdcb83fa697f3f7d",
+          "version": null
         }
       },
       {
         "package": "MapCore",
-        "repositoryURL": "https://github.com/openmobilemaps/maps-core.git",
+        "repositoryURL": "https://github.com/openmobilemaps/maps-core",
         "state": {
-          "branch": null,
-          "revision": "7b7b7d84dfa43cb2b23137394774e44dddc16756",
-          "version": "1.5.1"
+          "branch": "develop",
+          "revision": "f6ce10d9b9edd8ce2801e25f7321dd208825a38e",
+          "version": null
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/UbiqueInnovation/ubkit-ios",
         "state": {
           "branch": null,
-          "revision": "24357ead412bfd322c60664e471711749ffdc26b",
-          "version": "1.7.4"
+          "revision": "43c66080b15d6865453179f8d4dbabae3ae91f9f",
+          "version": "1.8.1"
         }
       }
     ]

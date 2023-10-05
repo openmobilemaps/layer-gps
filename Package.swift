@@ -23,17 +23,15 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(name: "MapCore",
-                 url: "https://github.com/openmobilemaps/maps-core.git",
-                 .branch("develop")),
-        .package(name: "UBKit", url: "https://github.com/UbiqueInnovation/ubkit-ios", .upToNextMajor(from: "1.7.4"))
+        .package(url: "https://github.com/openmobilemaps/maps-core", branch: "develop"),
+        .package(url: "https://github.com/UbiqueInnovation/ubkit-ios", from: "1.8.1"),
     ],
     targets: [
         .target(
             name: "LayerGps",
             dependencies: [
-                .product(name: "MapCore", package: "MapCore"),
-                .product(name: "UBLocation", package: "UBKit"),
+                .product(name: "MapCore", package: "maps-core"),
+                .product(name: "UBLocation", package: "ubkit-ios"),
                 "LayerGpsSharedModule",
             ],
             path: "ios",
@@ -46,7 +44,7 @@ let package = Package(
             name: "LayerGpsSharedModule",
             dependencies: [
                 "LayerGpsSharedModuleCpp",
-                .product(name: "MapCoreSharedModule", package: "MapCore"),
+                .product(name: "MapCoreSharedModule", package: "maps-core"),
             ],
             path: "bridging/ios",
             publicHeadersPath: ""
@@ -54,7 +52,7 @@ let package = Package(
         .target(
             name: "LayerGpsSharedModuleCpp",
             dependencies: [
-                .product(name: "MapCoreSharedModuleCpp", package: "MapCore"),
+                .product(name: "MapCoreSharedModuleCpp", package: "maps-core"),
             ],
             path: "shared",
             sources: ["src"],
