@@ -46,12 +46,13 @@ jobs:
         with:
           message: "Update maps-core dependency"
           new_branch: ${{ steps.vars.outputs.branch }}
+          push: 'origin ${{ steps.vars.outputs.branch }} --set-upstream --force'
       - name: Create pull request
         run: |
-          state=$(gh pr view feature/upade-mapscore --json state | jq '.state')
-          if [ "$state" == OPEN]; then
+          state=$(gh pr view ${{ steps.vars.outputs.branch }} --json state | jq '.state')
+          if [ "$state" == "\"OPEN\"" ]; then
             gh pr edit ${{ steps.vars.outputs.branch }} --body 'Update maps-core to ${{ inputs.mapsCoreBranch }} (${{ inputs.mapsCoreCommitHash }})'
-          elif [ "$state" == "MERGED" ]; then
+          elif [ "$state" == "\"MERGED\"" ]; then
             gh pr create --base develop --head ${{ steps.vars.outputs.branch }} --title 'Update maps-core dependency' --body 'Update maps-core to ${{ inputs.mapsCoreBranch }} (${{ inputs.mapsCoreCommitHash }})'
           fi
         env:
