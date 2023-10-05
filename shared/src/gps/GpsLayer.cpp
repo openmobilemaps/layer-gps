@@ -553,32 +553,19 @@ void GpsLayer::setupLayerObjects() {
     centerObject->getGraphicsObject()->setup(renderingContext);
     centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
 
-    std::weak_ptr<GpsLayer> weakSelfPtr = std::dynamic_pointer_cast<GpsLayer>(shared_from_this());
-    scheduler->addTask(std::make_shared<LambdaTask>(
-            TaskConfig("GpsLayer_setup_objects", 0, TaskPriority::NORMAL, ExecutionEnvironment::GRAPHICS),
-            [weakSelfPtr, textureHeading, textureCenter, textureCourse] {
-                auto selfPtr = weakSelfPtr.lock();
-                if (!selfPtr) return;
-                auto mapInterface = selfPtr->mapInterface;
-                auto renderingContext = mapInterface ? mapInterface->getRenderingContext() : nullptr;
-                if (!renderingContext) {
-                    return;
-                }
-                selfPtr->centerObject->getGraphicsObject()->setup(renderingContext);
-                selfPtr->centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
-                
-                selfPtr->accuracyObject->getGraphicsObject()->setup(renderingContext);
-
-                if (textureHeading) {
-                    selfPtr->headingObject->getGraphicsObject()->setup(renderingContext);
-                    selfPtr->headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
-                }
-                
-                if (textureCourse) {
-                    selfPtr->courseObject->getGraphicsObject()->setup(renderingContext);
-                    selfPtr->courseObject->getQuadObject()->loadTexture(renderingContext, textureCourse);
-                }
-            }));
+    accuracyObject->getGraphicsObject()->setup(renderingContext);
+    
+    if (textureHeading) {
+        headingObject->getGraphicsObject()->setup(renderingContext);
+        headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
+    }
+    
+    if (textureCourse) {
+        courseObject->getGraphicsObject()->setup(renderingContext);
+        courseObject->getQuadObject()->loadTexture(renderingContext, textureCourse);
+    }
+    
+    mapInterface->invalidate();
 }
 
 std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant, bool useCourseAngle) {
