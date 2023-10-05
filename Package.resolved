@@ -14,8 +14,8 @@
         "package": "MapCore",
         "repositoryURL": "https://github.com/openmobilemaps/maps-core",
         "state": {
-          "branch": "develop",
-          "revision": "f6ce10d9b9edd8ce2801e25f7321dd208825a38e",
+          "branch": "feature/automatic-pr-creation",
+          "revision": "cbe45859d8dc3c96b9b7b52d6d5d52be1baf0b6e",
           "version": null
         }
       },
