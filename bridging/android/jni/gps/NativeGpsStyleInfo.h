@@ -25,9 +25,10 @@ private:
     friend ::djinni::JniClass<NativeGpsStyleInfo>;
 
     const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("io/openmobilemaps/gps/shared/gps/GpsStyleInfo") };
-    const jmethodID jconstructor { ::djinni::jniGetMethodID(clazz.get(), "<init>", "(Lio/openmobilemaps/mapscore/shared/graphics/objects/TextureHolderInterface;Lio/openmobilemaps/mapscore/shared/graphics/objects/TextureHolderInterface;Lio/openmobilemaps/mapscore/shared/graphics/common/Color;)V") };
+    const jmethodID jconstructor { ::djinni::jniGetMethodID(clazz.get(), "<init>", "(Lio/openmobilemaps/mapscore/shared/graphics/objects/TextureHolderInterface;Lio/openmobilemaps/mapscore/shared/graphics/objects/TextureHolderInterface;Lio/openmobilemaps/mapscore/shared/graphics/objects/TextureHolderInterface;Lio/openmobilemaps/mapscore/shared/graphics/common/Color;)V") };
     const jfieldID field_pointTexture { ::djinni::jniGetFieldID(clazz.get(), "pointTexture", "Lio/openmobilemaps/mapscore/shared/graphics/objects/TextureHolderInterface;") };
     const jfieldID field_headingTexture { ::djinni::jniGetFieldID(clazz.get(), "headingTexture", "Lio/openmobilemaps/mapscore/shared/graphics/objects/TextureHolderInterface;") };
+    const jfieldID field_courseTexture { ::djinni::jniGetFieldID(clazz.get(), "courseTexture", "Lio/openmobilemaps/mapscore/shared/graphics/objects/TextureHolderInterface;") };
     const jfieldID field_accuracyColor { ::djinni::jniGetFieldID(clazz.get(), "accuracyColor", "Lio/openmobilemaps/mapscore/shared/graphics/common/Color;") };
 };
 

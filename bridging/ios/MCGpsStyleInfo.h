@@ -10,14 +10,18 @@
 + (nonnull instancetype)new NS_UNAVAILABLE;
 - (nonnull instancetype)initWithPointTexture:(nullable id<MCTextureHolderInterface>)pointTexture
                               headingTexture:(nullable id<MCTextureHolderInterface>)headingTexture
+                               courseTexture:(nullable id<MCTextureHolderInterface>)courseTexture
                                accuracyColor:(nonnull MCColor *)accuracyColor NS_DESIGNATED_INITIALIZER;
 + (nonnull instancetype)gpsStyleInfoWithPointTexture:(nullable id<MCTextureHolderInterface>)pointTexture
                                       headingTexture:(nullable id<MCTextureHolderInterface>)headingTexture
+                                       courseTexture:(nullable id<MCTextureHolderInterface>)courseTexture
                                        accuracyColor:(nonnull MCColor *)accuracyColor;
 
 @property (nonatomic, readonly, nullable) id<MCTextureHolderInterface> pointTexture;
 
 @property (nonatomic, readonly, nullable) id<MCTextureHolderInterface> headingTexture;
+
+@property (nonatomic, readonly, nullable) id<MCTextureHolderInterface> courseTexture;
 
 @property (nonatomic, readonly, nonnull) MCColor * accuracyColor;
 

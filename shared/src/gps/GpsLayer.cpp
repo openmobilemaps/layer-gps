@@ -19,7 +19,6 @@
 #include "CoordAnimation.h"
 #include "DoubleAnimation.h"
 #include "CoordinatesUtil.h"
-
 #define DEFAULT_ANIM_LENGTH 100
 #define INTERACTION_THRESHOLD_MOVE_CM 0.5
 #define INTERACTION_THRESHOLD_ROT_ANGLE 25
@@ -179,7 +178,7 @@ void GpsLayer::updateHeading(float angleHeading) {
                                                              if (mode == GpsMode::FOLLOW_AND_TURN) {
                                                                  camera->setRotation(angleAnim, false);
                                                              }
-                                                             this->angleHeading = fmod(angleAnim + 360.0, 360.0);;
+                                                             this->angleHeading = fmod(angleAnim + 360.0, 360.0);
                                                              if (mapInterface) mapInterface->invalidate();
                                                          }, [=] {
                 if (mode == GpsMode::FOLLOW_AND_TURN) {
@@ -189,6 +188,70 @@ void GpsLayer::updateHeading(float angleHeading) {
                 if (mapInterface) mapInterface->invalidate();
             });
     headingAnimation->start();
+
+    if (mapInterface) mapInterface->invalidate();
+}
+
+void GpsLayer::enableCourse(bool enable) {
+    courseEnabled = enable;
+    if (mapInterface) mapInterface->invalidate();
+}
+
+void GpsLayer::updateCourse(const GpsCourseInfo & courseInfo) {
+    auto lockSelfPtr = shared_from_this();
+    auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
+
+    courseValid = true;
+
+    double currentAngle = fmod(this->angleCourse, 360.0);
+    double newAngle = -courseInfo.angle;
+    newAngle = fmod(newAngle + 360.0, 360.0);
+    if (abs(currentAngle - newAngle) > abs(currentAngle - (newAngle + 360.0))) {
+        newAngle += 360.0;
+    } else if (abs(currentAngle - newAngle) > abs(currentAngle - (newAngle - 360.0))) {
+        newAngle -= 360.0;
+    }
+
+
+    double currentScaling = this->courseScaling;
+    double newScaling = courseInfo.scaling;
+
+    auto const diffAngle = std::abs(currentAngle - newAngle);
+    auto const diffScaling = std::abs(currentScaling - newScaling);
+
+    if (diffAngle < 0.2 && diffScaling < 0.01) { return; }
+
+    std::lock_guard<std::recursive_mutex> lock(animationMutex);
+
+    if (angleCourseAnimation) angleCourseAnimation->cancel();
+    angleCourseAnimation = std::make_shared<DoubleAnimation>(DEFAULT_ANIM_LENGTH,
+                                                         currentAngle,
+                                                         newAngle,
+                                                         InterpolatorFunction::Linear,
+                                                         [=](double angleAnim) {
+                                                             this->angleCourse = fmod(angleAnim + 360.0, 360.0);
+                                                             if (mapInterface) mapInterface->invalidate();
+                                                         }, [=] {
+
+                this->angleCourse = fmod(newAngle + 360.0f, 360.0f);
+                if (mapInterface) mapInterface->invalidate();
+            });
+    angleCourseAnimation->start();
+
+    if (courseScalingAnimation) courseScalingAnimation->cancel();
+    courseScalingAnimation = std::make_shared<DoubleAnimation>(DEFAULT_ANIM_LENGTH,
+                                                         currentScaling,
+                                                         newScaling,
+                                                         InterpolatorFunction::Linear,
+                                                         [=](double scaleAnim) {
+                                                             this->courseScaling = scaleAnim;
+                                                             if (mapInterface) mapInterface->invalidate();
+                                                         }, [=] {
+
+                this->courseScaling = newScaling;
+                if (mapInterface) mapInterface->invalidate();
+            });
+    courseScalingAnimation->start();
 
     if (mapInterface) mapInterface->invalidate();
 }
@@ -205,11 +268,16 @@ std::shared_ptr<::LayerInterface> GpsLayer::asLayerInterface() {
 
 void GpsLayer::update() {
     std::lock_guard<std::recursive_mutex> lock(animationMutex);
-    if (headingAnimation) {
-        if (headingAnimation->isFinished()) {
-            headingAnimation = nullptr;
-        } else {
-            headingAnimation->update();
+
+    std::vector<std::shared_ptr<AnimationInterface>> animations = {headingAnimation, angleCourseAnimation, courseScalingAnimation};
+
+    for (auto &animation: animations) {
+        if (animation) {
+            if (animation->isFinished()) {
+                animation = nullptr;
+            } else {
+                animation->update();
+            }
         }
     }
 }
@@ -219,8 +287,10 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
         return {};
     }
 
-    std::vector<float> const &invariantModelMatrix = computeModelMatrix(true, 1.0, false);
-    std::vector<float> const &accuracyModelMatrix = computeModelMatrix(false, horizontalAccuracyM, false);
+    std::vector<float> const &scaleInvariantModelMatrix = computeModelMatrix(true, 1.0, false, false);
+    std::vector<float> const &accuracyModelMatrix = computeModelMatrix(false, horizontalAccuracyM, false, false);
+    std::vector<float> const &courseModelMatrix = computeModelMatrix(true, courseScaling, false, true);
+
     std::map<int, std::vector<std::shared_ptr<RenderObjectInterface>>> renderPassObjectMap;
 
     for (const auto &config : accuracyObject->getRenderConfig()) {
@@ -231,12 +301,19 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
     if (headingObject && headingEnabled && headingValid && drawHeadingObjectEnabled) {
         for (const auto &config : headingObject->getRenderConfig()) {
             renderPassObjectMap[config->getRenderIndex()].push_back(
-                    std::make_shared<RenderObject>(config->getGraphicsObject(), invariantModelMatrix));
+                    std::make_shared<RenderObject>(config->getGraphicsObject(), scaleInvariantModelMatrix));
+        }
+    }
+
+    if (courseObject && courseEnabled && courseValid) {
+        for (const auto &config : courseObject->getRenderConfig()) {
+            renderPassObjectMap[config->getRenderIndex()].push_back(
+                    std::make_shared<RenderObject>(config->getGraphicsObject(), courseModelMatrix));
         }
     }
 
     if (drawCenterObjectEnabled) {
-        auto const &centerObjectModelMatrix = pointRotationInvariantEnabled ? computeModelMatrix(true, 1.0, pointRotationInvariantEnabled) : invariantModelMatrix;
+        auto const &centerObjectModelMatrix = pointRotationInvariantEnabled ? computeModelMatrix(true, 1.0, pointRotationInvariantEnabled, false) : scaleInvariantModelMatrix;
         for (const auto &config : centerObject->getRenderConfig()) {
             renderPassObjectMap[config->getRenderIndex()].push_back(
                     std::make_shared<RenderObject>(config->getGraphicsObject(), centerObjectModelMatrix));
@@ -276,6 +353,7 @@ void GpsLayer::pause() {
     if (centerObject) centerObject->getGraphicsObject()->clear();
     if (headingObject) headingObject->getGraphicsObject()->clear();
     if (accuracyObject) accuracyObject->getGraphicsObject()->clear();
+    if (courseObject) courseObject->getGraphicsObject()->clear();
 
     if (mask) {
         auto obj = mask->asGraphicsObject();
@@ -307,6 +385,12 @@ void GpsLayer::resume() {
         Color accuracyColor = styleInfo.accuracyColor;
         accuracyObject->getGraphicsObject()->setup(renderingContext);
         accuracyObject->setColor(accuracyColor);
+    }
+
+    if (courseObject && !courseObject->getGraphicsObject()->isReady()) {
+        auto textureCourse = styleInfo.courseTexture;
+        courseObject->getGraphicsObject()->setup(renderingContext);
+        courseObject->getQuadObject()->loadTexture(renderingContext, textureCourse);
     }
 
     if (mask) {
@@ -409,6 +493,15 @@ void GpsLayer::resetParameters() {
     if (mode == GpsMode::FOLLOW_AND_TURN) camera->setRotation(angleHeading < (360 - angleHeading) ? 0 : 360, true);
 }
 
+QuadCoord GpsLayer::getQuadCoord(std::shared_ptr<TextureHolderInterface> texture) {
+    float hWidth = texture->getImageWidth() * 0.5f;
+    float hHeight = texture->getImageHeight() * 0.5f;
+    return QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, -hHeight, 0.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, -hHeight, 0.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, +hHeight, 0.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, +hHeight, 0.0));
+}
+
 void GpsLayer::setupLayerObjects() {
     auto lockSelfPtr = shared_from_this();
     auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
@@ -425,16 +518,12 @@ void GpsLayer::setupLayerObjects() {
     auto centerQuad = objectFactory->createQuad(centerShader->asShaderProgramInterface());
     centerObject = std::make_shared<Textured2dLayerObject>(centerQuad, centerShader, mapInterface);
     centerObject->setPositions(getQuadCoord(textureCenter));
-
-    pointWidth = textureCenter->getImageWidth();
-    pointHeight = textureCenter->getImageHeight();
     
     // Accuracy
     accuracyObject = std::make_shared<Circle2dLayerObject>(mapInterface);
     accuracyObject->setColor(styleInfo.accuracyColor);
     accuracyObject->setPosition(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0), 1.0);
     
-
     // Heading
     auto textureHeading = styleInfo.headingTexture;
     if (textureHeading) {
@@ -443,6 +532,19 @@ void GpsLayer::setupLayerObjects() {
         headingObject = std::make_shared<Textured2dLayerObject>(headingQuad, headingShader, mapInterface);
         headingObject->setPositions(getQuadCoord(textureHeading));
     }
+    
+    // Course
+    auto textureCourse = styleInfo.courseTexture;
+    if (textureCourse) {
+        auto courseShader = shaderFactory->createAlphaShader();
+        auto courseQuad = objectFactory->createQuad(courseShader->asShaderProgramInterface());
+        courseObject = std::make_shared<Textured2dLayerObject>(courseQuad, courseShader, mapInterface);
+        courseObject->setPositions(getQuadCoord(textureCourse));
+    }
+
+    pointWidth = textureCenter->getImageWidth();
+    pointHeight = textureCenter->getImageHeight();
+
 
     auto renderingContext = mapInterface->getRenderingContext();
     if (!renderingContext) {
@@ -452,25 +554,21 @@ void GpsLayer::setupLayerObjects() {
     centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
 
     accuracyObject->getGraphicsObject()->setup(renderingContext);
-
+    
     if (textureHeading) {
         headingObject->getGraphicsObject()->setup(renderingContext);
         headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
     }
-
+    
+    if (textureCourse) {
+        courseObject->getGraphicsObject()->setup(renderingContext);
+        courseObject->getQuadObject()->loadTexture(renderingContext, textureCourse);
+    }
+    
     mapInterface->invalidate();
 }
 
-QuadCoord GpsLayer::getQuadCoord(std::shared_ptr<TextureHolderInterface> texture) {
-    float hWidth = texture->getImageWidth() * 0.5f;
-    float hHeight = texture->getImageHeight() * 0.5f;
-    return QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, -hHeight, 0.0),
-                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, -hHeight, 0.0),
-                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, +hHeight, 0.0),
-                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, +hHeight, 0.0));
-}
-
-std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant) {
+std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant, bool useCourseAngle) {
     auto lockSelfPtr = shared_from_this();
     auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
     auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
@@ -488,7 +586,11 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
     if (rotationInvariant) {
         Matrix::rotateM(newMatrix, 0.0, -camera->getRotation(), 0.0, 0.0, 1.0);
     } else {
-        Matrix::rotateM(newMatrix, 0.0, -angleHeading, 0.0, 0.0, 1.0);
+        if (useCourseAngle) {
+            Matrix::rotateM(newMatrix, 0.0, -angleCourse, 0.0, 0.0, 1.0);
+        } else {
+            Matrix::rotateM(newMatrix, 0.0, -angleHeading, 0.0, 0.0, 1.0);
+        }
     }
 
     if (!position) {

@@ -8,11 +8,13 @@
 
 - (nonnull instancetype)initWithPointTexture:(nullable id<MCTextureHolderInterface>)pointTexture
                               headingTexture:(nullable id<MCTextureHolderInterface>)headingTexture
+                               courseTexture:(nullable id<MCTextureHolderInterface>)courseTexture
                                accuracyColor:(nonnull MCColor *)accuracyColor
 {
     if (self = [super init]) {
         _pointTexture = pointTexture;
         _headingTexture = headingTexture;
+        _courseTexture = courseTexture;
         _accuracyColor = accuracyColor;
     }
     return self;
@@ -20,17 +22,19 @@
 
 + (nonnull instancetype)gpsStyleInfoWithPointTexture:(nullable id<MCTextureHolderInterface>)pointTexture
                                       headingTexture:(nullable id<MCTextureHolderInterface>)headingTexture
+                                       courseTexture:(nullable id<MCTextureHolderInterface>)courseTexture
                                        accuracyColor:(nonnull MCColor *)accuracyColor
 {
     return [[self alloc] initWithPointTexture:pointTexture
                                headingTexture:headingTexture
+                                courseTexture:courseTexture
                                 accuracyColor:accuracyColor];
 }
 
 #ifndef DJINNI_DISABLE_DESCRIPTION_METHODS
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"<%@ %p pointTexture:%@ headingTexture:%@ accuracyColor:%@>", self.class, (void *)self, self.pointTexture, self.headingTexture, self.accuracyColor];
+    return [NSString stringWithFormat:@"<%@ %p pointTexture:%@ headingTexture:%@ courseTexture:%@ accuracyColor:%@>", self.class, (void *)self, self.pointTexture, self.headingTexture, self.courseTexture, self.accuracyColor];
 }
 
 #endif
