@@ -34,8 +34,9 @@ jobs:
           sed -i -E 's|(openmobilemaps:)(mapscore.*)|\1${{ inputs.mapsCoreArtifactId }}:${{ inputs.mapsCoreArtifactVersion }}"|g' android/build.gradle
           
           # Replace iOS dependency
-          # TODO How to properly update swift packages?
-          # sed -i -E 's|(openmobilemaps\/maps-core".*)"(..*)"|\1"${{ inputs.mapsCoreBranch }}"|g' Package.swift
+          sed -i -E 's|(openmobilemaps\/maps-core".*)"(..*)"|\1"${{ inputs.mapsCoreBranch }}"|g' Package.swift
+          json=$(cat Package.resolved | jq '.object.pins |= map(if .package == "MapCore" then .state.branch = "${{ inputs.mapsCoreBranch }}" | .state.revision = "${{ inputs.mapsCoreCommitHash }}" else . end)');
+          echo "$json" > Package.resolved;
       - name: Create commit
         uses: EndBug/add-and-commit@v9.1.3
         with:
@@ -43,6 +44,6 @@ jobs:
           new_branch: "feature/update-mapscore"
       - name: Create pull request
         run: |
-          gh pr create --base develop --head feature/update-mapscore --title 'Update maps-core dependency' --body 'Update maps-core to ${{ inputs.mapsCoreBranch }} (${{ inputs.mapsCoreCommitHash }}'
+          gh pr create --base develop --head feature/update-mapscore --title 'Update maps-core dependency' --body 'Update maps-core to ${{ inputs.mapsCoreBranch }} (${{ inputs.mapsCoreCommitHash }})'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
