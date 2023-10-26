@@ -20,7 +20,7 @@ public extension UBLocationManager {
     }
 }
 
-class LocationManagerLayerBinder: NSObject {
+public class LocationManagerLayerBinder: NSObject {
     weak var layer: MCGpsLayer?
     public init(layer: MCGpsLayer) {
         self.layer = layer
