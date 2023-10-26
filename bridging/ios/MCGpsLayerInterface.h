@@ -47,6 +47,8 @@
 
 - (void)updateCourse:(nonnull MCGpsCourseInfo *)courseInfo;
 
+- (void)setRenderPassIndex:(int32_t)index;
+
 - (nullable id<MCLayerInterface>)asLayerInterface;
 
 @end

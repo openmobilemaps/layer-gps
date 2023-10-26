@@ -45,5 +45,6 @@ gps_layer_interface = interface +c {
     update_style(style_info: gps_style_info);
     enable_course(enable: bool);
     update_course(course_info: gps_course_info);
+    set_render_pass_index(index: i32);
     asLayerInterface(): layer_interface;
 }

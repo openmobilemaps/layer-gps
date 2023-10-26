@@ -66,6 +66,8 @@ public:
 
     virtual void updateCourse(const GpsCourseInfo & courseInfo) override;
 
+    virtual void setRenderPassIndex(int32_t index) override;
+
     // LayerInterface
 
     virtual void setMaskingObject(const std::shared_ptr<::MaskingObjectInterface> & maskingObject) override;
@@ -165,7 +167,7 @@ private:
     bool isPinchMove = false;
     double accRotation = 0.0;
 
-    const static int GPS_RENDER_PASS_INDEX = 999;
+    int renderPassIndex = 999;
 
     bool resetRotationOnInteraction;
                      

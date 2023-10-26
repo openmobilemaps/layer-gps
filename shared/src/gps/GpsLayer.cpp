@@ -322,7 +322,7 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
 
     std::vector<std::shared_ptr<RenderPassInterface>> renderPasses;
     for (const auto &passEntry : renderPassObjectMap) {
-        std::shared_ptr<RenderPass> renderPass = std::make_shared<RenderPass>(RenderPassConfig(GPS_RENDER_PASS_INDEX),
+        std::shared_ptr<RenderPass> renderPass = std::make_shared<RenderPass>(RenderPassConfig(renderPassIndex),
                                                                               passEntry.second,
                                                                               mask);
         renderPasses.push_back(renderPass);
@@ -726,4 +726,8 @@ void GpsLayer::resetAccInteraction() {
     if (mode == GpsMode::FOLLOW_AND_TURN) {
         updateHeading(angleHeading);
     }
+}
+
+void GpsLayer::setRenderPassIndex(int32_t index) {
+    this->renderPassIndex = index;
 }

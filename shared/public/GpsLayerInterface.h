@@ -5,6 +5,7 @@
 
 #include "Coord.h"
 #include "LayerInterface.h"
+#include <cstdint>
 #include <memory>
 #include <optional>
 
@@ -48,6 +49,8 @@ public:
     virtual void enableCourse(bool enable) = 0;
 
     virtual void updateCourse(const GpsCourseInfo & courseInfo) = 0;
+
+    virtual void setRenderPassIndex(int32_t index) = 0;
 
     virtual /*not-null*/ std::shared_ptr<::LayerInterface> asLayerInterface() = 0;
 };

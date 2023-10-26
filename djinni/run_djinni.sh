@@ -101,5 +101,7 @@ for file in $(find . -name "*.djinni" -type f -print); do
 
 done
 
+echo "Deleting untouched yaml files"
+find yaml -name '*.yaml' -type f -mmin +2 -delete
 
 echo "djinni completed."

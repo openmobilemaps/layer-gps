@@ -43,6 +43,8 @@ abstract class GpsLayerInterface {
 
     abstract fun updateCourse(courseInfo: GpsCourseInfo)
 
+    abstract fun setRenderPassIndex(index: Int)
+
     abstract fun asLayerInterface(): io.openmobilemaps.mapscore.shared.map.LayerInterface
 
     private class CppProxy : GpsLayerInterface {
@@ -149,6 +151,12 @@ abstract class GpsLayerInterface {
             native_updateCourse(this.nativeRef, courseInfo)
         }
         private external fun native_updateCourse(_nativeRef: Long, courseInfo: GpsCourseInfo)
+
+        override fun setRenderPassIndex(index: Int) {
+            assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
+            native_setRenderPassIndex(this.nativeRef, index)
+        }
+        private external fun native_setRenderPassIndex(_nativeRef: Long, index: Int)
 
         override fun asLayerInterface(): io.openmobilemaps.mapscore.shared.map.LayerInterface {
             assert(!this.destroyed.get()) { error("trying to use a destroyed object") }

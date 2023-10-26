@@ -155,6 +155,14 @@ CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
 }
 
+CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1setRenderPassIndex(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef, jint j_index)
+{
+    try {
+        const auto& ref = ::djinni::objectFromHandleAddress<::GpsLayerInterface>(nativeRef);
+        ref->setRenderPassIndex(::djinni::I32::toCpp(jniEnv, j_index));
+    } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
+}
+
 CJNIEXPORT ::djinni_generated::NativeLayerInterface::JniType JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_00024CppProxy_native_1asLayerInterface(JNIEnv* jniEnv, jobject /*this*/, jlong nativeRef)
 {
     try {
