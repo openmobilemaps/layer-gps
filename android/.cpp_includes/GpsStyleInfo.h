@@ -12,13 +12,16 @@
 struct GpsStyleInfo final {
     /*nullable*/ std::shared_ptr<::TextureHolderInterface> pointTexture;
     /*nullable*/ std::shared_ptr<::TextureHolderInterface> headingTexture;
+    /*nullable*/ std::shared_ptr<::TextureHolderInterface> courseTexture;
     ::Color accuracyColor;
 
     GpsStyleInfo(/*nullable*/ std::shared_ptr<::TextureHolderInterface> pointTexture_,
                  /*nullable*/ std::shared_ptr<::TextureHolderInterface> headingTexture_,
+                 /*nullable*/ std::shared_ptr<::TextureHolderInterface> courseTexture_,
                  ::Color accuracyColor_)
     : pointTexture(std::move(pointTexture_))
     , headingTexture(std::move(headingTexture_))
+    , courseTexture(std::move(courseTexture_))
     , accuracyColor(std::move(accuracyColor_))
     {}
 };

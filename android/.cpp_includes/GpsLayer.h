@@ -17,9 +17,10 @@
 #include "CoordinateSystemIdentifiers.h"
 #include "MapCamera2dInterface.h"
 #include "Textured2dLayerObject.h"
-#include "TextureHolderInterface.h"
 #include "Circle2dLayerObject.h"
+#include "TextureHolderInterface.h"
 #include "GpsStyleInfo.h"
+#include "GpsCourseInfo.h"
 #include "GpsMode.h"
 #include <mutex>
 
@@ -60,6 +61,12 @@ public:
     virtual void updateStyle(const GpsStyleInfo & styleInfo) override;
 
     virtual void enablePointRotationInvariant(bool enable) override;
+
+    virtual void enableCourse(bool enable) override;
+
+    virtual void updateCourse(const GpsCourseInfo & courseInfo) override;
+
+    virtual void setRenderPassIndex(int32_t index) override;
 
     // LayerInterface
 
@@ -109,11 +116,11 @@ private:
 
     virtual void setupLayerObjects();
 
-    virtual QuadCoord getQuadCoord(std::shared_ptr<TextureHolderInterface> texture);
-                     
-    virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant);
+    virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant, bool useCourseAngle);
 
     virtual void resetAccInteraction();
+
+    virtual QuadCoord getQuadCoord(std::shared_ptr<TextureHolderInterface> texture);
 
     std::atomic<bool> isHidden = false;
 
@@ -126,6 +133,7 @@ private:
     bool positionValid = false;
     bool headingEnabled = true;
     bool headingValid = false;
+
     bool followModeEnabled = false;
     bool rotationModeEnabled = false;
 
@@ -134,12 +142,19 @@ private:
 
     bool pointRotationInvariantEnabled = false;
 
+    bool courseValid = false;
+    bool courseEnabled = false;
+    float angleCourse = 0;
+    float courseScaling = 0;
+
     GpsStyleInfo styleInfo;
     int64_t pointHeight = 0;
     int64_t pointWidth = 0;
 
     std::recursive_mutex animationMutex;
     std::shared_ptr<AnimationInterface> headingAnimation;
+    std::shared_ptr<AnimationInterface> angleCourseAnimation;
+    std::shared_ptr<AnimationInterface> courseScalingAnimation;
 
     std::shared_ptr<GpsLayerCallbackInterface> callbackHandler;
 
@@ -152,7 +167,7 @@ private:
     bool isPinchMove = false;
     double accRotation = 0.0;
 
-    const static int GPS_RENDER_PASS_INDEX = 999;
+    int renderPassIndex = 999;
 
     bool resetRotationOnInteraction;
                      
@@ -161,6 +176,7 @@ protected:
 
     std::shared_ptr<Textured2dLayerObject> centerObject;
     std::shared_ptr<Textured2dLayerObject> headingObject;
+    std::shared_ptr<Textured2dLayerObject> courseObject;
     std::shared_ptr<Circle2dLayerObject> accuracyObject;
 
     std::optional<float> followInitializeZoom;
