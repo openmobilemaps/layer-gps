@@ -100,7 +100,10 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM,
     auto lockSelfPtr = shared_from_this();
     auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
     auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
-    if (!camera) return;
+    if (!camera) {
+        outstandingUpdate = OutstandingPositionUpdate{position, horizontalAccuracyM, isInitialFollow};
+        return;
+    }
 
     if ((position.x == 0 && position.y == 0 && position.z == 0)) {
         setMode(GpsMode::DISABLED);
@@ -336,6 +339,12 @@ void GpsLayer::onAdded(const std::shared_ptr<MapInterface> &mapInterface, int32_
     mapInterface->getCamera()->addListener(shared_from_this());
 
     setupLayerObjects();
+
+    if (auto outstandingUpdate = this->outstandingUpdate) {
+        updatePosition(outstandingUpdate->position, outstandingUpdate->horizontalAccuracyM, outstandingUpdate->isInitialFollow);
+        this->outstandingUpdate = std::nullopt;
+    }
+
     mapInterface->invalidate();
 }
 
