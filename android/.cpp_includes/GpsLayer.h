@@ -170,7 +170,14 @@ private:
     int renderPassIndex = 999;
 
     bool resetRotationOnInteraction;
-                     
+
+    struct OutstandingPositionUpdate {
+        Coord position;
+        double horizontalAccuracyM;
+        bool isInitialFollow;
+    };
+
+    std::optional<OutstandingPositionUpdate> outstandingUpdate;
 protected:
     std::shared_ptr<MapInterface> mapInterface;
 
