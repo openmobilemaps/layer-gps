@@ -194,7 +194,7 @@ dependencies {
 	implementation 'androidx.core:core-ktx:1.12.0'
 	implementation 'com.google.android.gms:play-services-location:21.0.1'
 
-	api 'io.openmobilemaps:mapscore-dev:1.5.3.500'
+	api 'io.openmobilemaps:mapscore-dev:1.5.3.506'
 
 	implementation "ch.ubique.android:djinni-support-lib:1.0.6"
 
