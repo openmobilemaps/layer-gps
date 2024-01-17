@@ -30,9 +30,9 @@ public class MCGpsLayer: NSObject {
         }
     }
 
-    public init(style: MCGpsStyleInfo = .defaultStyle,
+    public init(style: MCGpsStyleInfoInterface = .defaultStyle,
                 canAskForPermission: Bool = true,
-                nativeLayerProvider: ((MCGpsStyleInfo) -> MCGpsLayerInterface?) = MCGpsLayerInterface.create) {
+                nativeLayerProvider: ((MCGpsStyleInfoInterface) -> MCGpsLayerInterface?) = MCGpsLayerInterface.create) {
         nativeLayer = nativeLayerProvider(style)
 
         super.init()
@@ -53,8 +53,8 @@ public class MCGpsLayer: NSObject {
     }
 }
 
-public extension MCGpsStyleInfo {
-    static var defaultStyle: MCGpsStyleInfo {
+public extension MCGpsStyleInfoInterface {
+    static var defaultStyle: MCGpsStyleInfoInterface {
         guard let pointImage = UIImage(named: "ic_gps_point", in: Bundle.module, compatibleWith: nil)!.cgImage,
               let pointTexture = try? TextureHolder(pointImage),
               let headingImage = UIImage(named: "ic_gps_direction", in: Bundle.module, compatibleWith: nil)!.cgImage,
@@ -62,13 +62,11 @@ public extension MCGpsStyleInfo {
             fatalError("gps style assets not found")
         }
 
-        return MCGpsStyleInfo(pointTexture: pointTexture,
-                              headingTexture: headingTexture,
-                              courseTexture: nil,
-                              accuracyColor: UIColor(red: 112 / 255,
-                                                     green: 173 / 255,
-                                                     blue: 204 / 255,
-                                                     alpha: 0.2).mapCoreColor)
+        guard let style = MCGpsStyleInfoInterface.create(pointTexture, headingTexture: headingTexture, courseTexture: nil, accuracyColor: UIColor(red: 112 / 255, green: 173 / 255, blue: 204 / 255, alpha: 0.2).mapCoreColor) else {
+            fatalError("style not creatable")
+        }
+
+        return style
     }
 }
 
