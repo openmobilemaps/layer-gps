@@ -19,7 +19,7 @@
 #include "Textured2dLayerObject.h"
 #include "Circle2dLayerObject.h"
 #include "TextureHolderInterface.h"
-#include "GpsStyleInfo.h"
+#include "GpsStyleInfoInterface.h"
 #include "GpsCourseInfo.h"
 #include "GpsMode.h"
 #include <mutex>
@@ -30,7 +30,7 @@ class GpsLayer : public GpsLayerInterface,
                  public MapCamera2dListenerInterface,
                  public std::enable_shared_from_this<GpsLayer> {
 public:
-    GpsLayer(const GpsStyleInfo & styleInfo);
+    GpsLayer(const /*not-null*/ std::shared_ptr<GpsStyleInfoInterface> & styleInfo);
 
     // GpsLayerInterface
 
@@ -58,7 +58,7 @@ public:
 
     virtual void setFollowInitializeZoom(std::optional<float> zoom) override;
 
-    virtual void updateStyle(const GpsStyleInfo & styleInfo) override;
+    virtual void updateStyle(const /*not-null*/ std::shared_ptr<GpsStyleInfoInterface> & styleInfo) override;
 
     virtual void enablePointRotationInvariant(bool enable) override;
 
@@ -147,7 +147,7 @@ private:
     float angleCourse = 0;
     float courseScaling = 0;
 
-    GpsStyleInfo styleInfo;
+    std::shared_ptr<GpsStyleInfoInterface> styleInfo;
     int64_t pointHeight = 0;
     int64_t pointWidth = 0;
 

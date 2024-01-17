@@ -4,16 +4,16 @@
 #import "MCCoord.h"
 #import "MCGpsCourseInfo.h"
 #import "MCGpsMode.h"
-#import "MCGpsStyleInfo.h"
 #import "MCLayerInterface.h"
 #import <Foundation/Foundation.h>
 @class MCGpsLayerInterface;
+@class MCGpsStyleInfoInterface;
 @protocol MCGpsLayerCallbackInterface;
 
 
 @interface MCGpsLayerInterface : NSObject
 
-+ (nullable MCGpsLayerInterface *)create:(nonnull MCGpsStyleInfo *)styleInfo;
++ (nullable MCGpsLayerInterface *)create:(nullable MCGpsStyleInfoInterface *)styleInfo;
 
 - (void)setCallbackHandler:(nullable id<MCGpsLayerCallbackInterface>)handler;
 
@@ -41,7 +41,7 @@
 
 - (void)setFollowInitializeZoom:(nullable NSNumber *)zoom;
 
-- (void)updateStyle:(nonnull MCGpsStyleInfo *)styleInfo;
+- (void)updateStyle:(nullable MCGpsStyleInfoInterface *)styleInfo;
 
 - (void)enableCourse:(BOOL)enable;
 

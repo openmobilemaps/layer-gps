@@ -10,7 +10,7 @@
 #import "MCGpsCourseInfo+Private.h"
 #import "MCGpsLayerCallbackInterface+Private.h"
 #import "MCGpsMode+Private.h"
-#import "MCGpsStyleInfo+Private.h"
+#import "MCGpsStyleInfoInterface+Private.h"
 #import "MCLayerInterface+Private.h"
 #include <exception>
 #include <stdexcept>
@@ -36,9 +36,9 @@ static_assert(__has_feature(objc_arc), "Djinni requires ARC to be enabled for th
     return self;
 }
 
-+ (nullable MCGpsLayerInterface *)create:(nonnull MCGpsStyleInfo *)styleInfo {
++ (nullable MCGpsLayerInterface *)create:(nullable MCGpsStyleInfoInterface *)styleInfo {
     try {
-        auto objcpp_result_ = ::GpsLayerInterface::create(::djinni_generated::GpsStyleInfo::toCpp(styleInfo));
+        auto objcpp_result_ = ::GpsLayerInterface::create(::djinni_generated::GpsStyleInfoInterface::toCpp(styleInfo));
         return ::djinni_generated::GpsLayerInterface::fromCpp(objcpp_result_);
     } DJINNI_TRANSLATE_EXCEPTIONS()
 }
@@ -120,9 +120,9 @@ static_assert(__has_feature(objc_arc), "Djinni requires ARC to be enabled for th
     } DJINNI_TRANSLATE_EXCEPTIONS()
 }
 
-- (void)updateStyle:(nonnull MCGpsStyleInfo *)styleInfo {
+- (void)updateStyle:(nullable MCGpsStyleInfoInterface *)styleInfo {
     try {
-        _cppRefHandle.get()->updateStyle(::djinni_generated::GpsStyleInfo::toCpp(styleInfo));
+        _cppRefHandle.get()->updateStyle(::djinni_generated::GpsStyleInfoInterface::toCpp(styleInfo));
     } DJINNI_TRANSLATE_EXCEPTIONS()
 }
 

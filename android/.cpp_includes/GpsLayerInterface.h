@@ -10,15 +10,15 @@
 #include <optional>
 
 class GpsLayerCallbackInterface;
+class GpsStyleInfoInterface;
 enum class GpsMode;
 struct GpsCourseInfo;
-struct GpsStyleInfo;
 
 class GpsLayerInterface {
 public:
     virtual ~GpsLayerInterface() = default;
 
-    static /*not-null*/ std::shared_ptr<GpsLayerInterface> create(const GpsStyleInfo & styleInfo);
+    static /*not-null*/ std::shared_ptr<GpsLayerInterface> create(const /*not-null*/ std::shared_ptr<GpsStyleInfoInterface> & styleInfo);
 
     virtual void setCallbackHandler(const /*not-null*/ std::shared_ptr<GpsLayerCallbackInterface> & handler) = 0;
 
@@ -44,7 +44,7 @@ public:
 
     virtual void setFollowInitializeZoom(std::optional<float> zoom) = 0;
 
-    virtual void updateStyle(const GpsStyleInfo & styleInfo) = 0;
+    virtual void updateStyle(const /*not-null*/ std::shared_ptr<GpsStyleInfoInterface> & styleInfo) = 0;
 
     virtual void enableCourse(bool enable) = 0;
 

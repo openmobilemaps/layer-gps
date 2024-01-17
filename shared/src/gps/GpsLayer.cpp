@@ -23,7 +23,7 @@
 #define INTERACTION_THRESHOLD_MOVE_CM 0.5
 #define INTERACTION_THRESHOLD_ROT_ANGLE 25
 
-GpsLayer::GpsLayer(const GpsStyleInfo &styleInfo) : styleInfo(styleInfo), resetRotationOnInteraction(true) {}
+GpsLayer::GpsLayer(const /*not-null*/ std::shared_ptr<GpsStyleInfoInterface> & styleInfo) : styleInfo(styleInfo), resetRotationOnInteraction(true) {}
 
 
 void GpsLayer::setMode(GpsMode mode) {
@@ -286,7 +286,7 @@ void GpsLayer::update() {
 }
 
 std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses() {
-    if (isHidden || !drawLocation || !centerObject || !positionValid) {
+    if (isHidden || !drawLocation || !positionValid) {
         return {};
     }
 
@@ -315,7 +315,7 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
         }
     }
 
-    if (drawCenterObjectEnabled) {
+    if (centerObject && drawCenterObjectEnabled) {
         auto const &centerObjectModelMatrix = pointRotationInvariantEnabled ? computeModelMatrix(true, 1.0, pointRotationInvariantEnabled, false) : scaleInvariantModelMatrix;
         for (const auto &config : centerObject->getRenderConfig()) {
             renderPassObjectMap[config->getRenderIndex()].push_back(
@@ -378,26 +378,26 @@ void GpsLayer::resume() {
         return;
     }
 
-    if (!centerObject->getGraphicsObject()->isReady()) {
-        auto textureCenter = styleInfo.pointTexture;
+    if (centerObject && !centerObject->getGraphicsObject()->isReady()) {
+        auto textureCenter = styleInfo->getPointTexture();
         centerObject->getGraphicsObject()->setup(renderingContext);
         centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
     }
 
     if (headingObject && !headingObject->getGraphicsObject()->isReady()) {
-        auto textureHeading = styleInfo.headingTexture;
+        auto textureHeading = styleInfo->getHeadingTexture();
         headingObject->getGraphicsObject()->setup(renderingContext);
         headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
     }
 
     if (!accuracyObject->getGraphicsObject()->isReady()) {
-        Color accuracyColor = styleInfo.accuracyColor;
+        Color accuracyColor = styleInfo->getAccuracyColor();
         accuracyObject->getGraphicsObject()->setup(renderingContext);
         accuracyObject->setColor(accuracyColor);
     }
 
     if (courseObject && !courseObject->getGraphicsObject()->isReady()) {
-        auto textureCourse = styleInfo.courseTexture;
+        auto textureCourse = styleInfo->getCourseTexture();
         courseObject->getGraphicsObject()->setup(renderingContext);
         courseObject->getQuadObject()->loadTexture(renderingContext, textureCourse);
     }
@@ -522,19 +522,24 @@ void GpsLayer::setupLayerObjects() {
     }
 
     // Center
-    auto textureCenter = styleInfo.pointTexture;
-    auto centerShader = shaderFactory->createAlphaShader();
-    auto centerQuad = objectFactory->createQuad(centerShader->asShaderProgramInterface());
-    centerObject = std::make_shared<Textured2dLayerObject>(centerQuad, centerShader, mapInterface);
-    centerObject->setPositions(getQuadCoord(textureCenter));
+    auto textureCenter = styleInfo->getPointTexture();
+    if (textureCenter) {
+        auto centerShader = shaderFactory->createAlphaShader();
+        auto centerQuad = objectFactory->createQuad(centerShader->asShaderProgramInterface());
+        centerObject = std::make_shared<Textured2dLayerObject>(centerQuad, centerShader, mapInterface);
+        centerObject->setPositions(getQuadCoord(textureCenter));
+
+        pointWidth = textureCenter->getImageWidth();
+        pointHeight = textureCenter->getImageHeight();
+    }
     
     // Accuracy
     accuracyObject = std::make_shared<Circle2dLayerObject>(mapInterface);
-    accuracyObject->setColor(styleInfo.accuracyColor);
+    accuracyObject->setColor(styleInfo->getAccuracyColor());
     accuracyObject->setPosition(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0), 1.0);
     
     // Heading
-    auto textureHeading = styleInfo.headingTexture;
+    auto textureHeading = styleInfo->getHeadingTexture();
     if (textureHeading) {
         auto headingShader = shaderFactory->createAlphaShader();
         auto headingQuad = objectFactory->createQuad(headingShader->asShaderProgramInterface());
@@ -543,7 +548,7 @@ void GpsLayer::setupLayerObjects() {
     }
     
     // Course
-    auto textureCourse = styleInfo.courseTexture;
+    auto textureCourse = styleInfo->getCourseTexture();
     if (textureCourse) {
         auto courseShader = shaderFactory->createAlphaShader();
         auto courseQuad = objectFactory->createQuad(courseShader->asShaderProgramInterface());
@@ -551,16 +556,15 @@ void GpsLayer::setupLayerObjects() {
         courseObject->setPositions(getQuadCoord(textureCourse));
     }
 
-    pointWidth = textureCenter->getImageWidth();
-    pointHeight = textureCenter->getImageHeight();
-
-
     auto renderingContext = mapInterface->getRenderingContext();
     if (!renderingContext) {
         return;
     }
-    centerObject->getGraphicsObject()->setup(renderingContext);
-    centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
+
+    if (textureCenter) {
+        centerObject->getGraphicsObject()->setup(renderingContext);
+        centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
+    }
 
     accuracyObject->getGraphicsObject()->setup(renderingContext);
     
@@ -640,7 +644,7 @@ void GpsLayer::setCallbackHandler(const std::shared_ptr<GpsLayerCallbackInterfac
     callbackHandler = handler;
 }
 
-void GpsLayer::updateStyle(const GpsStyleInfo & styleInfo) {
+void GpsLayer::updateStyle(const /*not-null*/ std::shared_ptr<GpsStyleInfoInterface> & styleInfo) {
     auto lockSelfPtr = shared_from_this();
     auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
     auto scheduler = mapInterface ? mapInterface->getScheduler() : nullptr;

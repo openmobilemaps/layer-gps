@@ -4,6 +4,6 @@
 package io.openmobilemaps.gps.shared.gps
 
 data class GpsCourseInfo(
-    var angle: Float,
-    var scaling: Float,
+    val angle: Float,
+    val scaling: Float,
 )
