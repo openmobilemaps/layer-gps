@@ -10,7 +10,7 @@ abstract class GpsLayerInterface {
 
     companion object {
         @JvmStatic
-        external fun create(styleInfo: GpsStyleInfo): GpsLayerInterface
+        external fun create(styleInfo: GpsStyleInfoInterface): GpsLayerInterface
     }
 
     abstract fun setCallbackHandler(handler: GpsLayerCallbackInterface)
@@ -37,7 +37,7 @@ abstract class GpsLayerInterface {
 
     abstract fun setFollowInitializeZoom(zoom: Float?)
 
-    abstract fun updateStyle(styleInfo: GpsStyleInfo)
+    abstract fun updateStyle(styleInfo: GpsStyleInfoInterface)
 
     abstract fun enableCourse(enable: Boolean)
 
@@ -134,11 +134,11 @@ abstract class GpsLayerInterface {
         }
         private external fun native_setFollowInitializeZoom(_nativeRef: Long, zoom: Float?)
 
-        override fun updateStyle(styleInfo: GpsStyleInfo) {
+        override fun updateStyle(styleInfo: GpsStyleInfoInterface) {
             assert(!this.destroyed.get()) { error("trying to use a destroyed object") }
             native_updateStyle(this.nativeRef, styleInfo)
         }
-        private external fun native_updateStyle(_nativeRef: Long, styleInfo: GpsStyleInfo)
+        private external fun native_updateStyle(_nativeRef: Long, styleInfo: GpsStyleInfoInterface)
 
         override fun enableCourse(enable: Boolean) {
             assert(!this.destroyed.get()) { error("trying to use a destroyed object") }

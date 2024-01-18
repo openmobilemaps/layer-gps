@@ -7,7 +7,7 @@
 #include "NativeGpsCourseInfo.h"
 #include "NativeGpsLayerCallbackInterface.h"
 #include "NativeGpsMode.h"
-#include "NativeGpsStyleInfo.h"
+#include "NativeGpsStyleInfoInterface.h"
 #include "NativeLayerInterface.h"
 
 namespace djinni_generated {
@@ -27,7 +27,7 @@ CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_
 CJNIEXPORT jobject JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_create(JNIEnv* jniEnv, jobject /*this*/, jobject j_styleInfo)
 {
     try {
-        auto r = ::GpsLayerInterface::create(::djinni_generated::NativeGpsStyleInfo::toCpp(jniEnv, j_styleInfo));
+        auto r = ::GpsLayerInterface::create(::djinni_generated::NativeGpsStyleInfoInterface::toCpp(jniEnv, j_styleInfo));
         return ::djinni::release(::djinni_generated::NativeGpsLayerInterface::fromCpp(jniEnv, r));
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, 0 /* value doesn't matter */)
 }
@@ -135,7 +135,7 @@ CJNIEXPORT void JNICALL Java_io_openmobilemaps_gps_shared_gps_GpsLayerInterface_
 {
     try {
         const auto& ref = ::djinni::objectFromHandleAddress<::GpsLayerInterface>(nativeRef);
-        ref->updateStyle(::djinni_generated::NativeGpsStyleInfo::toCpp(jniEnv, j_styleInfo));
+        ref->updateStyle(::djinni_generated::NativeGpsStyleInfoInterface::toCpp(jniEnv, j_styleInfo));
     } JNI_TRANSLATE_EXCEPTIONS_RETURN(jniEnv, )
 }
 

@@ -11,7 +11,11 @@
 package io.openmobilemaps.gps
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.Paint
 import android.location.Location
+import androidx.core.graphics.applyCanvas
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -23,20 +27,21 @@ import io.openmobilemaps.gps.providers.LocationUpdateListener
 import io.openmobilemaps.gps.shared.gps.GpsLayerCallbackInterface
 import io.openmobilemaps.gps.shared.gps.GpsLayerInterface
 import io.openmobilemaps.gps.shared.gps.GpsMode
-import io.openmobilemaps.gps.shared.gps.GpsStyleInfo
+import io.openmobilemaps.gps.shared.gps.GpsStyleInfoInterface
+import io.openmobilemaps.mapscore.graphics.BitmapTextureHolder
 import io.openmobilemaps.mapscore.shared.map.LayerInterface
 import io.openmobilemaps.mapscore.shared.map.coordinates.Coord
 import io.openmobilemaps.mapscore.shared.map.coordinates.CoordinateSystemIdentifiers
 
 class GpsLayer(
 	context: Context,
-	style: GpsStyleInfo,
+	private val style: GpsStyleInfoInterface,
 	initialLocationProvider: LocationProviderInterface?,
 ) : GpsLayerCallbackInterface(), LifecycleObserver, LocationUpdateListener, CompassUpdateListener {
 
 	constructor(
 		context: Context,
-		style: GpsStyleInfo,
+		style: GpsStyleInfoInterface,
 		providerType: GpsProviderType,
 	) : this(context, style, providerType.getProvider(context))
 
@@ -92,7 +97,7 @@ class GpsLayer(
 		requireLayerInterface().enablePointRotationInvariant(enable)
 	}
 
-	fun updateStyle(styleInfo: GpsStyleInfo) {
+	fun updateStyle(styleInfo: GpsStyleInfoInterface) {
 		requireLayerInterface().updateStyle(styleInfo)
 	}
 
