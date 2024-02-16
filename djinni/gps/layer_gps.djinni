@@ -11,10 +11,15 @@ gps_mode = enum {
 	follow_and_turn;
 }
 
-gps_style_info = record {
-	point_texture : optional<texture_holder_interface>;
-	heading_texture : optional<texture_holder_interface>;
-	accuracy_color : color;
+gps_style_info_interface = interface +c {
+	static create(point_texture: optional<texture_holder_interface>,
+		   heading_texture: optional<texture_holder_interface>,
+		   course_texture: optional<texture_holder_interface>,
+		   accuracy_color: color) : gps_style_info_interface;
+	get_point_texture() : texture_holder_interface;
+	get_heading_texture() : optional<texture_holder_interface>;
+    get_course_texture() : optional<texture_holder_interface>;
+	get_accuracy_color() : color;
 }
 
 gps_layer_callback_interface = interface +c +j +o {
@@ -22,21 +27,28 @@ gps_layer_callback_interface = interface +c +j +o {
     on_point_click(coordinate: coord);
 }
 
+gps_course_info = record {
+    angle: f32;
+    scaling: f32;
+}
+
 gps_layer_interface = interface +c {
-    static create(style_info: gps_style_info) : gps_layer_interface;
+    static create(style_info: gps_style_info_interface) : gps_layer_interface;
     set_callback_handler(handler: gps_layer_callback_interface);
-	set_mode(mode: gps_mode);
-	set_mode_with_rotation_reset(mode: gps_mode, reset_rotation: bool);
+    set_mode(mode: gps_mode);
+    set_mode_with_rotation_reset(mode: gps_mode, reset_rotation: bool);
     set_reset_rotation_on_map_interaction(reset_rotation: bool);
     get_mode(): gps_mode;
-	enable_heading(enable: bool);
-	update_position(position: coord, horizontal_accuracy_m: f64);
-	update_heading(angle_heading: f32);
+    enable_heading(enable: bool);
+    update_position(position: coord, horizontal_accuracy_m: f64);
+    update_heading(angle_heading: f32);
     set_draw_point(enable: bool);
     set_draw_heading(enable: bool);
     enable_point_rotation_invariant(enable: bool);
     set_follow_initialize_zoom(zoom: optional<f32>);
-    update_style(style_info: gps_style_info);
-
+    update_style(style_info: gps_style_info_interface);
+    enable_course(enable: bool);
+    update_course(course_info: gps_course_info);
+    set_render_pass_index(index: i32);
     asLayerInterface(): layer_interface;
 }

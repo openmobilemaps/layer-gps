@@ -18,7 +18,9 @@
 #include "MapCamera2dInterface.h"
 #include "Textured2dLayerObject.h"
 #include "Circle2dLayerObject.h"
-#include "GpsStyleInfo.h"
+#include "TextureHolderInterface.h"
+#include "GpsStyleInfoInterface.h"
+#include "GpsCourseInfo.h"
 #include "GpsMode.h"
 #include <mutex>
 
@@ -28,7 +30,7 @@ class GpsLayer : public GpsLayerInterface,
                  public MapCamera2dListenerInterface,
                  public std::enable_shared_from_this<GpsLayer> {
 public:
-    GpsLayer(const GpsStyleInfo & styleInfo);
+    GpsLayer(const /*not-null*/ std::shared_ptr<GpsStyleInfoInterface> & styleInfo);
 
     // GpsLayerInterface
 
@@ -56,9 +58,15 @@ public:
 
     virtual void setFollowInitializeZoom(std::optional<float> zoom) override;
 
-    virtual void updateStyle(const GpsStyleInfo & styleInfo) override;
+    virtual void updateStyle(const /*not-null*/ std::shared_ptr<GpsStyleInfoInterface> & styleInfo) override;
 
     virtual void enablePointRotationInvariant(bool enable) override;
+
+    virtual void enableCourse(bool enable) override;
+
+    virtual void updateCourse(const GpsCourseInfo & courseInfo) override;
+
+    virtual void setRenderPassIndex(int32_t index) override;
 
     // LayerInterface
 
@@ -108,9 +116,11 @@ private:
 
     virtual void setupLayerObjects();
 
-    virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant);
+    virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant, bool useCourseAngle);
 
     virtual void resetAccInteraction();
+
+    virtual QuadCoord getQuadCoord(std::shared_ptr<TextureHolderInterface> texture);
 
     std::atomic<bool> isHidden = false;
 
@@ -123,6 +133,7 @@ private:
     bool positionValid = false;
     bool headingEnabled = true;
     bool headingValid = false;
+
     bool followModeEnabled = false;
     bool rotationModeEnabled = false;
 
@@ -131,12 +142,19 @@ private:
 
     bool pointRotationInvariantEnabled = false;
 
-    GpsStyleInfo styleInfo;
+    bool courseValid = false;
+    bool courseEnabled = false;
+    float angleCourse = 0;
+    float courseScaling = 0;
+
+    std::shared_ptr<GpsStyleInfoInterface> styleInfo;
     int64_t pointHeight = 0;
     int64_t pointWidth = 0;
 
     std::recursive_mutex animationMutex;
     std::shared_ptr<AnimationInterface> headingAnimation;
+    std::shared_ptr<AnimationInterface> angleCourseAnimation;
+    std::shared_ptr<AnimationInterface> courseScalingAnimation;
 
     std::shared_ptr<GpsLayerCallbackInterface> callbackHandler;
 
@@ -149,15 +167,23 @@ private:
     bool isPinchMove = false;
     double accRotation = 0.0;
 
-    const static int GPS_RENDER_PASS_INDEX = 999;
+    int renderPassIndex = 999;
 
     bool resetRotationOnInteraction;
-                     
+
+    struct OutstandingPositionUpdate {
+        Coord position;
+        double horizontalAccuracyM;
+        bool isInitialFollow;
+    };
+
+    std::optional<OutstandingPositionUpdate> outstandingUpdate;
 protected:
     std::shared_ptr<MapInterface> mapInterface;
 
     std::shared_ptr<Textured2dLayerObject> centerObject;
     std::shared_ptr<Textured2dLayerObject> headingObject;
+    std::shared_ptr<Textured2dLayerObject> courseObject;
     std::shared_ptr<Circle2dLayerObject> accuracyObject;
 
     std::optional<float> followInitializeZoom;
