@@ -17,6 +17,7 @@ buildscript {
 	}
 
 	ext{
+		agp_version = "8.1.4"
 		kotlin_version = "1.9.20"
 
 		ubiqueUrl = System.getenv('UBIQUE_ARTIFACTORY_URL') ?: readPropertyWithDefault('ubiqueArtifactoryUrl', '')
@@ -40,7 +41,7 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:8.1.2'
+		classpath "com.android.tools.build:gradle:8.1.4"
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
 		classpath 'com.vanniktech:gradle-maven-publish-plugin:0.25.3'
@@ -76,7 +77,7 @@ android {
 		externalNativeBuild {
 			cmake {
 				arguments "-DANDROID_STL=c++_shared"
-				cppFlags "-std=c++17 -frtti -fexceptions"
+				cppFlags "-std=c++17 -frtti -fexceptions -O2"
 			}
 		}
 	}
@@ -192,9 +193,9 @@ dependencies {
 
 	implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 	implementation 'androidx.core:core-ktx:1.12.0'
-	implementation 'com.google.android.gms:play-services-location:21.0.1'
+	implementation 'com.google.android.gms:play-services-location:21.1.0'
 
-	api 'io.openmobilemaps:mapscore-dev:1.5.3.535'
+	api 'io.openmobilemaps:mapscore:2.0.0'
 
 	implementation "ch.ubique.android:djinni-support-lib:1.0.6"
 
