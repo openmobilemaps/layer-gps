@@ -15,7 +15,7 @@
 #include "GpsLayerCallbackInterface.h"
 #include "SimpleTouchInterface.h"
 #include "CoordinateSystemIdentifiers.h"
-#include "MapCamera2dInterface.h"
+#include "MapCameraInterface.h"
 #include "Textured2dLayerObject.h"
 #include "Circle2dLayerObject.h"
 #include "TextureHolderInterface.h"
@@ -27,7 +27,7 @@
 class GpsLayer : public GpsLayerInterface,
                  public SimpleLayerInterface,
                  public SimpleTouchInterface,
-                 public MapCamera2dListenerInterface,
+                 public MapCameraListenerInterface,
                  public std::enable_shared_from_this<GpsLayer> {
 public:
     GpsLayer(const /*not-null*/ std::shared_ptr<GpsStyleInfoInterface> & styleInfo);
