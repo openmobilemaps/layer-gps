@@ -197,7 +197,7 @@ dependencies {
 
 	api 'io.openmobilemaps:mapscore:2.0.2'
 
-	implementation "ch.ubique.android:djinni-support-lib:1.0.6"
+	implementation "ch.ubique.android:djinni-support-lib:1.0.7"
 
 	testImplementation 'junit:junit:4.13.2'
 	androidTestImplementation 'androidx.test.ext:junit:1.1.5'
