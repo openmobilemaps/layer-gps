@@ -3,11 +3,15 @@ import UIKit
 import UBLocation
 
 private var binders: [LocationManagerLayerBinder] = []
+private let bindersQueue = DispatchQueue(label: "ch.layergps.ublocationbindersQueue")
 
 public extension UBLocationManager {
     func bindTo(layer: MCGpsLayer, canAskForPermission: Bool = false) {
         let binder = LocationManagerLayerBinder(layer: layer)
-        binders.append(binder)
+        
+        bindersQueue.sync {
+            binders.append(binder)
+        }
         
         startLocationMonitoring(for: [.location(background: false), .heading(background: false)],
                                 delegate: binder,
