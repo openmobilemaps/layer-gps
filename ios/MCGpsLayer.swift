@@ -13,7 +13,7 @@ import MapCore
 import Foundation
 import UIKit
 
-public class MCGpsLayer: NSObject {
+public class MCGpsLayer: NSObject, Layer {
     open private(set) var nativeLayer: MCGpsLayerInterface!
 
     private var callbackHandler = MCGpsCallbackHandler()
@@ -51,7 +51,19 @@ public class MCGpsLayer: NSObject {
     public func asLayerInterface() -> MCLayerInterface? {
         nativeLayer.asLayerInterface()
     }
+
+    public var interface: MCLayerInterface? {
+        return nativeLayer?.asLayerInterface()
+    }
 }
+
+#if canImport(SwiftUI)
+import SwiftUI
+
+@available(iOS 13.0, *)
+extension MCGpsLayer: Layer, ObservableObject {}
+
+#endif
 
 public extension MCGpsStyleInfoInterface {
     static var defaultStyle: MCGpsStyleInfoInterface {
