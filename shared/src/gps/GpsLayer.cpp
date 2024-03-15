@@ -505,10 +505,10 @@ void GpsLayer::resetParameters() {
 QuadCoord GpsLayer::getQuadCoord(std::shared_ptr<TextureHolderInterface> texture) {
     float hWidth = texture->getImageWidth() * 0.5f;
     float hHeight = texture->getImageHeight() * 0.5f;
-    return QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, -hHeight, 0.0),
-                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, -hHeight, 0.0),
-                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, +hHeight, 0.0),
-                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, +hHeight, 0.0));
+    return QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, -hHeight, 1.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, -hHeight, 1.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, +hHeight, 1.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, +hHeight, 1.0));
 }
 
 void GpsLayer::setupLayerObjects() {
@@ -524,9 +524,18 @@ void GpsLayer::setupLayerObjects() {
     // Center
     auto textureCenter = styleInfo->getPointTexture();
     if (textureCenter) {
-        auto centerShader = shaderFactory->createAlphaShader();
+        std::shared_ptr<AlphaShaderInterface> centerShader;
+        if (mapInterface->is3d()) {
+            centerShader = shaderFactory->createUnitSphereAlphaShader();
+        } else {
+            centerShader = shaderFactory->createAlphaShader();
+        }
+
         auto centerQuad = objectFactory->createQuad(centerShader->asShaderProgramInterface());
-        centerObject = std::make_shared<Textured2dLayerObject>(centerQuad, centerShader, mapInterface);
+#if DEBUG
+        centerQuad->asGraphicsObject()->setDebugLabel("GpsLayer_centerQuad");
+#endif
+        centerObject = std::make_shared<Textured2dLayerObject>(centerQuad, centerShader, mapInterface, mapInterface->is3d());
         centerObject->setPositions(getQuadCoord(textureCenter));
 
         pointWidth = textureCenter->getImageWidth();
@@ -535,25 +544,44 @@ void GpsLayer::setupLayerObjects() {
     
     // Accuracy
     accuracyObject = std::make_shared<Circle2dLayerObject>(mapInterface);
+#if DEBUG
+    accuracyObject->getGraphicsObject()->setDebugLabel("GpsLayer_accuracyObject");
+#endif
     accuracyObject->setColor(styleInfo->getAccuracyColor());
     accuracyObject->setPosition(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0), 1.0);
     
     // Heading
     auto textureHeading = styleInfo->getHeadingTexture();
     if (textureHeading) {
-        auto headingShader = shaderFactory->createAlphaShader();
+        std::shared_ptr<AlphaShaderInterface> headingShader;
+        if (mapInterface->is3d()) {
+            headingShader = shaderFactory->createUnitSphereAlphaShader();
+        } else {
+            headingShader = shaderFactory->createAlphaShader();
+        }
         auto headingQuad = objectFactory->createQuad(headingShader->asShaderProgramInterface());
-        headingObject = std::make_shared<Textured2dLayerObject>(headingQuad, headingShader, mapInterface);
+        headingObject = std::make_shared<Textured2dLayerObject>(headingQuad, headingShader, mapInterface, mapInterface->is3d());
         headingObject->setPositions(getQuadCoord(textureHeading));
+#if DEBUG
+        headingObject->getGraphicsObject()->setDebugLabel("GpsLayer_headingQuad");
+#endif
     }
     
     // Course
     auto textureCourse = styleInfo->getCourseTexture();
     if (textureCourse) {
-        auto courseShader = shaderFactory->createAlphaShader();
+        std::shared_ptr<AlphaShaderInterface> courseShader;
+        if (mapInterface->is3d()) {
+            courseShader = shaderFactory->createUnitSphereAlphaShader();
+        } else {
+            courseShader = shaderFactory->createAlphaShader();
+        }
         auto courseQuad = objectFactory->createQuad(courseShader->asShaderProgramInterface());
-        courseObject = std::make_shared<Textured2dLayerObject>(courseQuad, courseShader, mapInterface);
+        courseObject = std::make_shared<Textured2dLayerObject>(courseQuad, courseShader, mapInterface, mapInterface->is3d());
         courseObject->setPositions(getQuadCoord(textureCourse));
+#if DEBUG
+        courseObject->getGraphicsObject()->setDebugLabel("GpsLayer_courseObject");
+#endif
     }
 
     auto renderingContext = mapInterface->getRenderingContext();

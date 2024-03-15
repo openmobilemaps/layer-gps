@@ -24,7 +24,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/openmobilemaps/maps-core", .upToNextMinor(from: "2.1.0")),
-        .package(url: "https://github.com/UbiqueInnovation/ubkit-ios", from: "1.8.1"),
+        .package(url: "https://github.com/UbiqueInnovation/ubkit-ios", from: "1.10.0-rc"),
     ],
     targets: [
         .target(
@@ -61,6 +61,10 @@ let package = Package(
                 .headerSearchPath("**"),
                 .headerSearchPath("public"),
                 .headerSearchPath("src/gps"),
+                .define("DEBUG", to: "1", .when(configuration: .debug)),
+                .define("NDEBUG", to: "1", .when(configuration: .release)),
+                .define("_LIBCPP_DISABLE_AVAILABILITY", to: "1", .when(configuration: .debug)),
+                .define("_LIBCPP_DISABLE_AVAILABILITY", to: "1", .when(configuration: .release)),
             ]
         ),
     ],
