@@ -171,6 +171,8 @@ private:
 
     int renderPassIndex = 999;
 
+    const static int32_t SUBDIVISION_FACTOR_3D_DEFAULT = 2;
+
     bool resetRotationOnInteraction;
 
     struct OutstandingPositionUpdate {

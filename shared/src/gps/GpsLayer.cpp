@@ -517,6 +517,7 @@ void GpsLayer::setupLayerObjects() {
     auto scheduler = mapInterface ? mapInterface->getScheduler() : nullptr;
     auto shaderFactory = mapInterface ? mapInterface->getShaderFactory() : nullptr;
     auto objectFactory = mapInterface ? mapInterface->getGraphicsObjectFactory() : nullptr;
+    auto is3D = mapInterface ? mapInterface->is3d() : false;
     if (!scheduler || !shaderFactory || !objectFactory) {
         return;
     }
@@ -532,6 +533,9 @@ void GpsLayer::setupLayerObjects() {
         }
 
         auto centerQuad = objectFactory->createQuad(centerShader->asShaderProgramInterface());
+        if (is3D) {
+            centerQuad->setSubdivisionFactor(SUBDIVISION_FACTOR_3D_DEFAULT);
+        }
 #if DEBUG
         centerQuad->asGraphicsObject()->setDebugLabel("GpsLayer_centerQuad");
 #endif
@@ -547,6 +551,9 @@ void GpsLayer::setupLayerObjects() {
 #if DEBUG
     accuracyObject->getGraphicsObject()->setDebugLabel("GpsLayer_accuracyObject");
 #endif
+    if (is3D) {
+        accuracyObject->getQuadObject()->setSubdivisionFactor(SUBDIVISION_FACTOR_3D_DEFAULT);
+    }
     accuracyObject->setColor(styleInfo->getAccuracyColor());
     accuracyObject->setPosition(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0), 1.0);
     
@@ -565,6 +572,9 @@ void GpsLayer::setupLayerObjects() {
 #if DEBUG
         headingObject->getGraphicsObject()->setDebugLabel("GpsLayer_headingQuad");
 #endif
+        if (is3D) {
+            headingObject->getQuadObject()->setSubdivisionFactor(SUBDIVISION_FACTOR_3D_DEFAULT);
+        }
     }
     
     // Course
@@ -582,6 +592,9 @@ void GpsLayer::setupLayerObjects() {
 #if DEBUG
         courseObject->getGraphicsObject()->setDebugLabel("GpsLayer_courseObject");
 #endif
+        if (is3D) {
+            courseObject->getQuadObject()->setSubdivisionFactor(SUBDIVISION_FACTOR_3D_DEFAULT);
+        }
     }
 
     auto renderingContext = mapInterface->getRenderingContext();
