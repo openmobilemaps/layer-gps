@@ -127,7 +127,7 @@ private:
     std::atomic<bool> isHidden = false;
 
     std::optional<Coord> position = std::nullopt;
-    double horizontalAccuracyM = 0;
+    double horizontalAccuracyMapUnits = 0;
     float angleHeading = 0;
 
     GpsMode mode = GpsMode::DISABLED;

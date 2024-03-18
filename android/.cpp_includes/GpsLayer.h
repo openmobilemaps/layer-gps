@@ -15,7 +15,7 @@
 #include "GpsLayerCallbackInterface.h"
 #include "SimpleTouchInterface.h"
 #include "CoordinateSystemIdentifiers.h"
-#include "MapCamera2dInterface.h"
+#include "MapCameraInterface.h"
 #include "Textured2dLayerObject.h"
 #include "Circle2dLayerObject.h"
 #include "TextureHolderInterface.h"
@@ -27,7 +27,7 @@
 class GpsLayer : public GpsLayerInterface,
                  public SimpleLayerInterface,
                  public SimpleTouchInterface,
-                 public MapCamera2dListenerInterface,
+                 public MapCameraListenerInterface,
                  public std::enable_shared_from_this<GpsLayer> {
 public:
     GpsLayer(const /*not-null*/ std::shared_ptr<GpsStyleInfoInterface> & styleInfo);
@@ -108,6 +108,8 @@ public:
 
     void onMapInteraction() override;
 
+    void onCameraChange(const std::vector<float> & viewMatrix, const std::vector<float> & projectionMatrix, float verticalFov, float horizontalFov, float width, float height, float focusPointAltitude) override {};
+
 private:
     virtual void updatePosition(const Coord &position, double horizontalAccuracyM, bool isInitialFollow);
 
@@ -125,7 +127,7 @@ private:
     std::atomic<bool> isHidden = false;
 
     std::optional<Coord> position = std::nullopt;
-    double horizontalAccuracyM = 0;
+    double horizontalAccuracyMapUnits = 0;
     float angleHeading = 0;
 
     GpsMode mode = GpsMode::DISABLED;
@@ -168,6 +170,8 @@ private:
     double accRotation = 0.0;
 
     int renderPassIndex = 999;
+
+    const static int32_t SUBDIVISION_FACTOR_3D_DEFAULT = 2;
 
     bool resetRotationOnInteraction;
 

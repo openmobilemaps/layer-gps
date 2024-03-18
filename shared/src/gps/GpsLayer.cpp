@@ -62,7 +62,7 @@ void GpsLayer::setModeWithRotationReset(GpsMode mode, bool resetRotation) {
             followModeEnabled = true;
             rotationModeEnabled = false;
             if (positionValid && position) {
-                updatePosition(*position, horizontalAccuracyM, isInitialFollow);
+                updatePosition(*position, horizontalAccuracyMapUnits, isInitialFollow);
             }
             break;
         }
@@ -71,7 +71,7 @@ void GpsLayer::setModeWithRotationReset(GpsMode mode, bool resetRotation) {
             followModeEnabled = true;
             rotationModeEnabled = true;
             if (positionValid && position) {
-                updatePosition(*position, horizontalAccuracyM, isInitialFollow);
+                updatePosition(*position, horizontalAccuracyMapUnits, isInitialFollow);
                 updateHeading(angleHeading);
             }
             break;
@@ -129,7 +129,7 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM,
     }
 
     this->position = newPosition;
-    this->horizontalAccuracyM = horizontalAccuracyM;
+    this->horizontalAccuracyMapUnits = horizontalAccuracyM * mapInterface->getMapConfig().mapCoordinateSystem.unitToScreenMeterFactor;
 
     // only invalidate if the position is visible
     // if we are in follow or follow and turn mode the invalidation is triggered by the camera movement
@@ -291,7 +291,7 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
     }
 
     std::vector<float> const &scaleInvariantModelMatrix = computeModelMatrix(true, 1.0, false, false);
-    std::vector<float> const &accuracyModelMatrix = computeModelMatrix(false, horizontalAccuracyM, false, false);
+    std::vector<float> const &accuracyModelMatrix = computeModelMatrix(false, horizontalAccuracyMapUnits, false, false);
     std::vector<float> const &courseModelMatrix = computeModelMatrix(true, courseScaling, false, true);
 
     std::map<int, std::vector<std::shared_ptr<RenderObjectInterface>>> renderPassObjectMap;
@@ -774,7 +774,7 @@ void GpsLayer::resetAccInteraction() {
     }
     if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
         if (positionValid && position) {
-            updatePosition(*position, horizontalAccuracyM, false);
+            updatePosition(*position, horizontalAccuracyMapUnits, false);
         }
     }
     if (mode == GpsMode::FOLLOW_AND_TURN) {
