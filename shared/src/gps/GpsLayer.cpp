@@ -316,7 +316,7 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
     }
 
     if (centerObject && drawCenterObjectEnabled) {
-        auto const &centerObjectModelMatrix = pointRotationInvariantEnabled ? computeModelMatrix(true, 1.0, pointRotationInvariantEnabled, false) : scaleInvariantModelMatrix;
+        auto const &centerObjectModelMatrix = pointRotationInvariantEnabled ? computeModelMatrix(true, 10000.0, pointRotationInvariantEnabled, false) : scaleInvariantModelMatrix;
         for (const auto &config : centerObject->getRenderConfig()) {
             renderPassObjectMap[config->getRenderIndex()].push_back(
                     std::make_shared<RenderObject>(config->getGraphicsObject(), centerObjectModelMatrix));
@@ -622,20 +622,29 @@ void GpsLayer::setupLayerObjects() {
     mapInterface->invalidate();
 }
 
-std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant, bool useCourseAngle) {
+std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double objectScaling, bool rotationInvariant, bool useCourseAngle) {
     auto lockSelfPtr = shared_from_this();
     auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
     auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
+    auto conversionHelper = mapInterface ? mapInterface->getCoordinateConverterHelper() : nullptr;
 
     std::vector<float> newMatrix(16, 0);
     Matrix::setIdentityM(newMatrix, 0);
 
-    if (!camera) {
+    if (!camera || !conversionHelper || !position) {
         return newMatrix;
     }
 
-    double scaleFactor = scaleInvariant ? camera->mapUnitsFromPixels(1) * objectScaling : objectScaling;
-    Matrix::scaleM(newMatrix, 0.0, scaleFactor, scaleFactor, 1.0);
+    bool is3D = mapInterface->is3d();
+
+    float horizontalScaleFactor = 1.0;
+    if (is3D) {
+        const Coord origIconPosRender = conversionHelper->convertToRenderSystem(*position);
+        horizontalScaleFactor = 1.0 / abs(cos(origIconPosRender.y + (M_PI / 2.0)));
+    }
+
+    double scaleFactor = scaleInvariant ? camera->mapUnitsFromPixels(1.0) * objectScaling : objectScaling;
+    Matrix::scaleM(newMatrix, 0.0, scaleFactor * horizontalScaleFactor, scaleFactor, 1.0);
 
     if (rotationInvariant) {
         Matrix::rotateM(newMatrix, 0.0, -camera->getRotation(), 0.0, 0.0, 1.0);
@@ -645,10 +654,6 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
         } else {
             Matrix::rotateM(newMatrix, 0.0, -angleHeading, 0.0, 0.0, 1.0);
         }
-    }
-
-    if (!position) {
-        return newMatrix;
     }
 
     Coord renderCoord = mapInterface ? mapInterface->getCoordinateConverterHelper()->convertToRenderSystem(*position) :

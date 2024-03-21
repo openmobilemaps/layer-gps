@@ -118,7 +118,7 @@ private:
 
     virtual void setupLayerObjects();
 
-    virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant, bool useCourseAngle);
+    virtual std::vector<float> computeModelMatrix(bool scaleInvariant, double objectScaling, bool rotationInvariant, bool useCourseAngle);
 
     virtual void resetAccInteraction();
 
