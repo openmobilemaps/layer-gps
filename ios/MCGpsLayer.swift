@@ -13,7 +13,7 @@ import MapCore
 import Foundation
 import UIKit
 
-public class MCGpsLayer: NSObject, Layer {
+public class MCGpsLayer: NSObject {
     open private(set) var nativeLayer: MCGpsLayerInterface!
 
     private var callbackHandler = MCGpsCallbackHandler()
