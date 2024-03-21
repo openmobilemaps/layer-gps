@@ -16,6 +16,8 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import io.openmobilemaps.gps.util.SingletonHolder
+import io.openmobilemaps.mapscore.shared.map.coordinates.Coord
+import io.openmobilemaps.mapscore.shared.map.coordinates.CoordinateSystemIdentifiers
 import java.util.*
 
 @SuppressLint("MissingPermission")
@@ -25,9 +27,11 @@ internal class GpsOnlyLocationProvider private constructor(context: Context) : L
 
 	private val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 	private val locationUpdateListeners: MutableSet<LocationUpdateListener> = HashSet()
+	private var lastLocation: Location? = null
 
 	private val locationChangeListener: LocationListener = object : LocationListenerAdapter() {
 		override fun onLocationChanged(location: Location) {
+			lastLocation = location
 			locationUpdateListeners.forEach {
 				it.onLocationUpdate(location)
 			}
@@ -62,4 +66,7 @@ internal class GpsOnlyLocationProvider private constructor(context: Context) : L
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, shortestInterval, 0f, locationChangeListener)
 	}
 
+	override fun getLastLocation(): Coord? {
+		return lastLocation?.let { Coord(CoordinateSystemIdentifiers.EPSG4326(), it.longitude, it.latitude, it.altitude) }
+	}
 }

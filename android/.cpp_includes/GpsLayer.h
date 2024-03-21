@@ -108,7 +108,7 @@ public:
 
     void onMapInteraction() override;
 
-    void onCameraChange(const std::vector<float> & viewMatrix, const std::vector<float> & projectionMatrix, float verticalFov, float horizontalFov, float width, float height, float focusPointAltitude) override {};
+    void onCameraChange(const std::vector<float> & viewMatrix, const std::vector<float> & projectionMatrix, float verticalFov, float horizontalFov, float width, float height, float focusPointAltitude, const ::Coord & focusPointPosition) override {};
 
 private:
     virtual void updatePosition(const Coord &position, double horizontalAccuracyM, bool isInitialFollow);
