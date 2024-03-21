@@ -316,7 +316,7 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
     }
 
     if (centerObject && drawCenterObjectEnabled) {
-        auto const &centerObjectModelMatrix = pointRotationInvariantEnabled ? computeModelMatrix(true, 10000.0, pointRotationInvariantEnabled, false) : scaleInvariantModelMatrix;
+        auto const &centerObjectModelMatrix = pointRotationInvariantEnabled ? computeModelMatrix(true, 1.0, pointRotationInvariantEnabled, false) : scaleInvariantModelMatrix;
         for (const auto &config : centerObject->getRenderConfig()) {
             renderPassObjectMap[config->getRenderIndex()].push_back(
                     std::make_shared<RenderObject>(config->getGraphicsObject(), centerObjectModelMatrix));
@@ -553,10 +553,12 @@ void GpsLayer::setupLayerObjects() {
 #endif
     if (is3D) {
         accuracyObject->getQuadObject()->setSubdivisionFactor(SUBDIVISION_FACTOR_3D_DEFAULT);
+        accuracyObject->setPosition(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 1.0), 1.0);
+    } else {
+        accuracyObject->setPosition(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0), 1.0);
     }
     accuracyObject->setColor(styleInfo->getAccuracyColor());
-    accuracyObject->setPosition(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0), 1.0);
-    
+
     // Heading
     auto textureHeading = styleInfo->getHeadingTexture();
     if (textureHeading) {
