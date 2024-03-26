@@ -2,16 +2,17 @@ import CoreLocation
 import UIKit
 import UBLocation
 
-private var binder: LocationManagerLayerBinder?
+private var binders: [LocationManagerLayerBinder] = []
+private let bindersQueue = DispatchQueue(label: "ch.layergps.ublocationbindersQueue")
 
 public extension UBLocationManager {
     func bindTo(layer: MCGpsLayer, canAskForPermission: Bool = false) {
-        binder = LocationManagerLayerBinder(layer: layer)
-
-        guard let binder = binder else {
-            return
+        let binder = LocationManagerLayerBinder(layer: layer)
+        
+        bindersQueue.sync {
+            binders.append(binder)
         }
-
+        
         startLocationMonitoring(for: [.location(background: false), .heading(background: false)],
                                 delegate: binder,
                                 canAskForPermission: canAskForPermission)
