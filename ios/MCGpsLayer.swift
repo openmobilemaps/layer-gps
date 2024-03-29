@@ -32,8 +32,10 @@ public class MCGpsLayer: NSObject {
 
     public init(style: MCGpsStyleInfoInterface = .defaultStyle,
                 canAskForPermission: Bool = true,
-                nativeLayerProvider: ((MCGpsStyleInfoInterface) -> MCGpsLayerInterface?) = MCGpsLayerInterface.create) {
+                nativeLayerProvider: ((MCGpsStyleInfoInterface) -> MCGpsLayerInterface?) = MCGpsLayerInterface.create,
+                layerIndex: Int? = nil) {
         nativeLayer = nativeLayerProvider(style)
+        self.layerIndex = layerIndex
 
         super.init()
 
@@ -55,6 +57,8 @@ public class MCGpsLayer: NSObject {
     public var interface: MCLayerInterface? {
         return nativeLayer?.asLayerInterface()
     }
+
+    public var layerIndex: Int?
 }
 
 #if canImport(SwiftUI)
