@@ -37,7 +37,7 @@ Once you have your Swift package set up, adding Open Mobile Maps as a dependency
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/openmobilemaps/layer-gps.git", .upToNextMajor(from: "2.0.5"))
+    .package(url: "https://github.com/openmobilemaps/layer-gps.git", .upToNextMajor(from: "2.0.6"))
 ]
 ```
 
