@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/openmobilemaps/maps-core.git",
         "state": {
           "branch": null,
-          "revision": "1c9d34f356b5b0247bddb8d6077d6fbdef4c74c4",
-          "version": "2.0.8"
+          "revision": "080fc23ae4738e008e8a6d9917634fe2b1440fbe",
+          "version": "2.1.0"
         }
       },
       {
