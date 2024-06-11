@@ -20,9 +20,9 @@ buildscript {
 		agp_version = "8.1.4"
 		kotlin_version = "1.9.20"
 
-		ubiqueUrl = System.getenv('UBIQUE_ARTIFACTORY_URL') ?: readPropertyWithDefault('ubiqueArtifactoryUrl', '')
-		ubiqueUser = System.getenv('UBIQUE_ARTIFACTORY_USER') ?: readPropertyWithDefault('ubiqueArtifactoryUser', '')
-		ubiquePass = System.getenv('UBIQUE_ARTIFACTORY_PASS') ?: readPropertyWithDefault('ubiqueArtifactoryPass', '')
+		ubiqueUrl = System.getenv('UB_ARTIFACTORY_URL_ANDROID') ?: readPropertyWithDefault('ubiqueMavenUrl', '')
+		ubiqueUser = System.getenv('UB_ARTIFACTORY_USERNAME') ?: readPropertyWithDefault('ubiqueMavenUser', '')
+		ubiquePass = System.getenv('UB_ARTIFACTORY_PASSWORD') ?: readPropertyWithDefault('ubiqueMavenPass', '')
 		ubiqueMaven = {
 			url = ubiqueUrl
 			credentials {
@@ -195,7 +195,7 @@ dependencies {
 	implementation 'androidx.core:core-ktx:1.12.0'
 	implementation 'com.google.android.gms:play-services-location:21.1.0'
 
-	api 'io.openmobilemaps:mapscore:2.1.0'
+	api 'io.openmobilemaps:mapscore:2.2.0'
 	implementation "ch.ubique.android:djinni-support-lib:1.0.7"
 
 	testImplementation 'junit:junit:4.13.2'
