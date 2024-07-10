@@ -428,6 +428,9 @@ bool GpsLayer::onClickConfirmed(const Vec2F &posScreen) {
 
     if (callbackHandler && mapInterface && position) {
         Coord clickCoords = camera->coordFromScreenPosition(posScreen);
+        if (clickCoords.systemIdentifier == -1 && clickCoords.x == 0 && clickCoords.y == 0  && clickCoords.z == 0 &&  mapInterface->is3d()) {
+            return false;
+        }
 
         double angle = -(camera->getRotation() * M_PI / 180.0);
         double sinAng = std::sin(angle);
