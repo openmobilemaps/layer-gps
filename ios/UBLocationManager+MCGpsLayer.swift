@@ -57,6 +57,7 @@ extension LocationManagerLayerBinder: UBLocationManagerDelegate {
         layer?.setMode(.DISABLED)
     }
 
+#if !os(visionOS)
     public func locationManager(_: UBLocationManager, didUpdateHeading newHeading: CLHeading) {
         var h = Float(newHeading.trueHeading)
 
@@ -71,4 +72,5 @@ extension LocationManagerLayerBinder: UBLocationManagerDelegate {
 
         layer?.nativeLayer.updateHeading(h)
     }
+#endif
 }
