@@ -55,11 +55,11 @@ let package = Package(
                 .product(name: "MapCoreSharedModuleCpp", package: "maps-core"),
             ],
             path: "shared",
-            sources: ["src"],
+            sources: ["src", "public"],
             publicHeadersPath: "public",
             cxxSettings: [
-                .headerSearchPath("**"),
                 .headerSearchPath("public"),
+                .headerSearchPath("src"),
                 .headerSearchPath("src/gps"),
             ]
         ),
