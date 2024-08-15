@@ -1,5 +1,10 @@
 # Changelog for Open Mobile Maps
 
+## Version 2.4.0 
+- Update and adjust to [mapscore 2.4.0](https://github.com/openmobilemaps/maps-core/releases/tag/2.4.0)
+- Update AGP and Kotlin versions for Android
+- Fix of iOS include path
+
 ## Version 2.3.0 
 - Update and adjust to [mapscore 2.3.0](https://github.com/openmobilemaps/maps-core/releases/tag/2.3.0)
 

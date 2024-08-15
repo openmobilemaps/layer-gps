@@ -23,7 +23,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/openmobilemaps/maps-core.git", from: "2.3.0"),
+        .package(url: "https://github.com/openmobilemaps/maps-core.git", from: "2.4.0"),
         .package(url: "https://github.com/UbiqueInnovation/ubkit-ios", from: "1.8.1"),
     ],
     targets: [
@@ -55,11 +55,11 @@ let package = Package(
                 .product(name: "MapCoreSharedModuleCpp", package: "maps-core"),
             ],
             path: "shared",
-            sources: ["src"],
+            sources: ["src", "public"],
             publicHeadersPath: "public",
             cxxSettings: [
-                .headerSearchPath("**"),
                 .headerSearchPath("public"),
+                .headerSearchPath("src"),
                 .headerSearchPath("src/gps"),
             ]
         ),
