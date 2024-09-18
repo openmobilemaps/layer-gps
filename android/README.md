@@ -36,7 +36,7 @@ This module is designed to be used together with Open Mobile Maps maps-core.
 To add the OpenSwissMaps SDK to your Android project, add the following line to your build.gradle
 
 ```groovy
-implementation 'io.openmobilemaps:layer-gps:2.5.0'
+implementation 'io.openmobilemaps:layer-gps:2.5.1'
 ```
 
 Make sure you have mavenCentral() listed in your project repositories. 
