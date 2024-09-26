@@ -5,8 +5,7 @@ import PackageDescription
 let package = Package(
     name: "LayerGps",
     platforms: [
-        .iOS(.v11),
-        .macOS(.v10_13)
+        .iOS(.v14)
     ],
     products: [
         .library(
@@ -23,7 +22,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/openmobilemaps/maps-core.git", from: "2.5.1"),
+        .package(url: "https://github.com/openmobilemaps/maps-core.git", from: "2.6.0"),
         .package(url: "https://github.com/UbiqueInnovation/ubkit-ios", from: "1.8.1"),
     ],
     targets: [
