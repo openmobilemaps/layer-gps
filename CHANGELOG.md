@@ -1,5 +1,9 @@
 # Changelog for Open Mobile Maps
 
+## Version 2.6.1
+- Update and adjust to [mapscore 2.6.1](https://github.com/openmobilemaps/maps-core/releases/tag/2.6.1)
+- Update to AGP 8.6.1 and Kotlin 2.0.20
+
 ## Version 2.6.0
 - Update and adjust to [mapscore 2.6.0](https://github.com/openmobilemaps/maps-core/releases/tag/2.6.0)
 - Increases Deployment target to iOS 14
