@@ -1,5 +1,8 @@
 # Changelog for Open Mobile Maps
 
+## Version 2.6.2
+- Update and adjust to [mapscore 2.6.2](https://github.com/openmobilemaps/maps-core/releases/tag/2.6.2)
+
 ## Version 2.6.1
 - Update and adjust to [mapscore 2.6.1](https://github.com/openmobilemaps/maps-core/releases/tag/2.6.1)
 - Update to AGP 8.6.1 and Kotlin 2.0.20

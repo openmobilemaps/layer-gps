@@ -55,9 +55,9 @@ public class MCGpsLayer: NSObject {
 
 public extension MCGpsStyleInfoInterface {
     static var defaultStyle: MCGpsStyleInfoInterface {
-        guard let pointImage = UIImage(named: "ic_gps_point", in: Bundle.module, compatibleWith: nil)!.cgImage,
+        guard let pointImage = UIImage(resource: .icGpsPoint).cgImage,
               let pointTexture = try? TextureHolder(pointImage),
-              let headingImage = UIImage(named: "ic_gps_direction", in: Bundle.module, compatibleWith: nil)!.cgImage,
+              let headingImage = UIImage(resource: .icGpsDirection).cgImage,
               let headingTexture = try? TextureHolder(headingImage) else {
             fatalError("gps style assets not found")
         }
