@@ -12,6 +12,7 @@
 import MapCore
 import Foundation
 import UIKit
+import SwiftUI
 
 public class MCGpsLayer: NSObject, @unchecked Sendable {
     open private(set) var nativeLayer: MCGpsLayerInterface!
@@ -61,9 +62,6 @@ public class MCGpsLayer: NSObject, @unchecked Sendable {
     public var layerIndex: Int?
 }
 
-import SwiftUI
-
-@available(iOS 13.0, *)
 extension MCGpsLayer: Layer, ObservableObject {}
 
 public extension MCGpsStyleInfoInterface {
