@@ -141,9 +141,8 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM,
 
 void GpsLayer::updateHeading(float angleHeading) {
     auto lockSelfPtr = shared_from_this();
-    auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
-    auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
-    if (!camera) return;
+    if (!lockSelfPtr) return;
+
 
     headingValid = true;
     double currentAngle = fmod(this->angleHeading, 360.0);
@@ -153,6 +152,13 @@ void GpsLayer::updateHeading(float angleHeading) {
         newAngle += 360.0;
     } else if (abs(currentAngle - newAngle) > abs(currentAngle - (newAngle - 360.0))) {
         newAngle -= 360.0;
+    }
+
+    auto mapInterface = lockSelfPtr->mapInterface;
+    auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
+    if (!camera) {
+        this->angleHeading = fmod(newAngle + 360.0f, 360.0f);
+        return;
     }
 
     //do not constantly render frames for small heading adjustments
@@ -508,10 +514,10 @@ void GpsLayer::resetParameters() {
 QuadCoord GpsLayer::getQuadCoord(std::shared_ptr<TextureHolderInterface> texture) {
     float hWidth = texture->getImageWidth() * 0.5f;
     float hHeight = texture->getImageHeight() * 0.5f;
-    return QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, +hHeight, 1.0),
-                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, +hHeight, 1.0),
-                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, -hHeight, 1.0),
-                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, -hHeight, 1.0));
+    return QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, +hHeight, 0.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, +hHeight, 0.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, -hHeight, 0.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, -hHeight, 0.0));
 }
 
 void GpsLayer::setupLayerObjects() {
