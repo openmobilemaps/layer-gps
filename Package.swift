@@ -6,7 +6,7 @@ let package = Package(
     name: "LayerGps",
     platforms: [
         .iOS(.v14),
-        .macOS(.v10_13)
+        .macOS(.v10_14),
     ],
     products: [
         .library(
