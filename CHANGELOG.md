@@ -1,5 +1,8 @@
 # Changelog for Open Mobile Maps
 
+## Version 3.0.0
+- Update and adjust to [mapscore 3.0.0-rc.1](https://github.com/openmobilemaps/maps-core/releases/tag/3.0.0-rc.1) including support for 3d globe rendering
+
 ## Version 2.6.2
 - Update and adjust to [mapscore 2.6.2](https://github.com/openmobilemaps/maps-core/releases/tag/2.6.2)
 

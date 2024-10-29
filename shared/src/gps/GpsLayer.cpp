@@ -62,7 +62,7 @@ void GpsLayer::setModeWithRotationReset(GpsMode mode, bool resetRotation) {
             followModeEnabled = true;
             rotationModeEnabled = false;
             if (positionValid && position) {
-                updatePosition(*position, horizontalAccuracyM, isInitialFollow);
+                updatePosition(*position, horizontalAccuracyMapUnits, isInitialFollow);
             }
             break;
         }
@@ -71,7 +71,7 @@ void GpsLayer::setModeWithRotationReset(GpsMode mode, bool resetRotation) {
             followModeEnabled = true;
             rotationModeEnabled = true;
             if (positionValid && position) {
-                updatePosition(*position, horizontalAccuracyM, isInitialFollow);
+                updatePosition(*position, horizontalAccuracyMapUnits, isInitialFollow);
                 updateHeading(angleHeading);
             }
             break;
@@ -129,7 +129,7 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM,
     }
 
     this->position = newPosition;
-    this->horizontalAccuracyM = horizontalAccuracyM;
+    this->horizontalAccuracyMapUnits = horizontalAccuracyM * mapInterface->getMapConfig().mapCoordinateSystem.unitToScreenMeterFactor;
 
     // only invalidate if the position is visible
     // if we are in follow or follow and turn mode the invalidation is triggered by the camera movement
@@ -141,9 +141,8 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM,
 
 void GpsLayer::updateHeading(float angleHeading) {
     auto lockSelfPtr = shared_from_this();
-    auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
-    auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
-    if (!camera) return;
+    if (!lockSelfPtr) return;
+
 
     headingValid = true;
     double currentAngle = fmod(this->angleHeading, 360.0);
@@ -153,6 +152,13 @@ void GpsLayer::updateHeading(float angleHeading) {
         newAngle += 360.0;
     } else if (abs(currentAngle - newAngle) > abs(currentAngle - (newAngle - 360.0))) {
         newAngle -= 360.0;
+    }
+
+    auto mapInterface = lockSelfPtr->mapInterface;
+    auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
+    if (!camera) {
+        this->angleHeading = fmod(newAngle + 360.0f, 360.0f);
+        return;
     }
 
     //do not constantly render frames for small heading adjustments
@@ -291,7 +297,7 @@ std::vector<std::shared_ptr<::RenderPassInterface>> GpsLayer::buildRenderPasses(
     }
 
     std::vector<float> const &scaleInvariantModelMatrix = computeModelMatrix(true, 1.0, false, false);
-    std::vector<float> const &accuracyModelMatrix = computeModelMatrix(false, horizontalAccuracyM, false, false);
+    std::vector<float> const &accuracyModelMatrix = computeModelMatrix(false, horizontalAccuracyMapUnits, false, false);
     std::vector<float> const &courseModelMatrix = computeModelMatrix(true, courseScaling, false, true);
 
     std::map<int, std::vector<std::shared_ptr<RenderObjectInterface>>> renderPassObjectMap;
@@ -428,6 +434,9 @@ bool GpsLayer::onClickConfirmed(const Vec2F &posScreen) {
 
     if (callbackHandler && mapInterface && position) {
         Coord clickCoords = camera->coordFromScreenPosition(posScreen);
+        if (clickCoords.systemIdentifier == -1 && clickCoords.x == 0 && clickCoords.y == 0  && clickCoords.z == 0 &&  mapInterface->is3d()) {
+            return false;
+        }
 
         double angle = -(camera->getRotation() * M_PI / 180.0);
         double sinAng = std::sin(angle);
@@ -505,10 +514,10 @@ void GpsLayer::resetParameters() {
 QuadCoord GpsLayer::getQuadCoord(std::shared_ptr<TextureHolderInterface> texture) {
     float hWidth = texture->getImageWidth() * 0.5f;
     float hHeight = texture->getImageHeight() * 0.5f;
-    return QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, -hHeight, 0.0),
-                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, -hHeight, 0.0),
+    return QuadCoord(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, +hHeight, 0.0),
                      Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, +hHeight, 0.0),
-                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, +hHeight, 0.0));
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), +hWidth, -hHeight, 0.0),
+                     Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), -hWidth, -hHeight, 0.0));
 }
 
 void GpsLayer::setupLayerObjects() {
@@ -517,6 +526,7 @@ void GpsLayer::setupLayerObjects() {
     auto scheduler = mapInterface ? mapInterface->getScheduler() : nullptr;
     auto shaderFactory = mapInterface ? mapInterface->getShaderFactory() : nullptr;
     auto objectFactory = mapInterface ? mapInterface->getGraphicsObjectFactory() : nullptr;
+    auto is3D = mapInterface ? mapInterface->is3d() : false;
     if (!scheduler || !shaderFactory || !objectFactory) {
         return;
     }
@@ -524,9 +534,21 @@ void GpsLayer::setupLayerObjects() {
     // Center
     auto textureCenter = styleInfo->getPointTexture();
     if (textureCenter) {
-        auto centerShader = shaderFactory->createAlphaShader();
+        std::shared_ptr<AlphaShaderInterface> centerShader;
+        if (mapInterface->is3d()) {
+            centerShader = shaderFactory->createUnitSphereAlphaShader();
+        } else {
+            centerShader = shaderFactory->createAlphaShader();
+        }
+
         auto centerQuad = objectFactory->createQuad(centerShader->asShaderProgramInterface());
-        centerObject = std::make_shared<Textured2dLayerObject>(centerQuad, centerShader, mapInterface);
+        if (is3D) {
+            centerQuad->setSubdivisionFactor(SUBDIVISION_FACTOR_3D_DEFAULT);
+        }
+#if DEBUG
+        centerQuad->asGraphicsObject()->setDebugLabel("GpsLayer_centerQuad");
+#endif
+        centerObject = std::make_shared<Textured2dLayerObject>(centerQuad, centerShader, mapInterface, mapInterface->is3d());
         centerObject->setPositions(getQuadCoord(textureCenter));
 
         pointWidth = textureCenter->getImageWidth();
@@ -535,25 +557,55 @@ void GpsLayer::setupLayerObjects() {
     
     // Accuracy
     accuracyObject = std::make_shared<Circle2dLayerObject>(mapInterface);
+#if DEBUG
+    accuracyObject->getGraphicsObject()->setDebugLabel("GpsLayer_accuracyObject");
+#endif
+    if (is3D) {
+        accuracyObject->getQuadObject()->setSubdivisionFactor(SUBDIVISION_FACTOR_3D_DEFAULT);
+        accuracyObject->setPosition(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 1.0), 1.0);
+    } else {
+        accuracyObject->setPosition(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0), 1.0);
+    }
     accuracyObject->setColor(styleInfo->getAccuracyColor());
-    accuracyObject->setPosition(Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0), 1.0);
-    
+
     // Heading
     auto textureHeading = styleInfo->getHeadingTexture();
     if (textureHeading) {
-        auto headingShader = shaderFactory->createAlphaShader();
+        std::shared_ptr<AlphaShaderInterface> headingShader;
+        if (mapInterface->is3d()) {
+            headingShader = shaderFactory->createUnitSphereAlphaShader();
+        } else {
+            headingShader = shaderFactory->createAlphaShader();
+        }
         auto headingQuad = objectFactory->createQuad(headingShader->asShaderProgramInterface());
-        headingObject = std::make_shared<Textured2dLayerObject>(headingQuad, headingShader, mapInterface);
+        headingObject = std::make_shared<Textured2dLayerObject>(headingQuad, headingShader, mapInterface, mapInterface->is3d());
         headingObject->setPositions(getQuadCoord(textureHeading));
+#if DEBUG
+        headingObject->getGraphicsObject()->setDebugLabel("GpsLayer_headingQuad");
+#endif
+        if (is3D) {
+            headingObject->getQuadObject()->setSubdivisionFactor(SUBDIVISION_FACTOR_3D_DEFAULT);
+        }
     }
     
     // Course
     auto textureCourse = styleInfo->getCourseTexture();
     if (textureCourse) {
-        auto courseShader = shaderFactory->createAlphaShader();
+        std::shared_ptr<AlphaShaderInterface> courseShader;
+        if (mapInterface->is3d()) {
+            courseShader = shaderFactory->createUnitSphereAlphaShader();
+        } else {
+            courseShader = shaderFactory->createAlphaShader();
+        }
         auto courseQuad = objectFactory->createQuad(courseShader->asShaderProgramInterface());
-        courseObject = std::make_shared<Textured2dLayerObject>(courseQuad, courseShader, mapInterface);
+        courseObject = std::make_shared<Textured2dLayerObject>(courseQuad, courseShader, mapInterface, mapInterface->is3d());
         courseObject->setPositions(getQuadCoord(textureCourse));
+#if DEBUG
+        courseObject->getGraphicsObject()->setDebugLabel("GpsLayer_courseObject");
+#endif
+        if (is3D) {
+            courseObject->getQuadObject()->setSubdivisionFactor(SUBDIVISION_FACTOR_3D_DEFAULT);
+        }
     }
 
     auto renderingContext = mapInterface->getRenderingContext();
@@ -581,20 +633,29 @@ void GpsLayer::setupLayerObjects() {
     mapInterface->invalidate();
 }
 
-std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double objectScaling, double rotationInvariant, bool useCourseAngle) {
+std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double objectScaling, bool rotationInvariant, bool useCourseAngle) {
     auto lockSelfPtr = shared_from_this();
     auto mapInterface = lockSelfPtr ? lockSelfPtr->mapInterface : nullptr;
     auto camera = mapInterface ? mapInterface->getCamera() : nullptr;
+    auto conversionHelper = mapInterface ? mapInterface->getCoordinateConverterHelper() : nullptr;
 
     std::vector<float> newMatrix(16, 0);
     Matrix::setIdentityM(newMatrix, 0);
 
-    if (!camera) {
+    if (!camera || !conversionHelper || !position) {
         return newMatrix;
     }
 
-    double scaleFactor = scaleInvariant ? camera->mapUnitsFromPixels(1) * objectScaling : objectScaling;
-    Matrix::scaleM(newMatrix, 0.0, scaleFactor, scaleFactor, 1.0);
+    bool is3D = mapInterface->is3d();
+
+    float horizontalScaleFactor = 1.0;
+    if (is3D) {
+        const Coord origIconPosRender = conversionHelper->convertToRenderSystem(*position);
+        horizontalScaleFactor = 1.0 / abs(cos(origIconPosRender.y + (M_PI / 2.0)));
+    }
+
+    double scaleFactor = scaleInvariant ? camera->mapUnitsFromPixels(1.0) * objectScaling : objectScaling;
+    Matrix::scaleM(newMatrix, 0.0, scaleFactor * horizontalScaleFactor, scaleFactor, 1.0);
 
     if (rotationInvariant) {
         Matrix::rotateM(newMatrix, 0.0, -camera->getRotation(), 0.0, 0.0, 1.0);
@@ -604,10 +665,6 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
         } else {
             Matrix::rotateM(newMatrix, 0.0, -angleHeading, 0.0, 0.0, 1.0);
         }
-    }
-
-    if (!position) {
-        return newMatrix;
     }
 
     Coord renderCoord = mapInterface ? mapInterface->getCoordinateConverterHelper()->convertToRenderSystem(*position) :
@@ -733,7 +790,7 @@ void GpsLayer::resetAccInteraction() {
     }
     if (mode == GpsMode::FOLLOW || mode == GpsMode::FOLLOW_AND_TURN) {
         if (positionValid && position) {
-            updatePosition(*position, horizontalAccuracyM, false);
+            updatePosition(*position, horizontalAccuracyMapUnits, false);
         }
     }
     if (mode == GpsMode::FOLLOW_AND_TURN) {

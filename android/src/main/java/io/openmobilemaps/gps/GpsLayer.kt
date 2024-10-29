@@ -134,6 +134,10 @@ class GpsLayer(
 		requireLayerInterface().setFollowInitializeZoom(zoom)
 	}
 
+	fun setRenderPassIndex(index: Int) {
+		requireLayerInterface().setRenderPassIndex(index)
+	}
+
 	fun changeProviderType(context: Context, gpsProviderType: GpsProviderType) {
 		locationProvider?.unregisterLocationUpdateListener(this)
 		val locationProvider = gpsProviderType.getProvider(context)

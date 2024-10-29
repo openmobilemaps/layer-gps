@@ -17,6 +17,8 @@ import android.os.Looper
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
 import io.openmobilemaps.gps.util.SingletonHolder
+import io.openmobilemaps.mapscore.shared.map.coordinates.Coord
+import io.openmobilemaps.mapscore.shared.map.coordinates.CoordinateSystemIdentifiers
 
 class GoogleFusedLocationProvider private constructor(context: Context) : LocationProviderInterface {
 
@@ -30,7 +32,7 @@ class GoogleFusedLocationProvider private constructor(context: Context) : Locati
 	private val locationCallback: LocationCallback
 	private val locationRequest: LocationRequest
 	private val locationUpdateListeners: MutableSet<LocationUpdateListener> = HashSet()
-	private var lastKnownLocation: Location? = null
+	private var lastLocation: Location? = null
 
 	init {
 		locationRequest = LocationRequest.create()
@@ -39,8 +41,8 @@ class GoogleFusedLocationProvider private constructor(context: Context) : Locati
 		locationRequest.fastestInterval = DEFAULT_FASTEST_INTERVAL
 		locationCallback = object : LocationCallback() {
 			override fun onLocationResult(locationResult: LocationResult) {
-				lastKnownLocation = locationResult.lastLocation
-				publishLocationUpdate(lastKnownLocation)
+				lastLocation = locationResult.lastLocation
+				publishLocationUpdate(lastLocation)
 			}
 		}
 		fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -104,6 +106,7 @@ class GoogleFusedLocationProvider private constructor(context: Context) : Locati
 	}
 
 	private fun publishLocationUpdate(location: Location?) {
+		lastLocation = location
 		location?.let {
 			locationUpdateListeners.forEach { listener ->
 				listener.onLocationUpdate(it)
@@ -111,4 +114,7 @@ class GoogleFusedLocationProvider private constructor(context: Context) : Locati
 		}
 	}
 
+	override fun getLastLocation(): Coord? {
+		return lastLocation?.let { Coord(CoordinateSystemIdentifiers.EPSG4326(), it.longitude, it.latitude, it.altitude) }
+	}
 }
