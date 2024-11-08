@@ -68,7 +68,7 @@ extension LocationManagerLayerBinder: UBLocationManagerDelegate {
         // position might have been set to disabled after error
         if let originalMode {
             layer?.setMode(originalMode)
-            originalMode = nil
+            self.originalMode = nil
         }
 
         layer?.nativeLayer.updatePosition(
