@@ -19,10 +19,7 @@ extension UBLocationManager {
             delegate: binder,
             canAskForPermission: canAskForPermission)
 
-        if let originalMode = binder.originalMode {
-            layer.setMode(originalMode)
-            binder.originalMode = nil
-        }
+        layer.setMode(.STANDARD)
     }
 }
 
