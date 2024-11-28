@@ -24,7 +24,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/openmobilemaps/maps-core", from: .init(stringLiteral: "3.0.0-rc.2")),
-        .package(url: "https://github.com/UbiqueInnovation/ubkit-ios", .upToNextMinor(from: "1.12.5")),
+        .package(url: "https://github.com/UbiqueInnovation/ubkit-ios", .upToNextMinor(from: "2.0.0")),
     ],
     targets: [
         .target(
@@ -52,7 +52,7 @@ let package = Package(
         .target(
             name: "LayerGpsSharedModuleCpp",
             dependencies: [
-                .product(name: "MapCoreSharedModuleCpp", package: "maps-core"),
+                .product(name: "MapCoreSharedModuleCpp", package: "maps-core")
             ],
             path: "shared",
             sources: ["src"],
