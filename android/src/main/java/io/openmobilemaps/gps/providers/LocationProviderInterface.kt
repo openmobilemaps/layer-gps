@@ -10,9 +10,12 @@
 
 package io.openmobilemaps.gps.providers
 
+import io.openmobilemaps.mapscore.shared.map.coordinates.Coord
+
 interface LocationProviderInterface {
 	fun registerLocationUpdateListener(locationUpdateListener: LocationUpdateListener)
 	fun unregisterLocationUpdateListener(locationUpdateListener: LocationUpdateListener)
 	fun onListenerRequestParametersChanged()
 	fun notifyLocationPermissionGranted()
+	fun getLastLocation(): Coord?
 }

@@ -12,8 +12,9 @@
 import MapCore
 import Foundation
 import UIKit
+import SwiftUI
 
-public class MCGpsLayer: NSObject {
+public class MCGpsLayer: NSObject, @unchecked Sendable {
     open private(set) var nativeLayer: MCGpsLayerInterface!
 
     private var callbackHandler = MCGpsCallbackHandler()
@@ -32,8 +33,10 @@ public class MCGpsLayer: NSObject {
 
     public init(style: MCGpsStyleInfoInterface = .defaultStyle,
                 canAskForPermission: Bool = true,
-                nativeLayerProvider: ((MCGpsStyleInfoInterface) -> MCGpsLayerInterface?) = MCGpsLayerInterface.create) {
+                nativeLayerProvider: ((MCGpsStyleInfoInterface) -> MCGpsLayerInterface?) = MCGpsLayerInterface.create,
+                layerIndex: Int? = nil) {
         nativeLayer = nativeLayerProvider(style)
+        self.layerIndex = layerIndex
 
         super.init()
 
@@ -51,10 +54,19 @@ public class MCGpsLayer: NSObject {
     public func asLayerInterface() -> MCLayerInterface? {
         nativeLayer.asLayerInterface()
     }
+
+    public var interface: MCLayerInterface? {
+        return nativeLayer?.asLayerInterface()
+    }
+
+    public var layerIndex: Int?
 }
+
+extension MCGpsLayer: Layer, ObservableObject {}
 
 public extension MCGpsStyleInfoInterface {
     static var defaultStyle: MCGpsStyleInfoInterface {
+
         guard let pointImage = UIImage(resource: .icGpsPoint).cgImage,
               let pointTexture = try? TextureHolder(pointImage),
               let headingImage = UIImage(resource: .icGpsDirection).cgImage,
