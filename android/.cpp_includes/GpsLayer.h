@@ -108,7 +108,7 @@ public:
 
     void onMapInteraction() override;
 
-    void onCameraChange(const std::vector<float> & viewMatrix, const std::vector<float> & projectionMatrix, float verticalFov, float horizontalFov, float width, float height, float focusPointAltitude, const ::Coord & focusPointPosition) override {};
+    void onCameraChange(const std::vector<float> & viewMatrix, const std::vector<float> & projectionMatrix, const ::Vec3D & origin, float verticalFov, float horizontalFov, float width, float height, float focusPointAltitude, const ::Coord & focusPointPosition, float zoom) override {};
 
 private:
     virtual void updatePosition(const Coord &position, double horizontalAccuracyM, bool isInitialFollow);
@@ -128,6 +128,7 @@ private:
 
     std::optional<Coord> position = std::nullopt;
     double horizontalAccuracyMapUnits = 0;
+    std::atomic_flag accuracyChanged = ATOMIC_FLAG_INIT;
     float angleHeading = 0;
 
     GpsMode mode = GpsMode::DISABLED;
