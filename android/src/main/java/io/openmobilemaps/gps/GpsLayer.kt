@@ -45,11 +45,13 @@ class GpsLayer(
 		providerType: GpsProviderType,
 	) : this(context, style, providerType.getProvider(context))
 
-	private var locationProvider: LocationProviderInterface? = initialLocationProvider
-	private var compassProvider: CompassProvider? = CompassProvider.getInstance(context)
-	private var layerInterface: GpsLayerInterface? = GpsLayerInterface.create(style).apply {
+	var layerInterface: GpsLayerInterface? = GpsLayerInterface.create(style).apply {
 		setCallbackHandler(this@GpsLayer)
 	}
+		private set
+
+	private var locationProvider: LocationProviderInterface? = initialLocationProvider
+	private var compassProvider: CompassProvider? = CompassProvider.getInstance(context)
 
 	private var lifecycle: Lifecycle? = null
 	private var isHeadingEnabled = true

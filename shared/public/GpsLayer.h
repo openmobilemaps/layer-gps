@@ -128,6 +128,7 @@ private:
 
     std::optional<Coord> position = std::nullopt;
     double horizontalAccuracyMapUnits = 0;
+    std::atomic_flag accuracyChanged = ATOMIC_FLAG_INIT;
     float angleHeading = 0;
 
     GpsMode mode = GpsMode::DISABLED;
