@@ -1,7 +1,7 @@
 # Changelog for Open Mobile Maps
 
 ## Version 3.0.0
-- Update and adjust to [mapscore 3.0.0-rc.4](https://github.com/openmobilemaps/maps-core/releases/tag/3.0.0-rc.4) including support for 3d globe rendering
+- Update and adjust to [mapscore 3.0.0-rc.5](https://github.com/openmobilemaps/maps-core/releases/tag/3.0.0-rc.5) including support for 3d globe rendering
 - Update to AGP 8.7.2 and Kotlin 2.0.21
 
 ## Version 2.6.2
