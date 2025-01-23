@@ -116,6 +116,14 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM,
 
     Coord newPosition = mapInterface->getCoordinateConverterHelper()->convert(
             mapInterface->getMapConfig().mapCoordinateSystem.identifier, position);
+    if (this->position.has_value()) {
+        Coord positionWgs = mapInterface->getCoordinateConverterHelper()->convert(CoordinateSystemIdentifiers::EPSG4326(), position);
+        Coord oldPosition = mapInterface->getCoordinateConverterHelper()->convert(CoordinateSystemIdentifiers::EPSG4326(), *this->position);
+        double minMoveDistance = 0.000001;
+        if (abs(positionWgs.x - oldPosition.x) < minMoveDistance && abs(positionWgs.y - oldPosition.y) < minMoveDistance) {
+            return;
+        }
+    }
 
     // ignore position altitude
     newPosition.z = 0.0;
