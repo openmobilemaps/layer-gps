@@ -46,6 +46,8 @@ class GoogleFusedLocationProvider private constructor(context: Context) : Locati
 			}
 		}
 		fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+		lastLocation = runCatching { fusedLocationClient.lastLocation.result }.getOrNull()
 	}
 
 	override fun registerLocationUpdateListener(locationUpdateListener: LocationUpdateListener) {

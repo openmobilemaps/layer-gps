@@ -38,6 +38,10 @@ internal class GpsOnlyLocationProvider private constructor(context: Context) : L
 		}
 	}
 
+	init {
+		lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+	}
+
 	override fun registerLocationUpdateListener(locationUpdateListener: LocationUpdateListener) {
 		locationUpdateListeners.add(locationUpdateListener)
 		updateLocationUpdateRequest()
