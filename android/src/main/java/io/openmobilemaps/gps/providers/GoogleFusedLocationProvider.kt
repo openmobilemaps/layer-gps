@@ -20,6 +20,7 @@ import io.openmobilemaps.gps.util.SingletonHolder
 import io.openmobilemaps.mapscore.shared.map.coordinates.Coord
 import io.openmobilemaps.mapscore.shared.map.coordinates.CoordinateSystemIdentifiers
 
+@SuppressLint("MissingPermission")
 class GoogleFusedLocationProvider private constructor(context: Context) : LocationProviderInterface {
 
 	companion object : SingletonHolder<GoogleFusedLocationProvider, Context>(::GoogleFusedLocationProvider) {
@@ -41,17 +42,27 @@ class GoogleFusedLocationProvider private constructor(context: Context) : Locati
 		locationRequest.fastestInterval = DEFAULT_FASTEST_INTERVAL
 		locationCallback = object : LocationCallback() {
 			override fun onLocationResult(locationResult: LocationResult) {
-				lastLocation = locationResult.lastLocation
-				publishLocationUpdate(lastLocation)
+				publishLocationUpdate(locationResult.lastLocation)
 			}
 		}
 		fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+		try {
+			fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+				if (location != null) {
+					publishLocationUpdate(location)
+				}
+			}
+		} catch (e: Exception) {
+			// Ignore
+		}
 	}
 
 	override fun registerLocationUpdateListener(locationUpdateListener: LocationUpdateListener) {
-		val firstListener = locationUpdateListeners.isEmpty()
+		val isFirstListener = locationUpdateListeners.isEmpty()
 		locationUpdateListeners.add(locationUpdateListener)
-		updateRequestParameters(firstListener)
+		lastLocation?.let { locationUpdateListener.onLocationUpdate(it) }
+		updateRequestParameters(isFirstListener)
 	}
 
 	override fun unregisterLocationUpdateListener(locationUpdateListener: LocationUpdateListener) {
@@ -76,7 +87,7 @@ class GoogleFusedLocationProvider private constructor(context: Context) : Locati
 	}
 
 	@SuppressLint("MissingPermission")
-	private fun updateRequestParameters(firstListener: Boolean) {
+	private fun updateRequestParameters(isFirstListener: Boolean) {
 		var newPriority = Int.MAX_VALUE
 		var newInterval = Long.MAX_VALUE
 		for (listener in locationUpdateListeners) {
@@ -100,7 +111,7 @@ class GoogleFusedLocationProvider private constructor(context: Context) : Locati
 						Looper.getMainLooper()
 					)
 				}
-		} else if (firstListener) {
+		} else if (isFirstListener) {
 			fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
 		}
 	}
