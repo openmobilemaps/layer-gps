@@ -31,19 +31,20 @@ internal class GpsOnlyLocationProvider private constructor(context: Context) : L
 
 	private val locationChangeListener: LocationListener = object : LocationListenerAdapter() {
 		override fun onLocationChanged(location: Location) {
-			lastLocation = location
-			locationUpdateListeners.forEach {
-				it.onLocationUpdate(location)
-			}
+			publishLocationUpdate(location)
 		}
 	}
 
 	init {
-		lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+		val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+		if (lastKnownLocation != null) {
+			publishLocationUpdate(lastKnownLocation)
+		}
 	}
 
 	override fun registerLocationUpdateListener(locationUpdateListener: LocationUpdateListener) {
 		locationUpdateListeners.add(locationUpdateListener)
+		lastLocation?.let { locationUpdateListener.onLocationUpdate(it) }
 		updateLocationUpdateRequest()
 	}
 
@@ -68,6 +69,15 @@ internal class GpsOnlyLocationProvider private constructor(context: Context) : L
 		locationManager.removeUpdates(locationChangeListener)
 		val shortestInterval = locationUpdateListeners.minOf { it.preferredInterval }
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, shortestInterval, 0f, locationChangeListener)
+	}
+
+	private fun publishLocationUpdate(location: Location?) {
+		lastLocation = location
+		location?.let {
+			locationUpdateListeners.forEach { listener ->
+				listener.onLocationUpdate(it)
+			}
+		}
 	}
 
 	override fun getLastLocation(): Coord? {
