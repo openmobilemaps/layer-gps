@@ -8,11 +8,11 @@
  *  SPDX-License-Identifier: MPL-2.0
  */
 
+import Foundation
 @_exported import LayerGpsSharedModule
 import MapCore
-import Foundation
-import UIKit
 import SwiftUI
+import UIKit
 
 public class MCGpsLayer: NSObject, @unchecked Sendable {
     open private(set) var nativeLayer: MCGpsLayerInterface!
@@ -31,10 +31,12 @@ public class MCGpsLayer: NSObject, @unchecked Sendable {
         }
     }
 
-    public init(style: MCGpsStyleInfoInterface = .defaultStyle,
-                canAskForPermission: Bool = true,
-                nativeLayerProvider: ((MCGpsStyleInfoInterface) -> MCGpsLayerInterface?) = MCGpsLayerInterface.create,
-                layerIndex: Int? = nil) {
+    public init(
+        style: MCGpsStyleInfoInterface = .defaultStyle,
+        canAskForPermission: Bool = true,
+        nativeLayerProvider: ((MCGpsStyleInfoInterface) -> MCGpsLayerInterface?) = MCGpsLayerInterface.create,
+        layerIndex: Int? = nil
+    ) {
         nativeLayer = nativeLayerProvider(style)
         self.layerIndex = layerIndex
 
@@ -68,9 +70,10 @@ public extension MCGpsStyleInfoInterface {
     static var defaultStyle: MCGpsStyleInfoInterface {
 
         guard let pointImage = UIImage(resource: .icGpsPoint).cgImage,
-              let pointTexture = try? TextureHolder(pointImage),
-              let headingImage = UIImage(resource: .icGpsDirection).cgImage,
-              let headingTexture = try? TextureHolder(headingImage) else {
+            let pointTexture = try? TextureHolder(pointImage),
+            let headingImage = UIImage(resource: .icGpsDirection).cgImage,
+            let headingTexture = try? TextureHolder(headingImage)
+        else {
             fatalError("gps style assets not found")
         }
 
