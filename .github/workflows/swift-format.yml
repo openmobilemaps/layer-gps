@@ -50,7 +50,7 @@ jobs:
       - name: Add commit for swift-format
         if: env.swift_files_changes == 'true'
         run: |
-          git add *.swift
+          git add '**/*.swift'
           git commit -m "[Generated] swift-format"
           # Store the commit hash for later use
           echo "FORMAT_COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
