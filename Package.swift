@@ -23,7 +23,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/openmobilemaps/maps-core", .upToNextMajor(from: "3.0.0")),
+        .package(url: "https://github.com/openmobilemaps/maps-core", .upToNextMajor(from: "3.1.0")),
         .package(url: "https://github.com/UbiqueInnovation/ubkit-ios", .upToNextMajor(from: "2.0.0")),
     ],
     targets: [
