@@ -85,7 +85,7 @@ public extension MCGpsStyleInfoInterface {
     }
 }
 
-private class MCGpsCallbackHandler: MCGpsLayerCallbackInterface {
+private class MCGpsCallbackHandler: MCGpsLayerCallbackInterface, @unchecked Sendable {
     var modeDidChangeCallback: ((_ mode: MCGpsMode) -> Void)?
     var onPointClickCallback: ((_ coordinate: MCCoord) -> Void)?
 
