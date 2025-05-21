@@ -2,7 +2,7 @@ import CoreLocation
 import UBLocation
 import UIKit
 
-private var binders: [LocationManagerLayerBinder] = []
+nonisolated(unsafe) private var binders: [LocationManagerLayerBinder] = []
 private let bindersQueue = DispatchQueue(label: "ch.layergps.ublocationbindersQueue")
 
 public extension UBLocationManager {
@@ -22,7 +22,7 @@ public extension UBLocationManager {
     }
 }
 
-public class LocationManagerLayerBinder: NSObject {
+public class LocationManagerLayerBinder: NSObject, @unchecked Sendable {
     weak var layer: MCGpsLayer?
     public init(layer: MCGpsLayer) {
         self.layer = layer
