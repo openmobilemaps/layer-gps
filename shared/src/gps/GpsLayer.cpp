@@ -114,8 +114,10 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM,
     }
     positionValid = true;
 
+    const auto mapCoordinateSystem = mapInterface->getMapConfig().mapCoordinateSystem;
+
     Coord newPosition = mapInterface->getCoordinateConverterHelper()->convert(
-            mapInterface->getMapConfig().mapCoordinateSystem.identifier, position);
+                mapCoordinateSystem.identifier, position);
 
     // ignore position altitude
     newPosition.z = 0.0;
@@ -130,11 +132,21 @@ void GpsLayer::updatePosition(const Coord &position, double horizontalAccuracyM,
         }
     }
 
+    // skip update for small position changes
+    auto threshold = mapCoordinateSystem.unitToScreenMeterFactor * 10;
+    if (this->position &&
+        abs(newPosition.x - this->position->x) < threshold &&
+        abs(newPosition.y - this->position->y) < threshold &&
+        abs(newPosition.z - this->position->z) < threshold) {
+        return;
+    }
+
+
     this->position = newPosition;
     if (this->horizontalAccuracyMapUnits != horizontalAccuracyM) {
         accuracyChanged.clear();
     }
-    this->horizontalAccuracyMapUnits = horizontalAccuracyM * mapInterface->getMapConfig().mapCoordinateSystem.unitToScreenMeterFactor;
+    this->horizontalAccuracyMapUnits = horizontalAccuracyM * mapCoordinateSystem.unitToScreenMeterFactor;
 
 
     // only invalidate if the position is visible
