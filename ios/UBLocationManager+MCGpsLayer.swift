@@ -46,6 +46,7 @@ extension LocationManagerLayerBinder: UBLocationManagerDelegate {
     public func locationManager(_ manager: UBLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
 
+        layer?.nativeLayer.setMode(.STANDARD)
         layer?.nativeLayer.setDrawPoint(manager.accuracyLevel == .full)
         layer?.nativeLayer.setDrawHeading(manager.accuracyLevel == .full)
 
