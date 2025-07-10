@@ -722,7 +722,7 @@ std::vector<float> GpsLayer::computeModelMatrix(bool scaleInvariant, double obje
         }
 
         // Translate to final position in 2d space
-        Coord renderCoord = mapInterface ? mapInterface->getCoordinateConverterHelper()->convertToRenderSystem(*position) :
+        Coord renderCoord = mapInterface ? mapInterface->getCoordinateConverterHelper()->convertToRenderSystem(*currentPosition) :
                             Coord(CoordinateSystemIdentifiers::RENDERSYSTEM(), 0.0, 0.0, 0.0);
         std::vector<float> trMatrix(16, 0);
         Matrix::setIdentityM(trMatrix, 0);
