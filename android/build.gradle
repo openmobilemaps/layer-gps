@@ -17,8 +17,8 @@ buildscript {
 	}
 
 	ext{
-		agp_version = "8.8.1"
-		kotlin_version = "2.1.10"
+		agp_version = "8.11.0"
+		kotlin_version = "2.2.0"
 
 		ubiqueUrl = System.getenv('UB_ARTIFACTORY_URL_ANDROID') ?: readPropertyWithDefault('ubiqueMavenUrl', '')
 		ubiqueUser = System.getenv('UB_ARTIFACTORY_USER') ?: readPropertyWithDefault('ubiqueMavenUser', '')
@@ -64,11 +64,11 @@ import com.vanniktech.maven.publish.SonatypeHost
 android {
 	namespace "io.openmobilemaps.gps"
 
-	compileSdkVersion 34
+	compileSdkVersion 35
 
 	defaultConfig {
 		minSdkVersion 26
-		targetSdkVersion 34
+		targetSdkVersion 35
 		versionCode Integer.parseInt(VERSION_CODE)
 		versionName VERSION_NAME
 
@@ -204,7 +204,7 @@ mavenPublishing {
 dependencies {
 
 	implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-	implementation 'androidx.core:core-ktx:1.13.1'
+	implementation 'androidx.core:core-ktx:1.16.0'
 	implementation 'com.google.android.gms:play-services-location:21.3.0'
 
 	api 'io.openmobilemaps:mapscore:3.3.0'
