@@ -1,5 +1,8 @@
 # Changelog for Open Mobile Maps
 
+## Version 3.3.0
+- Update and adjust to [mapscore 3.3.0](https://github.com/openmobilemaps/maps-core/releases/tag/3.3.0)
+
 ## Version 3.2.1
 - Update and adjust to [mapscore 3.2.1](https://github.com/openmobilemaps/maps-core/releases/tag/3.2.1)
 - Fixed a concurrency issue when updating/rendering the GPS position

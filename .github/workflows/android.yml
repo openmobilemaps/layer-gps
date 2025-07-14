@@ -3,6 +3,7 @@ name: android
 on:
   pull_request:
     branches: [ main, develop, release/** ]
+  workflow_dispatch:
 
 jobs:
   build:
