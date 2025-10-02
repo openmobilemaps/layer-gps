@@ -1,5 +1,8 @@
 # Changelog for Open Mobile Maps
 
+## Version 3.6.0
+- Update and adjust to [mapscore 3.6.0](https://github.com/openmobilemaps/maps-core/releases/tag/3.6.0)
+
 ## Version 3.5.0
 - Update and adjust to [mapscore 3.5.0](https://github.com/openmobilemaps/maps-core/releases/tag/3.5.0)
 - Support for 16KB page size on Android (including the upgrade to target sdk 36 of the containing project)
