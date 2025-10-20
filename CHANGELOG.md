@@ -1,5 +1,10 @@
 # Changelog for Open Mobile Maps
 
+## Version 2.6.0-16kB
+- Update and adjust to [mapscore 2.6.0-16kB](https://github.com/openmobilemaps/maps-core/releases/tag/2.6.0-16kB)
+- Update to AGP 8.6.1
+- Support for 16KB page sizes on Android
+
 ## Version 2.6.0
 - Update and adjust to [mapscore 2.6.0](https://github.com/openmobilemaps/maps-core/releases/tag/2.6.0)
 - Increases Deployment target to iOS 14
