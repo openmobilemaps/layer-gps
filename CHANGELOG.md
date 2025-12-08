@@ -2,6 +2,7 @@
 
 ## Version 3.7.0
 - Update and adjust to [mapscore 3.7.0](https://github.com/openmobilemaps/maps-core/releases/tag/3.7.0)
+- Update to AGP 8.13.1
 
 ## Version 3.6.0
 - Update and adjust to [mapscore 3.6.0](https://github.com/openmobilemaps/maps-core/releases/tag/3.6.0)
