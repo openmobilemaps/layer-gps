@@ -14,6 +14,7 @@ while [ -h "$loc" ]; do
     fi
 done
 base_dir=$(cd "`dirname "$loc"`" && pwd)
+cd "$base_dir"
 
 JAVA_PACKAGE="io.openmobilemaps.gps.shared"
 PROJECT_PREFIX="MC"
@@ -27,6 +28,13 @@ OBJCPP_OUT="$DJINNI_OUT_DIR/ios"
 KOTLIN_OUT="$DJINNI_OUT_DIR/android/java/io/openmobilemaps/gps/shared"
 JNI_OUT="$DJINNI_OUT_DIR/android/jni"
 
+KMP_COMMON_OUT="$base_dir/../bridging/kmp/commonMain/kotlin/io/openmobilemaps/gps/kmp"
+KMP_ANDROID_OUT="$base_dir/../bridging/kmp/androidMain/kotlin/io/openmobilemaps/gps/kmp"
+KMP_IOS_OUT="$base_dir/../bridging/kmp/iosMain/kotlin/io/openmobilemaps/gps/kmp"
+KMP_PACKAGE="io.openmobilemaps.gps.kmp"
+KMP_IOS_MODULE="LayerGpsSharedModule"
+KMP_BRIDGE_PREFIX="KM"
+
 CPP_OUT="../shared/public"
 HPP_EXT="h"
 
@@ -37,7 +45,7 @@ IDENT_CPP_METHOD="fooBar"
 IDENT_JNI_CLASS="NativeFooBar"
 IDENT_JAVA="fooBar"
 
-for dir in "$OBJCPP_OUT" "$OBJC_OUT" "$JNI_OUT" "$KOTLIN_OUT"; do
+for dir in "$OBJCPP_OUT" "$OBJC_OUT" "$JNI_OUT" "$KOTLIN_OUT" "$KMP_COMMON_OUT" "$KMP_ANDROID_OUT" "$KMP_IOS_OUT"; do
         if [ -e "$dir" ]; then
             echo "Deleting \"$dir\"..."
             rm -r "$dir"
@@ -75,6 +83,14 @@ for file in $(find . -name "*.djinni" -type f -print); do
         --ident-java-field "$IDENT_JAVA" \
         --ident-java-enum "$IDENT_CPP_ENUM" \
         \
+        --kotlin-kmp-common-out "$KMP_COMMON_OUT" \
+        --kotlin-kmp-android-out "$KMP_ANDROID_OUT" \
+        --kotlin-kmp-ios-out "$KMP_IOS_OUT" \
+        --kotlin-kmp-package "$KMP_PACKAGE" \
+        --kotlin-kmp-ios-module "$KMP_IOS_MODULE" \
+        --kotlin-kmp-bridge-prefix "$KMP_BRIDGE_PREFIX" \
+        --kotlin-kmp-objc-name-prefix "$KMP_BRIDGE_PREFIX" \
+        \
         --cpp-out "$CPP_OUT" \
         --hpp-ext "$HPP_EXT" \
         --ident-cpp-type "$IDENT_CPP" \
@@ -99,6 +115,14 @@ for file in $(find . -name "*.djinni" -type f -print); do
         --idl "$file"
     
 
+done
+
+for dir in "$KMP_COMMON_OUT" "$KMP_ANDROID_OUT" "$KMP_IOS_OUT"; do
+    for base in DataRef Future MapInterfaceBridge; do
+        if [ -f "$dir/$base.kt" ]; then
+            mv "$dir/$base.kt" "$dir/KM$base.kt"
+        fi
+    done
 done
 
 echo "Deleting untouched yaml files"
