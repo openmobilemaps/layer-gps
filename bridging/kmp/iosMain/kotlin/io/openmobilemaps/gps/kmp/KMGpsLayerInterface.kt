@@ -83,7 +83,7 @@ actual class KMGpsLayerInterface actual public constructor(
 
     actual fun asLayerInterface(): KMLayerInterface {
         val result = native.asLayerInterface()
-        return requireNotNull((result as LayerGpsSharedModule.MCLayerInterfaceProtocol)).asKmp()
+        return (result as LayerGpsSharedModule.MCLayerInterfaceProtocol).asKmp()
     }
 
     actual companion object
@@ -91,10 +91,10 @@ actual class KMGpsLayerInterface actual public constructor(
 
         actual fun create(styleInfo: KMGpsStyleInfoInterface): KMGpsLayerInterface {
             val result = LayerGpsSharedModule.MCGpsLayerInterface.create(styleInfo.asPlatform())
-            return requireNotNull((result as LayerGpsSharedModule.MCGpsLayerInterface)).asKmp()
+            return (result as LayerGpsSharedModule.MCGpsLayerInterface).asKmp()
         }
     }
 }
 
 internal fun KMGpsLayerInterface.asPlatform(): LayerGpsSharedModule.MCGpsLayerInterface = nativeHandle as LayerGpsSharedModule.MCGpsLayerInterface
-internal fun LayerGpsSharedModule.MCGpsLayerInterface.asKmp(): KMGpsLayerInterface = KMGpsLayerInterface(this)
+public fun LayerGpsSharedModule.MCGpsLayerInterface.asKmp(): KMGpsLayerInterface = KMGpsLayerInterface(this)

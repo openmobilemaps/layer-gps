@@ -18,17 +18,17 @@ actual class KMGpsStyleInfoInterface actual public constructor(
 
     actual fun getPointTexture(): KMTextureHolderInterface {
         val result = native.getPointTexture()
-        return requireNotNull((result as LayerGpsSharedModule.MCTextureHolderInterfaceProtocol)).asKmp()
+        return (result as LayerGpsSharedModule.MCTextureHolderInterfaceProtocol).asKmp()
     }
 
     actual fun getHeadingTexture(): KMTextureHolderInterface? {
         val result = native.getHeadingTexture()
-        return result?.let { requireNotNull((it as LayerGpsSharedModule.MCTextureHolderInterfaceProtocol)).asKmp() }
+        return result?.let { (it as LayerGpsSharedModule.MCTextureHolderInterfaceProtocol).asKmp() }
     }
 
     actual fun getCourseTexture(): KMTextureHolderInterface? {
         val result = native.getCourseTexture()
-        return result?.let { requireNotNull((it as LayerGpsSharedModule.MCTextureHolderInterfaceProtocol)).asKmp() }
+        return result?.let { (it as LayerGpsSharedModule.MCTextureHolderInterfaceProtocol).asKmp() }
     }
 
     actual fun getAccuracyColor(): KMColor {
@@ -41,10 +41,10 @@ actual class KMGpsStyleInfoInterface actual public constructor(
 
         actual fun create(pointTexture: KMTextureHolderInterface?, headingTexture: KMTextureHolderInterface?, courseTexture: KMTextureHolderInterface?, accuracyColor: KMColor): KMGpsStyleInfoInterface {
             val result = LayerGpsSharedModule.MCGpsStyleInfoInterface.create(pointTexture?.let { it.asPlatform() }, headingTexture?.let { it.asPlatform() }, courseTexture?.let { it.asPlatform() }, accuracyColor.asPlatform())
-            return requireNotNull((result as LayerGpsSharedModule.MCGpsStyleInfoInterface)).asKmp()
+            return (result as LayerGpsSharedModule.MCGpsStyleInfoInterface).asKmp()
         }
     }
 }
 
 internal fun KMGpsStyleInfoInterface.asPlatform(): LayerGpsSharedModule.MCGpsStyleInfoInterface = nativeHandle as LayerGpsSharedModule.MCGpsStyleInfoInterface
-internal fun LayerGpsSharedModule.MCGpsStyleInfoInterface.asKmp(): KMGpsStyleInfoInterface = KMGpsStyleInfoInterface(this)
+public fun LayerGpsSharedModule.MCGpsStyleInfoInterface.asKmp(): KMGpsStyleInfoInterface = KMGpsStyleInfoInterface(this)

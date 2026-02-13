@@ -3,25 +3,27 @@
 
 package io.openmobilemaps.gps.kmp
 
+import io.openmobilemaps.gps.shared.gps.GpsStyleInfoInterface
+
 actual class KMGpsStyleInfoInterface actual public constructor(
     nativeHandle: Any,
 ) {
     internal val nativeHandle: Any = nativeHandle
-    private val native = nativeHandle as io.openmobilemaps.gps.shared.gps.GpsStyleInfoInterface
+    private val native = nativeHandle as GpsStyleInfoInterface
 
     actual fun getPointTexture(): KMTextureHolderInterface {
         val result = native.getPointTexture()
-        return requireNotNull((result as io.openmobilemaps.mapscore.shared.graphics.objects.TextureHolderInterface)).asKmp()
+        return (result as io.openmobilemaps.mapscore.shared.graphics.objects.TextureHolderInterface).asKmp()
     }
 
     actual fun getHeadingTexture(): KMTextureHolderInterface? {
         val result = native.getHeadingTexture()
-        return result?.let { requireNotNull((it as io.openmobilemaps.mapscore.shared.graphics.objects.TextureHolderInterface)).asKmp() }
+        return result?.let { (it as io.openmobilemaps.mapscore.shared.graphics.objects.TextureHolderInterface).asKmp() }
     }
 
     actual fun getCourseTexture(): KMTextureHolderInterface? {
         val result = native.getCourseTexture()
-        return result?.let { requireNotNull((it as io.openmobilemaps.mapscore.shared.graphics.objects.TextureHolderInterface)).asKmp() }
+        return result?.let { (it as io.openmobilemaps.mapscore.shared.graphics.objects.TextureHolderInterface).asKmp() }
     }
 
     actual fun getAccuracyColor(): KMColor {
@@ -33,11 +35,11 @@ actual class KMGpsStyleInfoInterface actual public constructor(
     {
 
         actual fun create(pointTexture: KMTextureHolderInterface?, headingTexture: KMTextureHolderInterface?, courseTexture: KMTextureHolderInterface?, accuracyColor: KMColor): KMGpsStyleInfoInterface {
-            val result = io.openmobilemaps.gps.shared.gps.GpsStyleInfoInterface.create(pointTexture?.let { it.asPlatform() }, headingTexture?.let { it.asPlatform() }, courseTexture?.let { it.asPlatform() }, accuracyColor.asPlatform())
-            return requireNotNull((result as io.openmobilemaps.gps.shared.gps.GpsStyleInfoInterface)).asKmp()
+            val result = GpsStyleInfoInterface.create(pointTexture?.let { it.asPlatform() }, headingTexture?.let { it.asPlatform() }, courseTexture?.let { it.asPlatform() }, accuracyColor.asPlatform())
+            return (result as io.openmobilemaps.gps.shared.gps.GpsStyleInfoInterface).asKmp()
         }
     }
 }
 
-internal fun KMGpsStyleInfoInterface.asPlatform(): io.openmobilemaps.gps.shared.gps.GpsStyleInfoInterface = nativeHandle as io.openmobilemaps.gps.shared.gps.GpsStyleInfoInterface
-internal fun io.openmobilemaps.gps.shared.gps.GpsStyleInfoInterface.asKmp(): KMGpsStyleInfoInterface = KMGpsStyleInfoInterface(this)
+internal fun KMGpsStyleInfoInterface.asPlatform(): GpsStyleInfoInterface = nativeHandle as GpsStyleInfoInterface
+public fun GpsStyleInfoInterface.asKmp(): KMGpsStyleInfoInterface = KMGpsStyleInfoInterface(this)

@@ -3,11 +3,13 @@
 
 package io.openmobilemaps.gps.kmp
 
+import io.openmobilemaps.gps.shared.gps.GpsLayerInterface
+
 actual class KMGpsLayerInterface actual public constructor(
     nativeHandle: Any,
 ) {
     internal val nativeHandle: Any = nativeHandle
-    private val native = nativeHandle as io.openmobilemaps.gps.shared.gps.GpsLayerInterface
+    private val native = nativeHandle as GpsLayerInterface
 
     actual fun setCallbackHandler(handler: KMGpsLayerCallbackInterface) {
         native.setCallbackHandler(handler.asPlatform())
@@ -76,18 +78,18 @@ actual class KMGpsLayerInterface actual public constructor(
 
     actual fun asLayerInterface(): KMLayerInterface {
         val result = native.asLayerInterface()
-        return requireNotNull((result as io.openmobilemaps.mapscore.shared.map.LayerInterface)).asKmp()
+        return (result as io.openmobilemaps.mapscore.shared.map.LayerInterface).asKmp()
     }
 
     actual companion object
     {
 
         actual fun create(styleInfo: KMGpsStyleInfoInterface): KMGpsLayerInterface {
-            val result = io.openmobilemaps.gps.shared.gps.GpsLayerInterface.create(styleInfo.asPlatform())
-            return requireNotNull((result as io.openmobilemaps.gps.shared.gps.GpsLayerInterface)).asKmp()
+            val result = GpsLayerInterface.create(styleInfo.asPlatform())
+            return (result as io.openmobilemaps.gps.shared.gps.GpsLayerInterface).asKmp()
         }
     }
 }
 
-internal fun KMGpsLayerInterface.asPlatform(): io.openmobilemaps.gps.shared.gps.GpsLayerInterface = nativeHandle as io.openmobilemaps.gps.shared.gps.GpsLayerInterface
-internal fun io.openmobilemaps.gps.shared.gps.GpsLayerInterface.asKmp(): KMGpsLayerInterface = KMGpsLayerInterface(this)
+internal fun KMGpsLayerInterface.asPlatform(): GpsLayerInterface = nativeHandle as GpsLayerInterface
+public fun GpsLayerInterface.asKmp(): KMGpsLayerInterface = KMGpsLayerInterface(this)

@@ -6,4 +6,4 @@ package io.openmobilemaps.gps.kmp
 actual typealias KMGpsCourseInfo = io.openmobilemaps.gps.shared.gps.GpsCourseInfo
 
 internal fun KMGpsCourseInfo.asPlatform(): io.openmobilemaps.gps.shared.gps.GpsCourseInfo = this
-internal fun io.openmobilemaps.gps.shared.gps.GpsCourseInfo.asKmp(): KMGpsCourseInfo = this
+public fun io.openmobilemaps.gps.shared.gps.GpsCourseInfo.asKmp(): KMGpsCourseInfo = this

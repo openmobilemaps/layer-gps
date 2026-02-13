@@ -47,4 +47,4 @@ internal fun KMGpsLayerCallbackInterface.asPlatform(): LayerGpsSharedModule.MCGp
     is KMGpsLayerCallbackInterfacePlatformWrapper -> this.nativeHandle
     else -> KMGpsLayerCallbackInterfacePlatformProxy(this)
 }
-internal fun LayerGpsSharedModule.MCGpsLayerCallbackInterfaceProtocol.asKmp(): KMGpsLayerCallbackInterface = KMGpsLayerCallbackInterfacePlatformWrapper(this)
+public fun LayerGpsSharedModule.MCGpsLayerCallbackInterfaceProtocol.asKmp(): KMGpsLayerCallbackInterface = KMGpsLayerCallbackInterfacePlatformWrapper(this)

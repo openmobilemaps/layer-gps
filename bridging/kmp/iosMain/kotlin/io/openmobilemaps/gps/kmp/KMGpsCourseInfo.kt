@@ -22,7 +22,7 @@ internal fun KMGpsCourseInfo.asPlatform(): LayerGpsSharedModule.MCGpsCourseInfo 
     angle = angle,
     scaling = scaling,
 )
-internal fun LayerGpsSharedModule.MCGpsCourseInfo.asKmp(): KMGpsCourseInfo = KMGpsCourseInfo(
+public fun LayerGpsSharedModule.MCGpsCourseInfo.asKmp(): KMGpsCourseInfo = KMGpsCourseInfo(
     angle = this.angle,
     scaling = this.scaling,
 )

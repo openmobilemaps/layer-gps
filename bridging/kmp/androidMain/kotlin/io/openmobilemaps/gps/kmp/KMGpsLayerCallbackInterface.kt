@@ -3,6 +3,8 @@
 
 package io.openmobilemaps.gps.kmp
 
+import io.openmobilemaps.gps.shared.gps.GpsLayerCallbackInterface
+
 actual interface KMGpsLayerCallbackInterface
 {
 
@@ -11,7 +13,7 @@ actual interface KMGpsLayerCallbackInterface
     actual fun onPointClick(coordinate: KMCoord)
 }
 
-private class KMGpsLayerCallbackInterfacePlatformWrapper(internal val nativeHandle: io.openmobilemaps.gps.shared.gps.GpsLayerCallbackInterface) : KMGpsLayerCallbackInterface
+private class KMGpsLayerCallbackInterfacePlatformWrapper(internal val nativeHandle: GpsLayerCallbackInterface) : KMGpsLayerCallbackInterface
 {
 
     override fun modeDidChange(mode: KMGpsMode) {
@@ -23,7 +25,7 @@ private class KMGpsLayerCallbackInterfacePlatformWrapper(internal val nativeHand
     }
 }
 
-private class KMGpsLayerCallbackInterfacePlatformProxy(private val delegate: KMGpsLayerCallbackInterface) : io.openmobilemaps.gps.shared.gps.GpsLayerCallbackInterface()
+private class KMGpsLayerCallbackInterfacePlatformProxy(private val delegate: KMGpsLayerCallbackInterface) : GpsLayerCallbackInterface()
 {
 
     override fun modeDidChange(mode: io.openmobilemaps.gps.shared.gps.GpsMode) {
@@ -35,8 +37,8 @@ private class KMGpsLayerCallbackInterfacePlatformProxy(private val delegate: KMG
     }
 }
 
-internal fun KMGpsLayerCallbackInterface.asPlatform(): io.openmobilemaps.gps.shared.gps.GpsLayerCallbackInterface = when (this) {
+internal fun KMGpsLayerCallbackInterface.asPlatform(): GpsLayerCallbackInterface = when (this) {
     is KMGpsLayerCallbackInterfacePlatformWrapper -> this.nativeHandle
     else -> KMGpsLayerCallbackInterfacePlatformProxy(this)
 }
-internal fun io.openmobilemaps.gps.shared.gps.GpsLayerCallbackInterface.asKmp(): KMGpsLayerCallbackInterface = KMGpsLayerCallbackInterfacePlatformWrapper(this)
+public fun GpsLayerCallbackInterface.asKmp(): KMGpsLayerCallbackInterface = KMGpsLayerCallbackInterfacePlatformWrapper(this)

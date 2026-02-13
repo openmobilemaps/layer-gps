@@ -6,4 +6,4 @@ package io.openmobilemaps.gps.kmp
 actual typealias KMGpsMode = io.openmobilemaps.gps.shared.gps.GpsMode
 
 internal fun KMGpsMode.asPlatform(): io.openmobilemaps.gps.shared.gps.GpsMode = this
-internal fun io.openmobilemaps.gps.shared.gps.GpsMode.asKmp(): KMGpsMode = this
+public fun io.openmobilemaps.gps.shared.gps.GpsMode.asKmp(): KMGpsMode = this
