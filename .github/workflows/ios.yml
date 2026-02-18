@@ -1,7 +1,7 @@
 name: ios
 
 env:
-  XCODE_VERSION: 'Xcode_16.4'
+  XCODE_VERSION: 'Xcode_26.0'
 
 on:
   pull_request:
