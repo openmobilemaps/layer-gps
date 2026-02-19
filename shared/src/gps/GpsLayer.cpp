@@ -407,13 +407,13 @@ void GpsLayer::resume() {
     if (centerObject && !centerObject->getGraphicsObject()->isReady()) {
         auto textureCenter = styleInfo->getPointTexture();
         centerObject->getGraphicsObject()->setup(renderingContext);
-        centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
+        centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter, nullptr);
     }
 
     if (headingObject && !headingObject->getGraphicsObject()->isReady()) {
         auto textureHeading = styleInfo->getHeadingTexture();
         headingObject->getGraphicsObject()->setup(renderingContext);
-        headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
+        headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading, nullptr);
     }
 
     if (!accuracyObject->getGraphicsObject()->isReady()) {
@@ -425,7 +425,7 @@ void GpsLayer::resume() {
     if (courseObject && !courseObject->getGraphicsObject()->isReady()) {
         auto textureCourse = styleInfo->getCourseTexture();
         courseObject->getGraphicsObject()->setup(renderingContext);
-        courseObject->getQuadObject()->loadTexture(renderingContext, textureCourse);
+        courseObject->getQuadObject()->loadTexture(renderingContext, textureCourse, nullptr);
     }
 
     if (mask) {
@@ -647,19 +647,19 @@ void GpsLayer::setupLayerObjects() {
 
     if (textureCenter) {
         centerObject->getGraphicsObject()->setup(renderingContext);
-        centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter);
+        centerObject->getQuadObject()->loadTexture(renderingContext, textureCenter, nullptr);
     }
 
     accuracyObject->getGraphicsObject()->setup(renderingContext);
     
     if (textureHeading) {
         headingObject->getGraphicsObject()->setup(renderingContext);
-        headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading);
+        headingObject->getQuadObject()->loadTexture(renderingContext, textureHeading, nullptr);
     }
     
     if (textureCourse) {
         courseObject->getGraphicsObject()->setup(renderingContext);
-        courseObject->getQuadObject()->loadTexture(renderingContext, textureCourse);
+        courseObject->getQuadObject()->loadTexture(renderingContext, textureCourse, nullptr);
     }
     
     mapInterface->invalidate();
