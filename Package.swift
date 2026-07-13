@@ -23,7 +23,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/openmobilemaps/maps-core", .upToNextMajor(from: "3.7.0")),
+        .package(url: "https://github.com/openmobilemaps/maps-core", .upToNextMajor(from: "4.0.0")),
         .package(url: "https://github.com/UbiqueInnovation/ubkit-ios", .upToNextMajor(from: "2.0.0")),
     ],
     targets: [
@@ -58,8 +58,8 @@ let package = Package(
             sources: ["src"],
             publicHeadersPath: "public",
             cxxSettings: [
-                .headerSearchPath("**"),
                 .headerSearchPath("public"),
+                .headerSearchPath("src"),
                 .headerSearchPath("src/gps"),
                 .define("DEBUG", to: "1", .when(configuration: .debug)),
                 .define("NDEBUG", to: "1", .when(configuration: .release)),

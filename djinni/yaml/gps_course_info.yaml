@@ -8,7 +8,11 @@ cpp:
   typename: '::GpsCourseInfo'
   header: '"GpsCourseInfo.h"'
   byValue: false
+kmp:
+  package: 'io.openmobilemaps.layergps.kmp'
+  bridgePrefix: 'KM'
 objc:
+  module: 'swiftPMImport.io.openmobilemaps.layergps.kmp'
   typename: 'MCGpsCourseInfo'
   pointer: true
   hash: '%s.hash'

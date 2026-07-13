@@ -47,7 +47,7 @@ abstract class GpsLayerInterface {
 
     abstract fun asLayerInterface(): io.openmobilemaps.mapscore.shared.map.LayerInterface
 
-    private class CppProxy : GpsLayerInterface {
+    public class CppProxy : GpsLayerInterface {
         private val nativeRef: Long
         private val destroyed: AtomicBoolean = AtomicBoolean(false)
 

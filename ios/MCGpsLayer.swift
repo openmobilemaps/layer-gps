@@ -64,7 +64,7 @@ public class MCGpsLayer: NSObject, @unchecked Sendable {
     public var layerIndex: Int?
 }
 
-extension MCGpsLayer: Layer, ObservableObject {}
+extension MCGpsLayer: MapLayer, ObservableObject {}
 
 public extension MCGpsStyleInfoInterface {
     static var defaultStyle: MCGpsStyleInfoInterface {
