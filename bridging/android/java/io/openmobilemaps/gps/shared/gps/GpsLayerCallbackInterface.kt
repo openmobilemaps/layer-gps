@@ -12,7 +12,7 @@ abstract class GpsLayerCallbackInterface {
 
     abstract fun onPointClick(coordinate: io.openmobilemaps.mapscore.shared.map.coordinates.Coord)
 
-    private class CppProxy : GpsLayerCallbackInterface {
+    public class CppProxy : GpsLayerCallbackInterface {
         private val nativeRef: Long
         private val destroyed: AtomicBoolean = AtomicBoolean(false)
 

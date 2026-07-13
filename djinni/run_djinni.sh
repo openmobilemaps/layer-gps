@@ -26,6 +26,12 @@ OBJCPP_OUT="$DJINNI_OUT_DIR/ios"
 
 KOTLIN_OUT="$DJINNI_OUT_DIR/android/java/io/openmobilemaps/gps/shared"
 JNI_OUT="$DJINNI_OUT_DIR/android/jni"
+KMP_COMMON_OUT="$DJINNI_OUT_DIR/kmp/commonMain/kotlin/io/openmobilemaps/layergps/kmp"
+KMP_ANDROID_OUT="$DJINNI_OUT_DIR/kmp/androidMain/kotlin/io/openmobilemaps/layergps/kmp"
+KMP_IOS_OUT="$DJINNI_OUT_DIR/kmp/iosMain/kotlin/io/openmobilemaps/layergps/kmp"
+KMP_PACKAGE="io.openmobilemaps.layergps.kmp"
+KMP_IOS_MODULE="swiftPMImport.io.openmobilemaps.layergps.kmp"
+KMP_BRIDGE_PREFIX="KM"
 
 CPP_OUT="../shared/public"
 HPP_EXT="h"
@@ -37,7 +43,7 @@ IDENT_CPP_METHOD="fooBar"
 IDENT_JNI_CLASS="NativeFooBar"
 IDENT_JAVA="fooBar"
 
-for dir in "$OBJCPP_OUT" "$OBJC_OUT" "$JNI_OUT" "$KOTLIN_OUT"; do
+for dir in "$OBJCPP_OUT" "$OBJC_OUT" "$JNI_OUT" "$KOTLIN_OUT" "$KMP_COMMON_OUT" "$KMP_ANDROID_OUT" "$KMP_IOS_OUT"; do
         if [ -e "$dir" ]; then
             echo "Deleting \"$dir\"..."
             rm -r "$dir"
@@ -69,11 +75,19 @@ for file in $(find . -name "*.djinni" -type f -print); do
         SUBPOINT=""
     fi
     
-    "$base_dir/../external/djinni/src/run" \
+    "$base_dir/../external/djinni/src/run-assume-built" \
         --kotlin-out "$KOTLIN_OUT/$SUB" \
         --java-package "$JAVA_PACKAGE$SUBPOINT" \
         --ident-java-field "$IDENT_JAVA" \
         --ident-java-enum "$IDENT_CPP_ENUM" \
+        \
+        --kotlin-kmp-common-out "$KMP_COMMON_OUT" \
+        --kotlin-kmp-android-out "$KMP_ANDROID_OUT" \
+        --kotlin-kmp-ios-out "$KMP_IOS_OUT" \
+        --kotlin-kmp-package "$KMP_PACKAGE" \
+        --kotlin-kmp-ios-module "$KMP_IOS_MODULE" \
+        --kotlin-kmp-bridge-prefix "$KMP_BRIDGE_PREFIX" \
+        --kotlin-kmp-objc-name-prefix "$KMP_BRIDGE_PREFIX" \
         \
         --cpp-out "$CPP_OUT" \
         --hpp-ext "$HPP_EXT" \

@@ -1,5 +1,11 @@
 # Changelog for Open Mobile Maps
 
+## Version 4.0.0
+- Update and adjust to [mapscore 4.0.0](https://github.com/openmobilemaps/maps-core/releases/tag/4.0.0)
+- Update to AGP 9.21 and Kotlin 2.4.0
+- Added KMP library version
+- Added web bindings
+
 ## Version 3.7.0
 - Update and adjust to [mapscore 3.7.0](https://github.com/openmobilemaps/maps-core/releases/tag/3.7.0)
 - Update to AGP 8.13.1

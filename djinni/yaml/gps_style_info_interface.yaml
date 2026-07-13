@@ -8,7 +8,11 @@ cpp:
   typename: '::GpsStyleInfoInterface'
   header: '"GpsStyleInfoInterface.h"'
   byValue: false
+kmp:
+  package: 'io.openmobilemaps.layergps.kmp'
+  bridgePrefix: 'KM'
 objc:
+  module: 'swiftPMImport.io.openmobilemaps.layergps.kmp'
   typename: 'MCGpsStyleInfoInterface'
   pointer: true
   hash: '%s.hash'

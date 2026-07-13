@@ -21,7 +21,7 @@ abstract class GpsStyleInfoInterface {
 
     abstract fun getAccuracyColor(): io.openmobilemaps.mapscore.shared.graphics.common.Color
 
-    private class CppProxy : GpsStyleInfoInterface {
+    public class CppProxy : GpsStyleInfoInterface {
         private val nativeRef: Long
         private val destroyed: AtomicBoolean = AtomicBoolean(false)
 
